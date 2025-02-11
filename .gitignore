@@ -1,0 +1,8 @@
+# Ignorar el directorio de módulos de Node.js
+node_modules/
+
+# Otras reglas de ignorado comunes
+.DS_Store
+*.log
+dist/
+build/
