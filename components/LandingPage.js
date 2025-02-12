@@ -862,27 +862,14 @@ const heroSections = [
   {
     title: "CONTACTANOS",
     content: (
-      <div className="w-full max-w-6xl">
-        <div className="flex flex-col gap-8">
+      <div className="w-full max-w-2xl mx-auto"> {/* Reducido el ancho máximo y centrado */}
+        <div className="bg-black bg-opacity-50 p-8 rounded-lg"> {/* Añadido fondo y padding */}
+          <h3 className="text-2xl font-bold mb-6 text-center text-white">Envíanos un mensaje</h3>
           <ContactForm />
-          <div className="grid grid-cols-3 gap-6">
-            <div className="bg-black bg-opacity-50 p-6 rounded-lg">
-              <h3 className="text-2xl font-bold mb-4">Teléfono</h3>
-              <p className="text-lg">+34 123 456 789</p>
-            </div>
-            <div className="bg-black bg-opacity-50 p-6 rounded-lg">
-              <h3 className="text-2xl font-bold mb-4">Email</h3>
-              <p className="text-lg">info@laiesken.com</p>
-            </div>
-            <div className="bg-black bg-opacity-50 p-6 rounded-lg">
-              <h3 className="text-2xl font-bold mb-4">Dirección</h3>
-              <p className="text-lg">Calle Deporte 123, 28001 Madrid</p>
-            </div>
-          </div>
         </div>
       </div>
     )
-  }
+}
 ];
   return (
     <div className="min-h-screen flex flex-col">

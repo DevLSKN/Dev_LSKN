@@ -14,6 +14,7 @@ const emailService = {
         dynamic_template_data: {
           nombre: data.nombre,
           email: data.email,
+		  asunto: data.asunto, 
           mensaje: data.mensaje,
           telefono: data.telefono
         }
