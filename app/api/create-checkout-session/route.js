@@ -5,12 +5,30 @@ import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const STRIPE_PRICE_IDS = {
-  'DAY PASS': 'price_1QrIOgPQf67HyXqEiTRO5gYq',
-  'BONO (5 DAY PASS)': 'price_1QrFUXPQf67HyXqEEK4RnKWe',
-  'BONO (10 DAY PASS)': 'price_1QrDZmPQf67HyXqEqHqtyKRb',
-  'MENSUALIDAD': 'price_ID_de_tu_mensualidad',
-  'ENTRENAMIENTO PERSONAL': 'price_ID_de_tu_entrenamiento',
-  'DIETA + RUTINA': 'price_ID_de_tu_dieta'
+  'DAY PASS': {
+    priceId: 'price_1QrIOgPQf67HyXqEiTRO5gYq',
+    mode: 'payment'
+  },
+  'BONO (5 DAY PASS)': {
+    priceId: 'price_1QrFUXPQf67HyXqEEK4RnKWe',
+    mode: 'payment'
+  },
+  'BONO (10 DAY PASS)': {
+    priceId: 'price_1QrDZmPQf67HyXqEqHqtyKRb',
+    mode: 'payment'
+  },
+  'MENSUALIDAD': {
+    priceId: 'price_1QrfkdPQf67HyXqET5ZZgIOL',
+    mode: 'subscription'
+  },
+  'ENTRENAMIENTO PERSONAL': {
+    priceId: 'price_ID_de_tu_entrenamiento',
+    mode: 'payment'
+  },
+  'DIETA + RUTINA': {
+    priceId: 'price_ID_de_tu_dieta',
+    mode: 'payment'
+  }
 };
 
 export async function POST(request) {
@@ -27,35 +45,45 @@ export async function POST(request) {
       );
     }
 
-    const priceId = STRIPE_PRICE_IDS[serviceId];
-    if (!priceId) {
+    const serviceConfig = STRIPE_PRICE_IDS[serviceId];
+    if (!serviceConfig) {
       return NextResponse.json(
         { error: 'Servicio no válido o sin precio configurado' },
         { status: 400 }
       );
     }
 
-    // Crear la sesión usando el ID de precio existente
-    const session = await stripe.checkout.sessions.create({
+    // Configuración base de la sesión
+    const sessionConfig = {
       payment_method_types: ['card'],
       line_items: [
         {
-          price: priceId,
+          price: serviceConfig.priceId,
           quantity: 1,
         },
       ],
-      mode: 'payment',
+      mode: serviceConfig.mode,
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
       metadata: {
         userId: userId,
         serviceId: serviceId
       }
-    });
+    };
+
+    // Para suscripciones, podemos añadir configuraciones específicas
+    if (serviceConfig.mode === 'subscription') {
+      // Opcional: Configurar facturación específica para suscripciones
+      sessionConfig.billing_address_collection = 'required';
+      sessionConfig.payment_method_collection = 'always';
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     console.log('Session created:', {
       id: session.id,
-      metadata: session.metadata
+      metadata: session.metadata,
+      mode: session.mode
     });
 
     return NextResponse.json({ id: session.id });

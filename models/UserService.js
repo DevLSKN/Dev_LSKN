@@ -4,26 +4,37 @@ import mongoose from 'mongoose';
 const userServiceSchema = new mongoose.Schema({
   username: {
     type: String,
-    required: [true, 'Username is required'],
-    trim: true
+    required: true
   },
   servicio: {
     type: String,
-    required: [true, 'Service name is required'],
-    trim: true
+    required: true
   },
-  fecha: {
+  createdAt: {
     type: Date,
     default: Date.now
   },
+  usos: [{
+    fecha: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   estado: {
     type: String,
-    enum: ['activo', 'usado', 'cancelado'],
+    enum: ['activo', 'completado', 'cancelado'],
     default: 'activo'
-  }
+  },
+  // Campos para suscripciones
+  subscriptionId: String,
+  currentPeriodEnd: Date,
+  cancelAtPeriodEnd: {
+    type: Boolean,
+    default: false
+  },
+  stripeStatus: String
 });
 
-// Evitar crear el modelo si ya existe
-const UserService = mongoose.models.UserService || mongoose.model('UserService', userServiceSchema);
+const UserService = mongoose.models.UserService || mongoose.model('UserService', userServiceSchema, 'user_service');
 
 export default UserService;

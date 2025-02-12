@@ -10,8 +10,9 @@ import { Instagram, MessageCircle, MessageSquare, MapPin } from 'lucide-react';
 import stripeService from '../services/stripeService';
 import ForgotPasswordModal from './ui/ForgotPasswordModal';
 
-const ServiceCard = ({ service, onUseService }) => {
+const ServiceCard = ({ service, onUseService, showToast, onReloadServices }) => {
   const [showHistory, setShowHistory] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   if (!service) return null;
 
@@ -25,10 +26,63 @@ const ServiceCard = ({ service, onUseService }) => {
     return null;
   };
 
+  // Añadir console.log para debug
+  console.log('Service data:', {
+    service,
+    isMensualidad: service.servicio === 'MENSUALIDAD',
+    isSubscriptionActive: service.estado === 'activo' && service.subscriptionId,
+    hasSub: !!service.subscriptionId,
+    estado: service.estado,
+  });
+
   const usosMaximos = getUsosMaximos(service.servicio);
   const usosActuales = Array.isArray(service.usos) ? service.usos.length : 0;
   const usosRestantes = usosMaximos - usosActuales;
   const puedeUsarse = usosMaximos !== null && usosRestantes > 0;
+
+  const isMensualidad = service.servicio === 'MENSUALIDAD';
+  const isSubscriptionActive = isMensualidad && service.subscriptionId && service.stripeStatus === 'active';
+  const isSubscriptionCanceling = service.cancelAtPeriodEnd;
+
+  const handleCancelSubscription = async () => {
+    if (!service.subscriptionId) {
+      showToast('No se encontró información de la suscripción', 'error');
+      return;
+    }
+
+    try {
+      setIsCancelling(true);
+      const response = await fetch('/api/cancel-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          subscriptionId: service.subscriptionId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        showToast(
+          'Tu suscripción se cancelará al final del período actual',
+          'success'
+        );
+        // Recargar servicios si es necesario
+        if (typeof onReloadServices === 'function') {
+          onReloadServices();
+        }
+      } else {
+        showToast(data.error || 'Error al cancelar la suscripción', 'error');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showToast('Error al procesar la solicitud', 'error');
+    } finally {
+      setIsCancelling(false);
+    }
+  };
 
   const formatearFecha = (fecha) => {
     return new Date(fecha).toLocaleDateString('es-ES', {
@@ -39,7 +93,11 @@ const ServiceCard = ({ service, onUseService }) => {
       minute: '2-digit'
     });
   };
-
+const shouldShowUseButton = (service) => {
+  // Solo mostrar el botón para bonos
+  const isBono = service.servicio.includes('BONO') || service.servicio === 'DAY PASS';
+  return isBono && (usosMaximos === null || puedeUsarse) && service.estado === 'activo';
+};
   return (
     <div className="bg-white bg-opacity-10 p-4 rounded-lg hover:bg-opacity-20 transition-all">
       <div className="flex justify-between items-start mb-2">
@@ -48,6 +106,16 @@ const ServiceCard = ({ service, onUseService }) => {
           <p className="text-sm text-gray-300">
             Comprado: {formatearFecha(service.createdAt)}
           </p>
+          {isMensualidad && service.currentPeriodEnd && (
+            <p className="text-sm text-gray-300">
+              Próxima renovación: {formatearFecha(service.currentPeriodEnd)}
+            </p>
+          )}
+          {isSubscriptionCanceling && (
+            <p className="text-sm text-yellow-400">
+              Se cancelará el {formatearFecha(service.currentPeriodEnd)}
+            </p>
+          )}
         </div>
         {usosMaximos !== null && (
           <div className="text-right bg-black bg-opacity-30 p-2 rounded">
@@ -105,14 +173,32 @@ const ServiceCard = ({ service, onUseService }) => {
         </div>
       )}
 
-      {puedeUsarse && (
-        <button
-          onClick={() => onUseService(service._id)}
-          className="mt-3 w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
-        >
-          Usar Ahora
-        </button>
-      )}
+      <div className="mt-3 space-y-2">
+  {shouldShowUseButton(service) && (
+    <button
+      onClick={() => onUseService(service._id)}
+      className="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+    >
+      Usar Ahora
+    </button>
+  )}
+
+  {isSubscriptionActive && !isSubscriptionCanceling && (
+    <button
+      onClick={() => {
+        showToast(
+          '¿Estás seguro de que deseas cancelar tu suscripción?',
+          'confirm',
+          handleCancelSubscription
+        );
+      }}
+      disabled={isCancelling}
+      className="w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors disabled:opacity-50"
+    >
+      {isCancelling ? 'Cancelando...' : 'Cancelar Suscripción'}
+    </button>
+  )}
+</div>
     </div>
   );
 };
@@ -1047,17 +1133,22 @@ const heroSections = [
                   <div className="bg-black bg-opacity-50 p-6 rounded-lg">
                     <h3 className="text-3xl font-semibold mb-4">Historial de Servicios</h3>
                     <div className="max-h-[500px] overflow-y-auto space-y-4">
-                      {userServices && userServices.length > 0 ? (
-                        userServices.map((service) => (
-                          <ServiceCard
-                            key={service._id}
-                            service={service}
-                            onUseService={handleUseService}
-                          />
-                        ))
-                      ) : (
-                        <p className="text-center text-gray-300">No hay servicios contratados</p>
-                      )}
+                     {userServices && userServices.length > 0 ? (
+  userServices.map((service) => (
+    <ServiceCard
+      key={service._id}
+      service={{
+        ...service,
+        estado: service.estado || 'activo', // Asegurarnos de que estado existe
+      }}
+      onUseService={handleUseService}
+      showToast={showToast}
+      onReloadServices={() => loadUserServices(currentUser.username)}
+    />
+  ))
+) : (
+  <p className="text-center text-gray-300">No hay servicios contratados</p>
+)}
                     </div>
                   </div>
                 </div>

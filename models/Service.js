@@ -22,9 +22,18 @@ const serviceSchema = new mongoose.Schema({
   }],
   estado: {
     type: String,
-    enum: ['activo', 'completado'],
+    enum: ['activo', 'completado', 'cancelado'],
     default: 'activo'
-  }
+  },
+  // Campos nuevos para suscripciones
+  subscriptionId: String,
+  currentPeriodEnd: Date,
+  cancelAtPeriodEnd: {
+    type: Boolean,
+    default: false
+  },
+  canceledAt: Date,
+  stripeStatus: String
 });
 
 const Service = mongoose.models.Service || mongoose.model('Service', serviceSchema);

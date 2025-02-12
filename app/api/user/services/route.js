@@ -1,4 +1,4 @@
-// app/api/user/services/route.js
+//app/api/user/services/route.js
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import mongoose from 'mongoose';
@@ -35,7 +35,16 @@ export async function GET(req) {
         fecha: uso.fecha instanceof Date 
           ? uso.fecha.toISOString() 
           : new Date(uso.fecha).toISOString()
-      })) : []
+      })) : [],
+      // Añadir campos de suscripción si existen
+      ...(service.subscriptionId && {
+        subscriptionId: service.subscriptionId,
+        currentPeriodEnd: service.currentPeriodEnd instanceof Date 
+          ? service.currentPeriodEnd.toISOString() 
+          : new Date(service.currentPeriodEnd).toISOString(),
+        cancelAtPeriodEnd: service.cancelAtPeriodEnd,
+        stripeStatus: service.stripeStatus
+      })
     }));
 
     return NextResponse.json({ services: formattedServices });
@@ -55,7 +64,15 @@ export async function POST(request) {
     const data = await request.json();
     console.log('Recibido request para guardar servicio:', data);
 
-    const { username, servicio, createdAt } = data;
+    const { 
+      username, 
+      servicio, 
+      createdAt,
+      subscriptionId,
+      currentPeriodEnd,
+      cancelAtPeriodEnd,
+      stripeStatus 
+    } = data;
 
     if (!username || !servicio) {
       console.error('Datos incompletos:', { username, servicio });
@@ -70,8 +87,19 @@ export async function POST(request) {
       username,
       servicio,
       createdAt: new Date(createdAt || Date.now()),
-      usos: []
+      usos: [],
+      estado: 'activo'
     };
+
+    // Añadir campos de suscripción si existen
+    if (subscriptionId) {
+      Object.assign(serviceData, {
+        subscriptionId,
+        currentPeriodEnd: new Date(currentPeriodEnd),
+        cancelAtPeriodEnd: cancelAtPeriodEnd || false,
+        stripeStatus: stripeStatus || 'active'
+      });
+    }
 
     console.log('Intentando guardar servicio:', serviceData);
     const result = await db.collection('user_service').insertOne(serviceData);

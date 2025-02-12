@@ -1,6 +1,7 @@
 // app/api/verify-payment/route.js
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import UserService from '../../../models/UserService';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -19,10 +20,15 @@ export async function GET(request) {
       );
     }
 
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ['subscription']  // Expandir los datos de suscripción
+    });
+    
     console.log('Sesión recuperada:', {
       paymentStatus: session.payment_status,
-      metadata: session.metadata
+      metadata: session.metadata,
+      mode: session.mode,
+      subscription: session.subscription
     });
 
     if (session.payment_status === 'paid') {
@@ -31,33 +37,40 @@ export async function GET(request) {
 
       if (userId && serviceId) {
         try {
-          const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-          console.log('Intentando registrar servicio en:', `${baseUrl}/api/user/services`);
+          const serviceData = {
+            username: userId,
+            servicio: serviceId,
+            createdAt: new Date(),
+            estado: 'activo'
+          };
 
+          // Si es una suscripción, añadir los campos adicionales
+          if (session.mode === 'subscription' && session.subscription) {
+            Object.assign(serviceData, {
+              subscriptionId: session.subscription.id,
+              currentPeriodEnd: new Date(session.subscription.current_period_end * 1000),
+              cancelAtPeriodEnd: false,
+              stripeStatus: session.subscription.status
+            });
+          }
+
+          const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
           const registerResponse = await fetch(`${baseUrl}/api/user/services`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              username: userId,
-              servicio: serviceId,
-              createdAt: new Date().toISOString()
-            }),
+            body: JSON.stringify(serviceData),
           });
 
-          const registerResult = await registerResponse.json();
-          console.log('Resultado del registro del servicio:', registerResult);
-
           if (!registerResponse.ok) {
+            const registerResult = await registerResponse.json();
             throw new Error(registerResult.error || 'Error al registrar el servicio');
           }
         } catch (error) {
           console.error('Error detallado al registrar servicio:', error);
           throw error;
         }
-      } else {
-        console.error('Faltan datos en metadata:', session.metadata);
       }
     }
 
@@ -67,7 +80,8 @@ export async function GET(request) {
       customerEmail: session.customer_details?.email,
       amount: session.amount_total,
       currency: session.currency,
-      metadata: session.metadata
+      metadata: session.metadata,
+      mode: session.mode
     });
   } catch (error) {
     console.error('Error completo en verify-payment:', error);
