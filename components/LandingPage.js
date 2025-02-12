@@ -7,6 +7,8 @@ import FAQ from './ui/FAQ';
 import apiServices from '../app/services/apiServices';
 import { useRouter } from 'next/navigation';
 import { Instagram, MessageCircle, MessageSquare, MapPin } from 'lucide-react';
+import stripeService from '../services/stripeService';
+import ForgotPasswordModal from './ui/ForgotPasswordModal';
 
 const ServiceCard = ({ service, onUseService }) => {
   const [showHistory, setShowHistory] = useState(false);
@@ -119,6 +121,7 @@ const LandingPage = () => {
   const [currentSection, setCurrentSection] = useState(0);
   const [showRegister, setShowRegister] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showUserPanel, setShowUserPanel] = useState(false);
   const [currentUser, setCurrentUser] = useState({
     username: '',
@@ -155,17 +158,7 @@ const LandingPage = () => {
   });
 };
 
-  const [loginModalData, setLoginModalData] = useState({
-    username: '',
-    password: ''
-  });
-  
-  const [loginData, setLoginData] = useState({
-    username: '',
-    password: ''
-  });
-  
-  const [registerData, setRegisterData] = useState({
+   const [registerData, setRegisterData] = useState({
     username: '',
     nombre: '',
     apellidos: '',
@@ -193,6 +186,23 @@ const LandingPage = () => {
 
     setRegisterData(prev => ({...prev, fechaNacimiento: formattedDate}));
   };
+  const handlePendingService = async () => {
+  if (pendingService && isLoggedIn && currentUser && !showLoginModal) {
+    console.log('Redirigiendo a sección de servicios...');
+    setCurrentSection(1);
+    
+    // Solo procesar el pago si tenemos toda la información necesaria
+    if (pendingService && currentUser?.username) {
+      try {
+        await stripeService.createCheckoutSession(pendingService, currentUser.username);
+        setPendingService(null);
+      } catch (error) {
+        console.error('Error al procesar servicio pendiente:', error);
+        showToast('Error al procesar el servicio. Por favor, inténtalo de nuevo.', 'error');
+      }
+    }
+  }
+};
   useEffect(() => {
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
@@ -214,6 +224,24 @@ const LandingPage = () => {
       loadUserServices(currentUser.username);
     }
   }, [isLoggedIn, currentUser, showUserPanel]);
+
+// Actualiza la función realizarContratacion (aunque no la uses directamente ahora)
+const realizarContratacion = async (servicio, usuario) => {
+  try {
+    console.log('Realizando contratación para:', usuario.username, servicio);
+    setIsProcessingService(true);
+    
+    await stripeService.createCheckoutSession(servicio, usuario.username);
+    setPendingService(null);
+  } catch (error) {
+    console.error('Error en contratación:', error);
+    showToast(error.message || 'Error al contratar el servicio', 'error');
+  } finally {
+    setIsProcessingService(false);
+  }
+};
+
+
 
   const handleEdit = () => {
     setEditedUserData({...currentUser});
@@ -295,108 +323,98 @@ const LandingPage = () => {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    
-    try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: showLoginModal ? loginModalData.username : loginData.username,
-          password: showLoginModal ? loginModalData.password : loginData.password
-        }),
+  e.preventDefault();
+  
+  try {
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: loginModalData.username,
+        password: loginModalData.password
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      const { user } = data;
+      
+      // Actualizar estado del usuario
+      await new Promise(resolve => {
+        setCurrentUser(user);
+        setIsLoggedIn(true);
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        resolve();
       });
 
-      const data = await response.json();
-      console.log('Respuesta completa del login:', data);
+      // Limpiar formulario y cerrar modal
+      setLoginModalData({ username: '', password: '' });
+      setShowLoginModal(false);
 
-      if (response.ok) {
-        const { user } = data;
-		console.log('Datos del usuario al hacer login:', user);
-        console.log('Usuario:', user);
-        console.log('Rol del usuario:', user.role);
+      if (user.role === 'admin') {
+        window.location.href = '/admin/dashboard';
+        return;
+      }
 
-        await new Promise(resolve => {
-          setCurrentUser(user);
-          setIsLoggedIn(true);
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          resolve();
-        });
+      // Cargar servicios del usuario
+      await loadUserServices(user.username);
 
-        setLoginData({ username: '', password: '' });
-        setLoginModalData({ username: '', password: '' });
-        setShowLoginModal(false);
-
-        if (user.role === 'admin') {
-          window.location.href = '/admin/dashboard';
-          return;
-        }
-
+      if (pendingService) {
+        showToast('Inicio de sesión exitoso. Procesando tu compra...', 'success');
+        setCurrentSection(1);
+        
+        setTimeout(async () => {
+          try {
+            await stripeService.createCheckoutSession(pendingService, user.username);
+            setPendingService(null);
+          } catch (error) {
+            console.error('Error al procesar servicio pendiente:', error);
+            showToast('Error al procesar el servicio. Por favor, inténtalo de nuevo.', 'error');
+          }
+        }, 1000);
+      } else {
         showToast('Inicio de sesión exitoso', 'success');
-
-        if (pendingService) {
-          console.log('Procesando servicio pendiente:', pendingService);
-          await new Promise(resolve => setTimeout(resolve, 100));
-          await realizarContratacion(pendingService, user);
-          setPendingService(null);
-        } else {
-          setShowUserPanel(true);
-        }
-
-        await loadUserServices(user.username);
-      } else {
-        showToast(data.error || 'Usuario o contraseña incorrectos', 'error');
+        setShowUserPanel(true);
       }
-    } catch (error) {
-      console.error('Error:', error);
-      showToast('Error al conectar con el servidor', 'error');
+    } else {
+      showToast(data.error || 'Usuario o contraseña incorrectos', 'error');
     }
-  };
-  const realizarContratacion = async (servicio, usuario) => {
-    try {
-      console.log('Realizando contratación para:', usuario.username, servicio);
-      setIsProcessingService(true);
-      
-      const result = await apiServices.contractService(usuario.username, servicio);
-      console.log('Resultado de contratación:', result);
+  } catch (error) {
+    console.error('Error:', error);
+    showToast('Error al conectar con el servidor', 'error');
+  }
+};
 
-      if (result.success) {
-        showToast('¡Servicio contratado correctamente!', 'success');
-        await loadUserServices(usuario.username);
-      } else {
-        throw new Error(result.error || 'Error en la contratación');
-      }
-    } catch (error) {
-      console.error('Error en contratación:', error);
-      showToast(error.message || 'Error al contratar el servicio', 'error');
-    } finally {
-      setIsProcessingService(false);
-    }
-  };
+const handleContratarServicio = async (serviceName) => {
+  console.log('Iniciando contratación:', { serviceName, isLoggedIn, currentUser });
+  
+  if (!serviceName) {
+    showToast('Error: Servicio no válido', 'error');
+    return;
+  }
 
-  const handleContratarServicio = async (serviceName) => {
-    console.log('Iniciando contratación:', { serviceName, isLoggedIn, currentUser });
-    
-    if (!serviceName) {
-      showToast('Error: Servicio no válido', 'error');
-      return;
-    }
+  if (!isLoggedIn || !currentUser?.username) {
+    console.log('Usuario no logueado, guardando servicio pendiente');
+    setPendingService(serviceName);
+    setShowLoginModal(true);
+    return;
+  }
 
-    if (!isLoggedIn || !currentUser?.username) {
-      console.log('Usuario no logueado, guardando servicio pendiente');
-      setPendingService(serviceName);
-      setShowLoginModal(true);
-      return;
-    }
+  try {
+    console.log('Procesando contratación para:', {
+      serviceName,
+      userId: currentUser.username
+    });
 
-    showToast(
-      `¿Quieres contratar ${serviceName}?`,
-      'confirm',
-      () => realizarContratacion(serviceName, currentUser)
-    );
-  };
+    await stripeService.createCheckoutSession(serviceName, currentUser.username);
+  } catch (error) {
+    console.error('Error al procesar el pago:', error);
+    showToast('Error al procesar el pago. Por favor, inténtalo de nuevo.', 'error');
+  }
+};
 
   const buttonTitles = {
     "FREQUENT ASKED QUESTIONS": "FAQ",
@@ -435,7 +453,14 @@ const LandingPage = () => {
       setUserServices([]);
     }
   };
-
+const [loginModalData, setLoginModalData] = useState({
+  username: '',
+  password: ''
+});
+const openLoginModal = () => {
+  setLoginModalData({ username: '', password: '' });
+  setShowLoginModal(true);
+};
 const handleLogout = () => {
   showToast(
     '¿Estás seguro de que quieres cerrar sesión?',
@@ -880,14 +905,14 @@ const heroSections = [
         </div>
       ) : (
         <button
-          onClick={() => setShowLoginModal(true)}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center gap-2"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
-          </svg>
-          Iniciar Sesión
-        </button>
+  onClick={openLoginModal}
+  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center gap-2"
+>
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+    <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
+  </svg>
+  Iniciar Sesión
+</button>
       )}
     </div>
   </div>
@@ -1222,7 +1247,70 @@ const heroSections = [
       </main>
 
       {/* Footer y otros componentes... */}
+<footer className="bg-gray-800 text-white py-8">
+  <div className="container mx-auto px-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* Columna de Contacto */}
+      <div>
+        <h3 className="text-xl font-bold mb-4">Contacto</h3>
+        <div className="flex flex-col gap-3">
+          <p className="mb-2">Email: info@laiesken.com</p>
+          <a 
+            href="https://wa.me/34620564257" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 hover:text-blue-400 transition-colors"
+          >
+            <MessageSquare size={20} />
+            WhatsApp: +34 620 564 257
+          </a>
+          <a 
+            href="https://www.instagram.com/laieskenbarcelona" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 hover:text-blue-400 transition-colors"
+          >
+            <Instagram size={20} />
+            @laieskenbarcelona
+          </a>
+        </div>
+      </div>
 
+      {/* Columna de Ubicación */}
+      <div>
+        <h3 className="text-xl font-bold mb-4">Ubicación</h3>
+        <div className="flex flex-col gap-2">
+          <p>C/ Torrassa 94</p>
+          <p>(Pasaje Josefina Vidal) Nave 2</p>
+          <p>08930, Sant Adrià de Besòs</p>
+          <p>Barcelona</p>
+          <a 
+            href="https://maps.google.com/?q=C/+Torrassa+94+Pasaje+Josefina+Vidal+Nave+2+08930+Sant+Adria+de+Besos+Barcelona"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            <MapPin size={20} />
+            Ver en Google Maps
+          </a>
+        </div>
+      </div>
+
+      {/* Columna de Horario */}
+      <div>
+        <h3 className="text-xl font-bold mb-4">Horario</h3>
+        <p className="mb-2">Lunes a Viernes: 7:00 - 22:00</p>
+        <p className="mb-2">Sábados: 9:00 - 20:00</p>
+        <p>Domingos: 9:00 - 14:00</p>
+      </div>
+    </div>
+
+    {/* Copyright */}
+    <div className="border-t border-gray-700 mt-8 pt-8 text-center">
+      <p>&copy; {new Date().getFullYear()} LAIESKEN. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</footer>
       {showLoginModal && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div className="bg-white p-8 rounded-lg shadow-xl w-96">
@@ -1257,14 +1345,15 @@ const heroSections = [
           </button>
           <div className="flex justify-between items-center">
             <button
-              type="button"
-              onClick={() => {
-                showToast('Esta funcionalidad estará disponible próximamente', 'info');
-              }}
-              className="text-sm text-blue-500 hover:text-blue-700 transition-colors"
-            >
-              ¿Olvidaste tu contraseña?
-            </button>
+  type="button"
+  onClick={() => {
+    setShowLoginModal(false);
+    setShowForgotPassword(true);
+  }}
+  className="text-sm text-blue-500 hover:text-blue-700 transition-colors"
+>
+  ¿Olvidaste tu contraseña?
+</button>
             <button
               type="button"
               onClick={() => {
@@ -1289,8 +1378,18 @@ const heroSections = [
         </div>
       </form>
     </div>
+	
   </div>
 )}
+{showForgotPassword && (
+  <ForgotPasswordModal
+    onClose={() => {
+      setShowForgotPassword(false);
+      setShowLoginModal(true); // Opcional: volver a mostrar el login
+    }}
+  />
+)}
+
 
       {toast.show && (
         <Toast
