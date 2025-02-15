@@ -10,6 +10,22 @@ import { Instagram, MessageCircle, MessageSquare, MapPin } from 'lucide-react';
 import stripeService from '../services/stripeService';
 import ForgotPasswordModal from './ui/ForgotPasswordModal';
 
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
+};
+
 const ServiceCard = ({ service, onUseService, showToast, onReloadServices }) => {
   const [showHistory, setShowHistory] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
@@ -98,21 +114,7 @@ const shouldShowUseButton = (service) => {
   const isBono = service.servicio.includes('BONO') || service.servicio === 'DAY PASS';
   return isBono && (usosMaximos === null || puedeUsarse) && service.estado === 'activo';
 };
-const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  return isMobile;
-};
   return (
     <div className="bg-white bg-opacity-10 p-4 rounded-lg hover:bg-opacity-20 transition-all">
       <div className="flex justify-between items-start mb-2">
