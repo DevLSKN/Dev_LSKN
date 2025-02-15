@@ -1,4 +1,4 @@
-'use client';
+w'use client';
 
 import React, { useState, useEffect } from 'react';
 import ContactForm from './ui/ContactForm';
@@ -1336,33 +1336,70 @@ useEffect(() => {
       </main>
 
       {/* Footer y otros componentes... */}
-<footer className="bg-gray-800 text-white py-4 md:py-8 text-sm md:text-base">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 text-center md:text-left">
-            <div>
-              <h3 className="text-lg font-bold">Contacto</h3>
-              <p>Email: info@laiesken.com</p>
-              <a href="https://wa.me/34620564257" className="hover:text-blue-400">WhatsApp: +34 620 564 257</a>
-            </div>
-            <div>
-              <h3 className="text-lg font-bold">Ubicación</h3>
-              <p>C/ Torrassa 94, 08930, Barcelona</p>
-              <a href="https://maps.google.com" className="hover:text-blue-400">Ver en Google Maps</a>
-            </div>
-            <div>
-              <h3 className="text-lg font-bold">Horario</h3>
-              <p>Lun-Vie: 7:00 - 22:00</p>
-              <p>Sab: 9:00 - 20:00 | Dom: 9:00 - 14:00</p>
-            </div>
-          </div>
-          <div className="border-t border-gray-700 mt-4 pt-4 text-center text-xs md:text-sm">
-            <p>&copy; {new Date().getFullYear()} LAIESKEN. Todos los derechos reservados.</p>
-          </div>
+<footer className="bg-gray-800 text-white py-4 md:py-8">
+  <div className="container mx-auto px-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+      {/* Columna de Contacto */}
+      <div>
+        <div className="text-center md:text-left">
+        <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-4">Contacto</h3>
+          <p className="mb-2">Email: info@laiesken.com</p>
+          <a 
+            href="https://wa.me/34620564257" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 hover:text-blue-400 transition-colors"
+          >
+            <MessageSquare size={20} />
+            WhatsApp: +34 620 564 257
+          </a>
+          <a 
+            href="https://www.instagram.com/laieskenbarcelona" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 hover:text-blue-400 transition-colors"
+          >
+            <Instagram size={20} />
+            @laieskenbarcelona
+          </a>
         </div>
-      </footer>
+      </div>
+
+      {/* Columna de Ubicación */}
+      <div className="text-center md:text-left">
+        <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-4">Ubicación</h3>
+        <div className="flex flex-col gap-2">
+          <p>C/ Torrassa 94</p>
+          <p>(Pasaje Josefina Vidal) Nave 2</p>
+          <p>08930, Sant Adrià de Besòs</p>
+          <p>Barcelona</p>
+          <a 
+            href="https://maps.google.com/?q=C/+Torrassa+94+Pasaje+Josefina+Vidal+Nave+2+08930+Sant+Adria+de+Besos+Barcelona"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            <MapPin size={20} />
+            Ver en Google Maps
+          </a>
+        </div>
+      </div>
+
+      {/* Columna de Horario */}
+        <div className="text-center md:text-left">
+        <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-4">Horario</h3>
+        <p className="mb-2">Lunes a Viernes: 7:00 - 22:00</p>
+        <p className="mb-2">Sábados: 9:00 - 20:00</p>
+        <p>Domingos: 9:00 - 14:00</p>
+      </div>
     </div>
-  );
-};
+
+    {/* Copyright */}
+    <div className="border-t border-gray-700 mt-8 pt-8 text-center">
+      <p>&copy; {new Date().getFullYear()} LAIESKEN. Todos los derechos reservados.</p>
+    </div>
+  </div>
+</footer>
       {showLoginModal && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div className="bg-white p-8 rounded-lg shadow-xl w-96">
