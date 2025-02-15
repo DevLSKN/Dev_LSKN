@@ -977,10 +977,9 @@ useEffect(() => {
   }, [showRegister, isPaused]);
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-white shadow-md p-4">
-  <div className={`w-full flex ${isMobile ? 'flex-col' : 'flex-row'} justify-between items-center px-4 gap-4`}>
-    <h1 className={`${isMobile ? 'text-4xl' : 'text-6xl'} font-bold text-black`}>
-      LAIESKEN</h1>
+      <header className="bg-white shadow-md p-2 md:p-4">
+  <div className={`w-full flex ${isMobile ? 'flex-col' : 'flex-row'} justify-between items-center px-2 md:px-4`}>
+    <h1 className="text-3xl md:text-6xl font-bold text-black">LAIESKEN</h1>
     <div className="flex items-center">
       {isLoggedIn ? (
   <div className="flex flex-col items-end gap-1 animate-fadeInDown">
@@ -1305,15 +1304,11 @@ useEffect(() => {
                     : 'opacity-0 -translate-x-full'
                 }`}
               >
-                <div className="text-white p-6 ml-20">
-                  <h2 className={`text-7xl font-bold mb-6 text-shadow animate-slideInLeft ${
-                    currentSection === index ? 'opacity-100' : 'opacity-0'
-                  }`}>
-                    {section.title}
-                  </h2>
-                  <div className={`text-xl animate-slideInRight delay-200 ${
-                    currentSection === index ? 'opacity-100' : 'opacity-0'
-                  }`}>
+                <div className={`text-white p-4 md:p-6 ${isMobile ? 'ml-0' : 'ml-20'}`}>
+  <h2 className={`${isMobile ? 'text-4xl' : 'text-7xl'} font-bold mb-4 md:mb-6 text-shadow animate-slideInLeft`}>
+    {section.title}
+  </h2>
+  <div className={`${isMobile ? 'text-lg' : 'text-xl'} animate-slideInRight delay-200`}>
                     {typeof section.content === 'string' 
                       ? <p className="text-4xl text-shadow">{section.content}</p>
                       : section.content
@@ -1341,13 +1336,13 @@ useEffect(() => {
       </main>
 
       {/* Footer y otros componentes... */}
-<footer className="bg-gray-800 text-white py-8">
+<footer className="bg-gray-800 text-white py-4 md:py-8">
   <div className="container mx-auto px-4">
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
       {/* Columna de Contacto */}
       <div>
-        <h3 className="text-xl font-bold mb-4">Contacto</h3>
-        <div className="flex flex-col gap-3">
+        <div className="text-center md:text-left">
+        <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-4">Contacto</h3>
           <p className="mb-2">Email: info@laiesken.com</p>
           <a 
             href="https://wa.me/34620564257" 
@@ -1371,8 +1366,8 @@ useEffect(() => {
       </div>
 
       {/* Columna de Ubicación */}
-      <div>
-        <h3 className="text-xl font-bold mb-4">Ubicación</h3>
+      <div className="text-center md:text-left">
+        <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-4">Ubicación</h3>
         <div className="flex flex-col gap-2">
           <p>C/ Torrassa 94</p>
           <p>(Pasaje Josefina Vidal) Nave 2</p>
@@ -1391,8 +1386,8 @@ useEffect(() => {
       </div>
 
       {/* Columna de Horario */}
-      <div>
-        <h3 className="text-xl font-bold mb-4">Horario</h3>
+        <div className="text-center md:text-left">
+        <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-4">Horario</h3>
         <p className="mb-2">Lunes a Viernes: 7:00 - 22:00</p>
         <p className="mb-2">Sábados: 9:00 - 20:00</p>
         <p>Domingos: 9:00 - 14:00</p>
