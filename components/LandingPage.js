@@ -957,6 +957,14 @@ const heroSections = [
     )
 }
 ];
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (!showRegister && !isPaused) {
+        setCurrentSection((prev) => (prev + 1) % heroSections.length);
+      }
+    }, 6000); // Cambiado de 4000 a 6000
+    return () => clearInterval(timer);
+  }, [showRegister, isPaused]);
   return (
     <div className="min-h-screen flex flex-col">
       <header className="bg-white shadow-md p-4">
