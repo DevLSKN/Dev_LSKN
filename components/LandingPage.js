@@ -648,47 +648,52 @@ const handleLogout = () => {
     }
   };
   const NavigationDots = ({ sections, currentSection, onSectionChange }) => {
-  const [hoveredIndex, setHoveredIndex] = useState(null);
-  const [isMobile, setIsMobile] = useState(false);
+    const [hoveredIndex, setHoveredIndex] = useState(null);
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+    const handleClick = (index) => {
+      setHoveredIndex(index);
+      onSectionChange(index);
     };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
-  return (
-    <div className={`
-      ${isMobile 
-        ? 'fixed bottom-4 left-0 right-0 flex justify-center gap-2 z-50' 
-        : 'fixed right-12 top-1/2 transform -translate-y-1/2 flex flex-col gap-6'}
-    `}>
-      {sections.map((section, index) => (
-        <button
-          key={index}
-          onClick={() => onSectionChange(index)}
-          className={`
-            ${isMobile 
-              ? 'w-3 h-3 rounded-full transition-all'
-              : 'relative flex items-center justify-start gap-4 transition-all duration-300 ease-in-out hover:w-64 w-16 h-16 rounded-full'}
-            ${currentSection === index 
-              ? 'bg-blue-500 shadow-lg' 
-              : 'bg-white hover:bg-blue-100'}
-          `}
-        >
-          {!isMobile && (
-            <span className="whitespace-nowrap text-xl font-medium ml-6 transition-opacity duration-300">
-              {buttonTitles[section.title] || section.title}
-            </span>
-          )}
-        </button>
-      ))}
-    </div>
-  );
-};
+    return (
+      <div className="fixed right-12 top-1/2 transform -translate-y-1/2 flex flex-col gap-6">
+        {sections.map((section, index) => (
+          <div
+            key={index}
+            className="relative group flex justify-end"
+            onMouseEnter={() => setHoveredIndex(index)}
+            onMouseLeave={() => currentSection === index ? null : setHoveredIndex(null)}
+          >
+            <button
+              onClick={() => handleClick(index)}
+              className={`relative flex items-center justify-start gap-4 transition-all duration-300 ease-in-out
+                ${hoveredIndex === index || currentSection === index ? 'w-64' : 'w-16'}
+                ${currentSection === index 
+                  ? 'bg-blue-500 shadow-lg' 
+                  : 'bg-white hover:bg-blue-100'} 
+                h-16 rounded-full cursor-pointer`}
+            >
+              <span className={`
+                whitespace-nowrap text-xl font-medium
+                transition-opacity duration-300 ml-6
+                ${hoveredIndex === index || currentSection === index ? 'opacity-100' : 'opacity-0'}
+                ${currentSection === index ? 'text-white' : 'text-gray-700'}`}
+              >
+                {buttonTitles[section.title] || section.title}
+              </span>
+              
+              <div className={`
+                absolute right-0 min-w-[4rem] h-16 rounded-full
+                flex items-center justify-center
+                ${currentSection === index ? 'text-white' : 'text-blue-500'}
+                text-2xl font-bold`}
+              ></div>
+            </button>
+          </div>
+        ))}
+      </div>
+    );
+  };
 const heroSections = [
   {
     title: "PRESENTACIÓN",
@@ -697,7 +702,7 @@ const heroSections = [
   {
     title: "SERVICIOS",
     content: (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full max-w-6xl px-4 sm:px-6">
+      <div className="grid grid-cols-3 gap-6 w-full max-w-6xl">
         {[
           {
             _id: 'daypass',
@@ -761,8 +766,7 @@ const heroSections = [
   {
     title: "EL EQUIPO",
     content: (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full max-w-6xl px-4 sm:px-6">
-
+      <div className="grid grid-cols-3 gap-6 w-full max-w-6xl">
         {[
           {
             id: 1,
@@ -826,12 +830,12 @@ const heroSections = [
   {
     title: "EVENTOS",
     content: (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full max-w-7xl px-4 sm:px-6">
+      <div className="grid grid-cols-2 gap-16 w-full max-w-7xl">
         {/* Columna Próximos Eventos */}
-       <div className="flex flex-col items-center">
-    <h3 className="text-2xl md:text-3xl font-bold mb-8 text-white text-center">Próximos Eventos</h3>
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-xl">
-	{[
+        <div className="flex flex-col items-center">
+          <h3 className="text-3xl font-bold mb-8 text-white text-center">Próximos Eventos</h3>
+          <div className="grid grid-cols-2 gap-4 w-full max-w-xl">
+            {[
               {
                 id: 1,
                 title: "Competición CrossFit",
@@ -953,11 +957,19 @@ const heroSections = [
     )
 }
 ];
+useEffect(() => {
+    const timer = setInterval(() => {
+      if (!showRegister && !isPaused) {
+        setCurrentSection((prev) => (prev + 1) % heroSections.length);
+      }
+    }, 6000); // Cambiado de 4000 a 6000
+    return () => clearInterval(timer);
+  }, [showRegister, isPaused]);
   return (
     <div className="min-h-screen flex flex-col">
       <header className="bg-white shadow-md p-4">
-  <div className="w-full flex flex-wrap justify-between items-center px-2 sm:px-4">
-    <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-black">LAIESKEN</h1>
+  <div className="w-full flex justify-between items-center px-4">
+    <h1 className="text-6xl font-bold text-black">LAIESKEN</h1>
     <div className="flex items-center">
       {isLoggedIn ? (
   <div className="flex flex-col items-end gap-1 animate-fadeInDown">
