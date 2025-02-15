@@ -1013,19 +1013,16 @@ useEffect(() => {
     </div>
   </div>
 </header>
-	  <div className="min-h-screen flex flex-col">
-      <main className="flex-grow relative">
+	  <main className="flex-grow relative">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: "url('/hero-bg.jpg')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            height: '100vh',
+            backgroundRepeat: 'no-repeat'
           }}
         />
-      </main>
 
         {isLoggedIn && showUserPanel ? (
           <div className="absolute inset-0 flex items-center animate-fadeInDown">
@@ -1363,6 +1360,9 @@ useEffect(() => {
           </div>
         </div>
       </footer>
+    </div>
+  );
+};
       {showLoginModal && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div className="bg-white p-8 rounded-lg shadow-xl w-96">
