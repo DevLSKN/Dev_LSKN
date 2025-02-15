@@ -702,7 +702,7 @@ const heroSections = [
   {
     title: "SERVICIOS",
     content: (
-      <div className="grid grid-cols-3 gap-6 w-full max-w-6xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl px-4 sm:px-6">
         {[
           {
             _id: 'daypass',
@@ -766,7 +766,7 @@ const heroSections = [
   {
     title: "EL EQUIPO",
     content: (
-      <div className="grid grid-cols-3 gap-6 w-full max-w-6xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl px-4 sm:px-6">
         {[
           {
             id: 1,
@@ -830,7 +830,7 @@ const heroSections = [
   {
     title: "EVENTOS",
     content: (
-      <div className="grid grid-cols-2 gap-16 w-full max-w-7xl">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 w-full max-w-7xl px-4 sm:px-6">
         {/* Columna Próximos Eventos */}
         <div className="flex flex-col items-center">
           <h3 className="text-3xl font-bold mb-8 text-white text-center">Próximos Eventos</h3>
@@ -960,8 +960,8 @@ const heroSections = [
   return (
     <div className="min-h-screen flex flex-col">
       <header className="bg-white shadow-md p-4">
-  <div className="w-full flex justify-between items-center px-4">
-    <h1 className="text-6xl font-bold text-black">LAIESKEN</h1>
+  <div className="w-full flex flex-wrap justify-between items-center px-2 sm:px-4">
+    <h1 className="text-4xl md:text-6xl font-bold text-black">LAIESKEN</h1>
     <div className="flex items-center">
       {isLoggedIn ? (
         <div className="flex items-center gap-4">
@@ -1003,9 +1003,9 @@ const heroSections = [
 
         {isLoggedIn && showUserPanel ? (
           <div className="absolute inset-0 flex items-center">
-            <div className="text-white p-6 ml-20 w-full max-w-7xl">
-              <h2 className="text-7xl font-bold mb-10 text-shadow">Panel de Usuario</h2>
-              <div className="flex gap-8">
+            <div className="text-white p-4 sm:p-6 ml-0 sm:ml-20 w-full max-w-7xl">
+  <h2 className="text-5xl md:text-7xl font-bold mb-6 md:mb-10 text-shadow">Panel de Usuario</h2>
+  <div className="flex flex-col lg:flex-row gap-8">
                 {/* Columna izquierda */}
                 <div className="space-y-8 flex-1">
                   <div className="bg-black bg-opacity-50 p-6 rounded-lg">
