@@ -1,16 +1,8 @@
-// app/api/webhook/route.js
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import UserService from '../../../models/UserService';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-// Deshabilitar el bodyParser para webhooks de Stripe
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
 
 export async function POST(request) {
   const body = await request.text();
@@ -23,17 +15,17 @@ export async function POST(request) {
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
   } catch (err) {
     console.error(`Webhook signature verification failed: ${err.message}`);
-    return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 });
+    return new NextResponse(JSON.stringify({ error: `Webhook Error: ${err.message}` }), { status: 400 });
   }
 
   try {
     switch (event.type) {
       case 'checkout.session.completed':
         const session = event.data.object;
-        
+
         if (session.mode === 'subscription') {
           const subscription = await stripe.subscriptions.retrieve(session.subscription);
-          
+
           await UserService.create({
             username: session.metadata.userId,
             servicio: session.metadata.serviceId,
@@ -74,12 +66,9 @@ export async function POST(request) {
         break;
     }
 
-    return NextResponse.json({ received: true });
+    return new NextResponse(JSON.stringify({ received: true }));
   } catch (error) {
     console.error('Error processing webhook:', error);
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    );
+    return new NextResponse(JSON.stringify({ error: 'Error interno del servidor' }), { status: 500 });
   }
 }
