@@ -20,7 +20,7 @@ services:
     restart: always
 
   mongodb:
-    container_name: mongodb
+    container_name: mongodb_dev_lskn
     image: mongo:latest
     volumes:
       - mongodb_data:/data/db
