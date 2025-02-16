@@ -1028,7 +1028,7 @@ useEffect(() => {
     </div>
   </div>
 </header>
-<main className="flex-grow relative min-h-[calc(100vh-8rem)]">
+<main className="flex-grow relative min-h-[calc(100vh-12rem)]">
   <div 
     className="absolute inset-0 bg-cover bg-center bg-no-repeat"
     style={{
@@ -1037,7 +1037,7 @@ useEffect(() => {
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat'
     }}
-  />
+    />
 
   {isLoggedIn && showUserPanel ? (
     // Panel de usuario...
@@ -1291,28 +1291,30 @@ useEffect(() => {
   <div
     key={index}
     className={`
-      absolute inset-0 flex flex-col
+      absolute inset-0 flex items-start md:items-center
       ${currentSection === index ? 'opacity-100' : 'opacity-0'}
       ${isMobile ? '' : 'transition-all duration-300'}
     `}
   >
     <div className={`
-      text-white p-4 md:p-6 w-full h-full
-      ${isMobile ? 'mt-2 overflow-auto pb-16' : 'ml-20'}
+      text-white p-4 md:p-6 w-full 
+      ${isMobile ? 'mt-2' : 'ml-20'}
     `}>
       <h2 className={`
-        ${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-6'} 
-        font-bold text-shadow sticky top-0 bg-transparent
+        ${isMobile ? 'text-2xl mb-2' : 'text-7xl mb-6'} 
+        font-bold text-shadow
       `}>
         {section.title}
       </h2>
       <div className={`
         ${isMobile ? 'text-sm' : 'text-xl'}
-        h-full overflow-y-auto
+        animate-slideInRight delay-200 
+        overflow-y-auto 
+        ${isMobile ? 'max-h-[calc(100vh-16rem)]' : 'max-h-[calc(100vh-14rem)]'}
       `}>
         {typeof section.content === 'string' 
           ? <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>{section.content}</p>
-          : content
+          : section.content
         }
       </div>
     </div>
