@@ -679,10 +679,7 @@ const handleLogout = () => {
         <div
           key={index}
           className={`
-            ${isMobile 
-              ? '' 
-              : 'relative flex items-center justify-end h-16'
-            }
+            ${isMobile ? '' : 'relative flex items-center justify-end'}
           `}
         >
           <button
@@ -690,21 +687,27 @@ const handleLogout = () => {
             className={`
               ${isMobile 
                 ? 'w-4 h-4 rounded-full transition-colors' 
-                : 'w-16 h-16 rounded-full flex items-center justify-center'
+                : `flex items-center justify-end rounded-full transition-all duration-300 overflow-hidden
+                   ${currentSection === index ? 'w-auto px-6' : 'w-16'}
+                   h-16 bg-white hover:bg-blue-100`
               }
-              ${currentSection === index 
-                ? 'bg-blue-500 shadow-lg' 
-                : 'bg-white hover:bg-blue-100'
-              }
+              ${currentSection === index ? 'bg-blue-500 shadow-lg' : 'bg-white'}
             `}
           >
-            {!isMobile && currentSection === index && (
-              <span className={`
-                absolute right-20 whitespace-nowrap text-white text-lg font-medium
-                ${currentSection === index ? 'opacity-100' : 'opacity-0'}
-              `}>
-                {buttonTitles[section.title] || section.title}
-              </span>
+            {!isMobile && (
+              <div className="flex items-center gap-4">
+                <span className={`
+                  whitespace-nowrap text-black text-lg font-medium
+                  transition-all duration-300
+                  ${currentSection === index ? 'opacity-100' : 'opacity-0 w-0'}
+                `}>
+                  {buttonTitles[section.title] || section.title}
+                </span>
+                <div className={`
+                  w-16 h-16 rounded-full flex items-center justify-center 
+                  ${currentSection === index ? 'bg-blue-500' : 'bg-white'}
+                `} />
+              </div>
             )}
           </button>
         </div>
@@ -714,9 +717,13 @@ const handleLogout = () => {
 };
 const heroSections = [
   {
-    title: "PRESENTACIÓN",
-    content: "BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA"
-  },
+  title: "PRESENTACIÓN",
+  content: (
+    <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>
+      BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA
+    </p>
+  )
+},
   {
     title: "SERVICIOS",
     content: (
