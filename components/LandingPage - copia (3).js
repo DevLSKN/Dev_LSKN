@@ -670,48 +670,36 @@ const handleLogout = () => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const isMobile = useIsMobile();
 
+  const handleClick = (index) => {
+    setHoveredIndex(index);
+    onSectionChange(index);
+  };
+
   return (
     <div className={`${
       isMobile 
         ? 'fixed bottom-4 left-0 right-0 flex justify-center gap-2 z-50' 
-        : 'fixed right-0 top-1/2 transform -translate-y-1/2 flex flex-col gap-6 pr-4'
+        : 'fixed right-12 top-1/2 transform -translate-y-1/2 flex flex-col gap-6'
     }`}>
       {sections.map((section, index) => (
-        <div
+        <button
           key={index}
+          onClick={() => handleClick(index)}
           className={`
             ${isMobile 
-              ? 'w-3 h-3' 
-              : 'relative flex items-center justify-end w-48 h-12 overflow-hidden group'
-            }
+              ? 'w-3 h-3 rounded-full' 
+              : 'relative flex items-center justify-start gap-4 w-16 h-16 rounded-full'}
+            ${currentSection === index 
+              ? 'bg-blue-500 shadow-lg' 
+              : 'bg-white hover:bg-blue-100'}
           `}
         >
-          <button
-            onClick={() => onSectionChange(index)}
-            onMouseEnter={() => setHoveredIndex(index)}
-            onMouseLeave={() => setHoveredIndex(null)}
-            className={`
-              ${isMobile 
-                ? 'rounded-full w-full h-full' 
-                : 'absolute right-0 w-12 h-12 rounded-full flex items-center justify-center group-hover:-right-36'
-              }
-              ${currentSection === index 
-                ? 'bg-blue-500 shadow-lg' 
-                : 'bg-white hover:bg-blue-100'
-              }
-              transition-all duration-300
-            `}
-          >
-            {!isMobile && (
-              <span className={`
-                absolute right-16 whitespace-nowrap text-white opacity-0 
-                group-hover:opacity-100 transition-opacity duration-300
-              `}>
-                {buttonTitles[section.title] || section.title}
-              </span>
-            )}
-          </button>
-        </div>
+          {!isMobile && (
+            <span className="text-xl font-medium ml-6">
+              {buttonTitles[section.title] || section.title}
+            </span>
+          )}
+        </button>
       ))}
     </div>
   );
@@ -961,10 +949,10 @@ const heroSections = [
   },
   {
     title: "FREQUENT ASKED QUESTIONS",
-  content: (
-    <div className="relative w-full max-w-4xl mx-auto md:mx-0 md:ml-20" style={{ zIndex: 30 }}>
-      <FAQ />
-    </div>
+    content: (
+      <div className="relative w-full isolate" style={{ zIndex: 30 }}>
+        <FAQ />
+      </div>
     )
   },
   {
@@ -988,8 +976,8 @@ useEffect(() => {
     return () => clearInterval(timer);
   }, [showRegister, isPaused]);
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
-  <header className="bg-white shadow-md p-2 md:p-4 shrink-0">
+    <div className="min-h-screen flex flex-col">
+      <header className="bg-white shadow-md p-2 md:p-4">
   <div className="w-full flex flex-row justify-between items-center px-2 md:px-4">
     <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold text-black">LAIESKEN</h1>
     <div className="flex items-center">
@@ -1025,16 +1013,23 @@ useEffect(() => {
     </div>
   </div>
 </header>
-<main className="flex-1 relative">
-    <div 
-      className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-      style={{
-        backgroundImage: "url('/hero-bg.jpg')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
-    />
+<main className={`
+  flex-grow 
+  relative 
+  ${isMobile 
+    ? 'min-h-[calc(100vh-12rem)]' 
+    : 'min-h-[calc(100vh-14rem)]'
+  }`}
+>
+  <div 
+    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+    style={{
+      backgroundImage: "url('/hero-bg.jpg')",
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
+    }}
+  />
 
   {isLoggedIn && showUserPanel ? (
     // Panel de usuario...
