@@ -686,28 +686,26 @@ const handleLogout = () => {
             onClick={() => onSectionChange(index)}
             className={`
               ${isMobile 
-                ? 'w-4 h-4 rounded-full transition-colors' 
+                ? 'w-4 h-4 rounded-full' 
                 : `flex items-center justify-end rounded-full transition-all duration-300 overflow-hidden
                    ${currentSection === index ? 'w-auto px-6' : 'w-16'}
-                   h-16 bg-white hover:bg-blue-100`
+                   h-16`
               }
-              ${currentSection === index ? 'bg-blue-500 shadow-lg' : 'bg-white'}
+              ${currentSection === index 
+                ? 'bg-white' 
+                : 'bg-white hover:bg-opacity-80'
+              }
+              transition-colors
             `}
           >
             {!isMobile && (
-              <div className="flex items-center gap-4">
-                <span className={`
-                  whitespace-nowrap text-black text-lg font-medium
-                  transition-all duration-300
-                  ${currentSection === index ? 'opacity-100' : 'opacity-0 w-0'}
-                `}>
-                  {buttonTitles[section.title] || section.title}
-                </span>
-                <div className={`
-                  w-16 h-16 rounded-full flex items-center justify-center 
-                  ${currentSection === index ? 'bg-blue-500' : 'bg-white'}
-                `} />
-              </div>
+              <span className={`
+                whitespace-nowrap text-black text-lg font-medium
+                transition-all duration-300
+                ${currentSection === index ? 'opacity-100' : 'opacity-0 w-0'}
+              `}>
+                {buttonTitles[section.title] || section.title}
+              </span>
             )}
           </button>
         </div>
@@ -719,9 +717,11 @@ const heroSections = [
   {
   title: "PRESENTACIÓN",
   content: (
-    <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>
-      BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA
-    </p>
+    <div className="w-full">
+      <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>
+        BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA
+      </p>
+    </div>
   )
 },
   {
@@ -1291,12 +1291,8 @@ useEffect(() => {
   <div
     key={index}
     className={`absolute inset-0 flex items-start md:items-center ${
-      isMobile 
-        ? currentSection === index ? 'opacity-100' : 'opacity-0' // Solo fade en móvil
-        : currentSection === index 
-          ? 'opacity-100 translate-x-0' 
-          : 'opacity-0 -translate-x-full' // Mantiene la transición en desktop
-    } transition-all duration-700`}
+      currentSection === index ? 'opacity-100' : 'opacity-0'
+    } ${isMobile ? 'transition-opacity' : 'transition-all'} duration-300`}
   >
     <div className={`text-white p-4 md:p-6 w-full ${isMobile ? 'mt-2' : 'ml-20'}`}>
       <h2 className={`${
