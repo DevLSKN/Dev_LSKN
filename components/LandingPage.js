@@ -673,16 +673,16 @@ const handleLogout = () => {
   return (
     <div className={`${
       isMobile 
-        ? 'fixed bottom-4 left-0 right-0 flex justify-center gap-2 z-50' 
-        : 'fixed right-0 top-1/2 transform -translate-y-1/2 flex flex-col gap-6 pr-4'
+        ? 'fixed bottom-4 left-0 right-0 flex justify-center gap-3 z-50' 
+        : 'fixed right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-6'
     }`}>
       {sections.map((section, index) => (
         <div
           key={index}
           className={`
             ${isMobile 
-              ? 'w-3 h-3' 
-              : 'relative flex items-center justify-end w-48 h-12 overflow-hidden group'
+              ? '' 
+              : 'relative flex items-center justify-end overflow-hidden group'
             }
           `}
         >
@@ -691,9 +691,10 @@ const handleLogout = () => {
             onMouseEnter={() => setHoveredIndex(index)}
             onMouseLeave={() => setHoveredIndex(null)}
             className={`
+              relative
               ${isMobile 
-                ? 'rounded-full w-full h-full' 
-                : 'absolute right-0 w-12 h-12 rounded-full flex items-center justify-center group-hover:-right-36'
+                ? 'w-4 h-4 rounded-full' 
+                : 'w-16 h-16 rounded-full flex items-center justify-center'
               }
               ${currentSection === index 
                 ? 'bg-blue-500 shadow-lg' 
@@ -704,8 +705,9 @@ const handleLogout = () => {
           >
             {!isMobile && (
               <span className={`
-                absolute right-16 whitespace-nowrap text-white opacity-0 
-                group-hover:opacity-100 transition-opacity duration-300
+                absolute text-black right-20 whitespace-nowrap
+                opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                text-lg font-medium
               `}>
                 {buttonTitles[section.title] || section.title}
               </span>
