@@ -1114,39 +1114,36 @@ useEffect(() => {
 
                   <div className="flex flex-col gap-4">
                     {isEditing ? (
-                      <>
-                        <button
-                          onClick={handleUpdateUser}
-                          className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 text-xl"
-                        >
-                          Guardar Cambios
-                        </button>
-                        <button
-                          onClick={() => setIsEditing(false)}
-                          className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-xl"
-                        >
-                          Cancelar
-                        </button>
-                      </>
-                    ) : (
-                       <div className="flex gap-2">
-            <button
-              onClick={handleEdit}
-              className={`px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
-            >
-              Editar
-            </button>
-            <button
-              onClick={() => setShowUserPanel(false)}
-              className={`px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
-            >
-              Volver
-            </button>
-          </div>
-        </div>
+  <>
+    <button
+      onClick={handleUpdateUser}
+      className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 text-xl"
+    >
+      Guardar Cambios
+    </button>
+    <button
+      onClick={() => setIsEditing(false)}
+      className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-xl"
+    >
+      Cancelar
+    </button>
+  </>
+) : (
+  <div className="flex gap-2">
+    <button
+      onClick={handleEdit}
+      className={`px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
+    >
+      Editar
+    </button>
+    <button
+      onClick={() => setShowUserPanel(false)}
+      className={`px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
+    >
+      Volver
+    </button>
+  </div>
 )}
-                  </div>
-                </div>
 				{/* Columna derecha */}
                 <div className={`${isMobile ? 'w-full' : 'w-96'}`}>
           <div className="bg-black bg-opacity-50 p-4 rounded-lg">
