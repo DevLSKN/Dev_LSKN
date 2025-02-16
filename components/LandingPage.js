@@ -991,7 +991,7 @@ useEffect(() => {
     return () => clearInterval(timer);
   }, [showRegister, isPaused]);
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="min-h-screen flex flex-col"> {/* Cambiado de h-screen a min-h-screen */}
   <header className="bg-white shadow-md p-2 md:p-4 shrink-0">
   <div className="w-full flex flex-row justify-between items-center px-2 md:px-4">
     <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold text-black">LAIESKEN</h1>
@@ -1028,7 +1028,7 @@ useEffect(() => {
     </div>
   </div>
 </header>
-<main className="flex-grow relative min-h-[calc(100vh-10rem)]">
+<main className="flex-1 relative overflow-hidden">
   <div 
     className="absolute inset-0 bg-cover bg-center bg-no-repeat"
     style={{
@@ -1288,42 +1288,42 @@ useEffect(() => {
         ) : (
           <>
             {heroSections.map((section, index) => (
-  <div
-    key={index}
-    className={`
-      absolute inset-0
-      ${currentSection === index ? 'opacity-100' : 'opacity-0'}
-      ${isMobile ? '' : 'transition-all duration-300'}
-    `}
-  >
-    <div className={`
-      text-white w-full h-full
-      ${isMobile ? 'pb-16 overflow-y-auto' : 'ml-20'}
-    `}>
-      <div className={`
-        p-4 md:p-6
-        ${isMobile ? 'min-h-full' : ''}
-      `}>
-        <h2 className={`
-          ${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-6'} 
-          font-bold text-shadow
-        `}>
-          {section.title}
-        </h2>
+      <div
+        key={index}
+        className={`
+          absolute inset-0
+          ${currentSection === index ? 'opacity-100' : 'opacity-0'}
+          ${isMobile ? '' : 'transition-all duration-300'}
+        `}
+      >
         <div className={`
-          ${isMobile ? 'text-sm' : 'text-xl'}
-          ${isMobile ? '' : 'max-h-[calc(100vh-14rem)]'}
-          ${isMobile ? '' : 'overflow-y-auto'}
+          w-full h-full
+          ${isMobile ? 'overflow-y-auto' : ''}
+          text-white
         `}>
-          {typeof section.content === 'string' 
-            ? <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>{section.content}</p>
-            : section.content
-          }
+          <div className={`
+            p-4 md:p-6
+            ${isMobile ? 'pb-20' : 'ml-20'} 
+          `}>
+            <h2 className={`
+              ${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-6'} 
+              font-bold text-shadow sticky top-0 bg-transparent z-10
+            `}>
+              {section.title}
+            </h2>
+            <div className={`
+              ${isMobile ? 'text-sm' : 'text-xl'}
+              ${isMobile ? '' : 'max-h-[calc(100vh-14rem)] overflow-y-auto'}
+            `}>
+              {typeof section.content === 'string' 
+                ? <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>{section.content}</p>
+                : section.content
+              }
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-))}
+    ))}
 
       {!showRegister && (
         <NavigationDots
@@ -1343,10 +1343,9 @@ useEffect(() => {
 </main>
 
       {/* Footer y otros componentes... */}
-<footer className="bg-gray-800 text-white py-1 md:py-8 shrink-0">
-  <div className="container mx-auto px-2 md:px-4">
-    {/* Versión desktop del footer */}
-    <div className="hidden md:grid md:grid-cols-3 gap-8 py-4">
+<footer className="bg-gray-800 text-white py-2 md:py-8">
+    <div className="container mx-auto px-4">
+      <div className="hidden md:grid md:grid-cols-3 gap-8 py-4">
       <div className="text-left">
         <h3 className="text-xl font-bold mb-4">Contacto</h3>
         <p className="mb-2">Email: info@laiesken.com</p>
