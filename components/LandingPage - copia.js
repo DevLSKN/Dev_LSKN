@@ -673,29 +673,30 @@ const handleLogout = () => {
     <div className={`
       ${isMobile 
         ? 'fixed bottom-4 left-0 right-0 flex justify-center gap-3 z-50' 
-        : 'fixed right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-6 z-50'}
+        : 'fixed right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-6'}
     `}>
       {sections.map((section, index) => (
         isMobile ? (
+          // Versión móvil simplificada
           <button
             key={index}
             onClick={() => onSectionChange(index)}
             className={`
               w-4 h-4 rounded-full 
-              transition-opacity duration-300
               ${currentSection === index ? 'bg-white' : 'bg-white opacity-50'}
             `}
           />
         ) : (
-          <div key={index} className="relative flex items-center justify-end cursor-pointer">
+          // Versión desktop con expansión
+          <div key={index} className="relative flex items-center justify-end">
             <button
               onClick={() => onSectionChange(index)}
               className={`
                 flex items-center justify-end rounded-full 
                 transition-all duration-300 overflow-hidden
                 ${currentSection === index ? 'w-auto px-6' : 'w-16'}
-                h-16 bg-white hover:bg-opacity-90
-                z-50
+                h-16 bg-white
+                ${currentSection === index ? '' : 'hover:bg-opacity-80'}
               `}
             >
               <span className={`
@@ -1292,19 +1293,18 @@ useEffect(() => {
     className={`
       absolute inset-0
       ${currentSection === index ? 'opacity-100 z-10' : 'opacity-0 z-0'}
-      ${isMobile ? 'touch-auto' : 'transition-opacity duration-300'}
+      ${isMobile ? 'touch-auto' : 'transition-all duration-300'}
     `}
   >
     <div className={`
       w-full h-full
       ${isMobile ? 'overflow-y-auto touch-auto' : ''}
       text-white
-      flex justify-center
     `}
     style={{ WebkitOverflowScrolling: 'touch' }}
     >
       <div className={`
-        ${isMobile ? 'min-h-[101%] pb-20 w-full' : 'w-[1200px] px-20'}
+        ${isMobile ? 'min-h-[101%] pb-20' : 'ml-20'}
         p-4 md:p-6
       `}>
         <h2 className={`
