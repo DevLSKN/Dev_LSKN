@@ -668,6 +668,7 @@ const handleLogout = () => {
   };
   const NavigationDots = ({ sections, currentSection, onSectionChange }) => {
   const isMobile = useIsMobile();
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
   return (
     <div className={`
@@ -675,8 +676,9 @@ const handleLogout = () => {
         ? 'fixed bottom-4 left-0 right-0 flex justify-center gap-3 z-50' 
         : 'fixed right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-6 z-50'}
     `}>
-      {sections.map((section, index) => (
-        isMobile ? (
+      {isMobile ? (
+        // Versión móvil
+        sections.map((section, index) => (
           <button
             key={index}
             onClick={() => onSectionChange(index)}
@@ -686,32 +688,37 @@ const handleLogout = () => {
               ${currentSection === index ? 'bg-white' : 'bg-white opacity-50'}
             `}
           />
-        ) : (
-          <div key={index} className="relative flex items-center justify-end cursor-pointer">
+        ))
+      ) : (
+        // Versión desktop
+        sections.map((section, index) => (
+          <div 
+            key={index} 
+            className="relative flex items-center justify-end cursor-pointer"
+            onMouseEnter={() => setHoveredIndex(index)}
+            onMouseLeave={() => setHoveredIndex(null)}
+          >
             <button
               onClick={() => onSectionChange(index)}
               className={`
                 flex items-center justify-end rounded-full 
                 transition-all duration-300 overflow-hidden
-                ${currentSection === index ? 'w-auto px-6' : 'w-16'}
-                h-16 bg-white hover:bg-opacity-90
-                z-50
+                w-16 h-16 bg-white hover:bg-opacity-90
+                relative
               `}
-            >
-              <span className={`
-                whitespace-nowrap text-black text-lg font-medium
-                transition-all duration-300
-                ${currentSection === index ? 'opacity-100' : 'opacity-0 w-0'}
-              `}>
+            />
+            {(hoveredIndex === index || currentSection === index) && (
+              <span className="absolute right-20 whitespace-nowrap text-white text-lg">
                 {buttonTitles[section.title] || section.title}
               </span>
-            </button>
+            )}
           </div>
-        )
-      ))}
+        ))
+      )}
     </div>
   );
 };
+
 const heroSections = [
   {
   title: "PRESENTACIÓN",
@@ -1293,18 +1300,18 @@ useEffect(() => {
       absolute inset-0
       ${currentSection === index ? 'opacity-100 z-10' : 'opacity-0 z-0'}
       ${isMobile ? 'touch-auto' : 'transition-opacity duration-300'}
+      flex items-center
     `}
   >
     <div className={`
       w-full h-full
       ${isMobile ? 'overflow-y-auto touch-auto' : ''}
       text-white
-      flex justify-center
     `}
     style={{ WebkitOverflowScrolling: 'touch' }}
     >
       <div className={`
-        ${isMobile ? 'min-h-[101%] pb-20 w-full' : 'w-[1200px] px-20'}
+        ${isMobile ? 'min-h-[101%] pb-20 w-full' : 'w-full md:pl-20'}
         p-4 md:p-6
       `}>
         <h2 className={`
