@@ -1013,7 +1013,7 @@ useEffect(() => {
     </div>
   </div>
 </header>
-<main className="flex-grow relative min-h-[calc(100vh-10rem)]">
+<main className="flex-grow relative min-h-[calc(100vh-12rem)]">
   <div 
     className="absolute inset-0 bg-cover bg-center bg-no-repeat"
     style={{
@@ -1273,27 +1273,29 @@ useEffect(() => {
         ) : (
           <>
             {heroSections.map((section, index) => (
-        <div
-          key={index}
-          className={`absolute inset-0 flex items-center transition-all duration-700 ${
-            currentSection === index 
-              ? 'opacity-100 translate-x-0' 
-              : 'opacity-0 -translate-x-full'
-          }`}
-        >
-          <div className={`text-white p-4 md:p-6 w-full ${isMobile ? 'mt-2' : 'ml-20'}`}>
-            <h2 className={`${isMobile ? 'text-2xl mb-2' : 'text-7xl mb-6'} font-bold text-shadow animate-slideInLeft`}>
-              {section.title}
-            </h2>
-            <div className={`${isMobile ? 'text-sm' : 'text-xl'} animate-slideInRight delay-200 overflow-y-auto ${isMobile ? 'max-h-[calc(100vh-20rem)]' : 'max-h-[calc(100vh-16rem)]'}`}>
-              {typeof section.content === 'string' 
-                ? <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>{section.content}</p>
-                : section.content
-              }
-            </div>
-          </div>
-        </div>
-      ))}
+  <div
+    key={index}
+    className={`absolute inset-0 flex items-start pt-4 transition-all duration-700 ${
+      currentSection === index 
+        ? 'opacity-100 translate-x-0' 
+        : 'opacity-0 -translate-x-full'
+    }`}
+  >
+    <div className={`text-white p-4 md:p-6 w-full ${isMobile ? 'mt-2' : 'ml-20'}`}>
+      <h2 className={`${isMobile ? 'text-xl mb-2' : 'text-6xl mb-4'} font-bold text-shadow animate-slideInLeft`}>
+        {section.title}
+      </h2>
+      <div className={`${isMobile ? 'text-sm' : 'text-lg'} animate-slideInRight delay-200 overflow-y-auto ${
+        isMobile ? 'max-h-[calc(100vh-16rem)]' : 'max-h-[calc(100vh-14rem)]'
+      }`}>
+        {typeof section.content === 'string' 
+          ? <p className={`${isMobile ? 'text-lg' : 'text-2xl'} text-shadow`}>{section.content}</p>
+          : section.content
+        }
+      </div>
+    </div>
+  </div>
+))}
 
       {!showRegister && (
         <NavigationDots
@@ -1313,12 +1315,12 @@ useEffect(() => {
 </main>
 
       {/* Footer y otros componentes... */}
-<footer className="bg-gray-800 text-white py-2 md:py-8 shrink-0">
-  <div className="container mx-auto px-4">
+<footer className="bg-gray-800 text-white py-1 md:py-4 shrink-0">
+  <div className="container mx-auto px-2 md:px-4">
     {/* Versión desktop del footer */}
-    <div className="hidden md:grid md:grid-cols-3 gap-6">
+    <div className="hidden md:grid md:grid-cols-3 gap-4">
       <div className="text-left">
-        <h3 className="text-lg font-bold mb-4">Contacto</h3>
+        <h3 className="text-base font-bold mb-2">Contacto</h3>
         <p className="mb-2">Email: info@laiesken.com</p>
         <a 
           href="https://wa.me/34620564257"
@@ -1354,7 +1356,7 @@ useEffect(() => {
 
     {/* Versión móvil del footer - más compacta */}
     <div className="md:hidden">
-      <div className="flex justify-between text-sm">
+      <div className="flex justify-between text-xs">
         <div>
           <p>info@laiesken.com</p>
           <p>+34 620 564 257</p>
@@ -1368,7 +1370,7 @@ useEffect(() => {
           <p>S-D: 9:00-14:00</p>
         </div>
       </div>
-      <div className="mt-2 text-center text-xs">
+      <div className="mt-1 text-center text-xs">
         <p>&copy; {new Date().getFullYear()} LAIESKEN</p>
       </div>
     </div>
