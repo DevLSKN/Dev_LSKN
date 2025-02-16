@@ -1029,150 +1029,123 @@ useEffect(() => {
       <h2 className={`${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-10'} font-bold text-shadow`}>
         Panel de Usuario
       </h2>
+      
       <div className={`flex ${isMobile ? 'flex-col gap-4' : 'gap-8'}`}>
-        {/* Información del usuario */}
+        {/* Columna izquierda */}
         <div className={`space-y-4 ${isMobile ? 'w-full' : 'flex-1'}`}>
+          {/* Información de la cuenta */}
           <div className="bg-black bg-opacity-50 p-4 rounded-lg">
             <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
               Información de la cuenta
             </h3>
             <div className={`grid ${isMobile ? 'grid-cols-1 gap-2 text-base' : 'grid-cols-2 gap-6 text-xl'}`}>
-                      <p>Usuario: <span className="font-semibold">{currentUser?.username}</span></p>
-                      {isEditing ? (
-                        <>
-                          <div>
-                            <p>Email:</p>
-                            <input
-                              type="email"
-                              className="w-full p-2 border rounded text-black"
-                              value={editedUserData.email}
-                              onChange={(e) => setEditedUserData({...editedUserData, email: e.target.value})}
-                            />
-                          </div>
-                          <div>
-                            <p>Nombre:</p>
-                            <input
-                              type="text"
-                              className="w-full p-2 border rounded text-black"
-                              value={editedUserData.nombre}
-                              onChange={(e) => setEditedUserData({...editedUserData, nombre: e.target.value})}
-                            />
-                          </div>
-                          <div>
-                            <p>Apellidos:</p>
-                            <input
-                              type="text"
-                              className="w-full p-2 border rounded text-black"
-                              value={editedUserData.apellidos}
-                              onChange={(e) => setEditedUserData({...editedUserData, apellidos: e.target.value})}
-                            />
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <p>Email: <span className="font-semibold">{currentUser?.email}</span></p>
-                          <p>Nombre: <span className="font-semibold">{currentUser?.nombre}</span></p>
-                          <p>Apellidos: <span className="font-semibold">{currentUser?.apellidos}</span></p>
-                          <p>Fecha de Nacimiento: <span className="font-semibold">{currentUser?.fechaNacimiento}</span></p>
-                        </>
-                      )}
-                    </div>
+              {isEditing ? (
+                <>
+                  <div>
+                    <p>Email:</p>
+                    <input
+                      type="email"
+                      className="w-full p-2 border rounded text-black"
+                      value={editedUserData.email}
+                      onChange={(e) => setEditedUserData({...editedUserData, email: e.target.value})}
+                    />
                   </div>
-
-                  <div className="bg-black bg-opacity-50 p-6 rounded-lg">
-                    <h3 className="text-3xl font-semibold mb-4">Datos de contacto</h3>
-                    <div className="grid grid-cols-2 gap-6 text-xl">
-                      {isEditing ? (
-                        <>
-                          <div>
-                            <p>Teléfono:</p>
-                            <input
-                              type="tel"
-                              className="w-full p-2 border rounded text-black"
-                              value={editedUserData.telefono}
-                              onChange={(e) => setEditedUserData({...editedUserData, telefono: e.target.value})}
-                            />
-                          </div>
-                          <div>
-                            <p>Dirección:</p>
-                            <input
-                              type="text"
-                              className="w-full p-2 border rounded text-black"
-                              value={editedUserData.direccion}
-                              onChange={(e) => setEditedUserData({...editedUserData, direccion: e.target.value})}
-                            />
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <p>Teléfono: <span className="font-semibold">{currentUser?.telefono}</span></p>
-                          <p>Dirección: <span className="font-semibold">{currentUser?.direccion}</span></p>
-                        </>
-                      )}
-                    </div>
+                  <div>
+                    <p>Nombre:</p>
+                    <input
+                      type="text"
+                      className="w-full p-2 border rounded text-black"
+                      value={editedUserData.nombre}
+                      onChange={(e) => setEditedUserData({...editedUserData, nombre: e.target.value})}
+                    />
                   </div>
+                  <div>
+                    <p>Apellidos:</p>
+                    <input
+                      type="text"
+                      className="w-full p-2 border rounded text-black"
+                      value={editedUserData.apellidos}
+                      onChange={(e) => setEditedUserData({...editedUserData, apellidos: e.target.value})}
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p>Usuario: <span className="font-semibold">{currentUser?.username}</span></p>
+                  <p>Email: <span className="font-semibold">{currentUser?.email}</span></p>
+                  <p>Nombre: <span className="font-semibold">{currentUser?.nombre}</span></p>
+                  <p>Apellidos: <span className="font-semibold">{currentUser?.apellidos}</span></p>
+                </>
+              )}
+            </div>
+          </div>
 
-                  <div className="flex flex-col gap-4">
-                    {isEditing ? (
-  <>
-    <button
-      onClick={handleUpdateUser}
-      className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 text-xl"
-    >
-      Guardar Cambios
-    </button>
-    <button
-      onClick={() => setIsEditing(false)}
-      className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-xl"
-    >
-      Cancelar
-    </button>
-  </>
-) : (
-  <div className="flex gap-2">
-    <button
-      onClick={handleEdit}
-      className={`px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
-    >
-      Editar
-    </button>
-    <button
-      onClick={() => setShowUserPanel(false)}
-      className={`px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
-    >
-      Volver
-    </button>
-  </div>
-)}
-				{/* Columna derecha */}
-                <div className={`${isMobile ? 'w-full' : 'w-96'}`}>
+          {/* Botones de acción */}
+          <div className="flex gap-2">
+            {isEditing ? (
+              <>
+                <button
+                  onClick={handleUpdateUser}
+                  className={`px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
+                >
+                  Guardar
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className={`px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
+                >
+                  Cancelar
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleEdit}
+                  className={`px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => setShowUserPanel(false)}
+                  className={`px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
+                >
+                  Volver
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Columna derecha - Historial de servicios */}
+        <div className={`${isMobile ? 'w-full' : 'w-96'}`}>
           <div className="bg-black bg-opacity-50 p-4 rounded-lg">
             <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
               Historial de Servicios
             </h3>
             <div className={`${isMobile ? 'max-h-[300px]' : 'max-h-[500px]'} overflow-y-auto space-y-4`}>
-                     {userServices && userServices.length > 0 ? (
-  userServices.map((service) => (
-    <ServiceCard
-      key={service._id}
-      service={{
-        ...service,
-        estado: service.estado || 'activo', // Asegurarnos de que estado existe
-      }}
-      onUseService={handleUseService}
-      showToast={showToast}
-      onReloadServices={() => loadUserServices(currentUser.username)}
-    />
-  ))
-) : (
-  <p className="text-center text-gray-300">No hay servicios contratados</p>
-)}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {userServices && userServices.length > 0 ? (
+                userServices.map((service) => (
+                  <ServiceCard
+                    key={service._id}
+                    service={{
+                      ...service,
+                      estado: service.estado || 'activo'
+                    }}
+                    onUseService={handleUseService}
+                    showToast={showToast}
+                    onReloadServices={() => loadUserServices(currentUser.username)}
+                  />
+                ))
+              ) : (
+                <p className="text-center text-gray-300">No hay servicios contratados</p>
+              )}
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
         ) : showRegister ? (
           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-8 rounded-lg shadow-xl w-96">
