@@ -1012,7 +1012,8 @@ useEffect(() => {
       )}
     </div>
   </div>
-</heade<main className="flex-grow relative min-h-[calc(100vh-10rem)]">
+</header>
+<main className="flex-grow relative min-h-[calc(100vh-10rem)]">
   <div 
     className="absolute inset-0 bg-cover bg-center bg-no-repeat"
     style={{
