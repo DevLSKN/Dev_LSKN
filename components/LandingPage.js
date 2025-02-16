@@ -670,10 +670,15 @@ const handleLogout = () => {
   const isMobile = useIsMobile();
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
-  if (isMobile) {
-    return (
-      <div className="fixed bottom-4 left-0 right-0 flex justify-center gap-3 z-50">
-        {sections.map((index) => (
+  return (
+    <div className={`
+      ${isMobile 
+        ? 'fixed bottom-4 left-0 right-0 flex justify-center gap-3 z-50' 
+        : 'fixed right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-6 z-50'}
+    `}>
+      {isMobile ? (
+        // Versión móvil
+        sections.map((section, index) => (
           <button
             key={index}
             onClick={() => onSectionChange(index)}
@@ -683,45 +688,33 @@ const handleLogout = () => {
               ${currentSection === index ? 'bg-white' : 'bg-white opacity-50'}
             `}
           />
-        ))}
-      </div>
-    );
-  }
-
-  return (
-    <div className="fixed right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-6 z-50">
-      {sections.map((section, index) => (
-        <div 
-          key={index} 
-          className="relative flex items-center justify-end"
-          onMouseEnter={() => setHoveredIndex(index)}
-          onMouseLeave={() => setHoveredIndex(null)}
-        >
-          <div className={`
-            absolute right-16 
-            transition-all duration-300 
-            ${(hoveredIndex === index || currentSection === index) 
-              ? 'opacity-100 -translate-x-2' 
-              : 'opacity-0 translate-x-4'
-            }
-            whitespace-nowrap pr-4
-          `}>
-            <span className="text-white text-lg font-medium">
-              {buttonTitles[section.title] || section.title}
-            </span>
+        ))
+      ) : (
+        // Versión desktop
+        sections.map((section, index) => (
+          <div 
+            key={index} 
+            className="relative flex items-center justify-end cursor-pointer"
+            onMouseEnter={() => setHoveredIndex(index)}
+            onMouseLeave={() => setHoveredIndex(null)}
+          >
+            <button
+              onClick={() => onSectionChange(index)}
+              className={`
+                flex items-center justify-end rounded-full 
+                transition-all duration-300 overflow-hidden
+                w-16 h-16 bg-white hover:bg-opacity-90
+                relative
+              `}
+            />
+            {(hoveredIndex === index || currentSection === index) && (
+              <span className="absolute right-20 whitespace-nowrap text-white text-lg">
+                {buttonTitles[section.title] || section.title}
+              </span>
+            )}
           </div>
-          <button
-            onClick={() => onSectionChange(index)}
-            className={`
-              w-16 h-16 rounded-full 
-              transition-all duration-300
-              bg-white hover:bg-opacity-90
-              flex items-center justify-center
-              ${currentSection === index ? 'bg-opacity-100' : 'bg-opacity-70'}
-            `}
-          />
-        </div>
-      ))}
+        ))
+      )}
     </div>
   );
 };
@@ -1041,15 +1034,15 @@ useEffect(() => {
     </div>
   </div>
 </header>
-<main className="flex-grow relative min-h-[calc(100vh-12rem)]">
-    <div 
-      className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-      style={{
-        backgroundImage: "url('/hero-bg.jpg')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
+<main className="flex-1 relative overflow-hidden">
+  <div 
+    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+    style={{
+      backgroundImage: "url('/hero-bg.jpg')",
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
+    }}
     />
 
   {isLoggedIn && showUserPanel ? (
@@ -1301,46 +1294,46 @@ useEffect(() => {
         ) : (
           <>
             {heroSections.map((section, index) => (
-      <div
-        key={index}
-        className={`
-          absolute inset-0
-          ${currentSection === index ? 'opacity-100 z-10' : 'opacity-0 z-0'}
-          ${isMobile ? 'touch-auto' : 'transition-opacity duration-300'}
-          flex items-center
-        `}
-      >
+  <div
+    key={index}
+    className={`
+      absolute inset-0
+      ${currentSection === index ? 'opacity-100 z-10' : 'opacity-0 z-0'}
+      ${isMobile ? 'touch-auto' : 'transition-opacity duration-300'}
+      flex items-center
+    `}
+  >
+    <div className={`
+      w-full h-full
+      ${isMobile ? 'overflow-y-auto touch-auto' : ''}
+      text-white
+    `}
+    style={{ WebkitOverflowScrolling: 'touch' }}
+    >
+      <div className={`
+        ${isMobile ? 'min-h-[101%] pb-20 w-full' : 'w-full md:pl-20'}
+        p-4 md:p-6
+      `}>
+        <h2 className={`
+          ${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-6'} 
+          font-bold text-shadow
+          ${isMobile ? 'sticky top-0 bg-transparent z-20' : ''}
+        `}>
+          {section.title}
+        </h2>
         <div className={`
-          w-full
-          ${isMobile ? 'overflow-y-auto touch-auto' : ''}
-          text-white
-        `}
-        style={{ WebkitOverflowScrolling: 'touch' }}
-        >
-          <div className={`
-            ${isMobile ? 'min-h-[101%] pb-20 w-full' : 'max-w-7xl mx-auto pl-20'}
-            p-4 md:p-6
-          `}>
-            <h2 className={`
-              ${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-6'} 
-              font-bold text-shadow
-              ${isMobile ? 'sticky top-0 bg-transparent z-20' : ''}
-            `}>
-              {section.title}
-            </h2>
-            <div className={`
-              ${isMobile ? 'text-sm touch-auto' : 'text-xl'}
-              ${isMobile ? '' : 'max-h-[calc(100vh-14rem)] overflow-y-auto'}
-            `}>
-              {typeof section.content === 'string' 
-                ? <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>{section.content}</p>
-                : section.content
-              }
-            </div>
-          </div>
+          ${isMobile ? 'text-sm touch-auto' : 'text-xl'}
+          ${isMobile ? '' : 'max-h-[calc(100vh-14rem)] overflow-y-auto'}
+        `}>
+          {typeof section.content === 'string' 
+            ? <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>{section.content}</p>
+            : section.content
+          }
         </div>
       </div>
-    ))}
+    </div>
+  </div>
+))}
 
       {!showRegister && (
         <NavigationDots
