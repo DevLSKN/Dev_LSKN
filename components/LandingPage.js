@@ -1014,16 +1014,14 @@ useEffect(() => {
   </div>
 </header>
 	  <main className="flex-grow relative min-h-[calc(100vh-8rem)]">
-    <div className="absolute inset-0 bg-cover bg-center bg-no-repeat">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: "url('/hero-bg.jpg')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
-        />
+  <div className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+    style={{
+      backgroundImage: "url('/hero-bg.jpg')",
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
+    }}
+  />
 
         {isLoggedIn && showUserPanel ? (
           <div className="absolute inset-0 flex items-center animate-fadeInDown">
