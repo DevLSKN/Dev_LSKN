@@ -1013,14 +1013,7 @@ useEffect(() => {
     </div>
   </div>
 </header>
-<main className={`
-  flex-grow 
-  relative 
-  ${isMobile 
-    ? 'min-h-[calc(100vh-12rem)]' 
-    : 'min-h-[calc(100vh-14rem)]'
-  }`}
->
+<main className="flex-grow relative min-h-[calc(100vh-12rem)]">
   <div 
     className="absolute inset-0 bg-cover bg-center bg-no-repeat"
     style={{
@@ -1282,31 +1275,21 @@ useEffect(() => {
             {heroSections.map((section, index) => (
   <div
     key={index}
-    className={`absolute inset-0 flex items-start md:items-center transition-all duration-700 ${
+    className={`absolute inset-0 flex items-start pt-4 transition-all duration-700 ${
       currentSection === index 
         ? 'opacity-100 translate-x-0' 
         : 'opacity-0 -translate-x-full'
     }`}
   >
     <div className={`text-white p-4 md:p-6 w-full ${isMobile ? 'mt-2' : 'ml-20'}`}>
-      <h2 className={`${
-        isMobile 
-          ? 'text-xl mb-2' 
-          : 'text-7xl mb-6'} font-bold text-shadow animate-slideInLeft`}
-      >
+      <h2 className={`${isMobile ? 'text-xl mb-2' : 'text-6xl mb-4'} font-bold text-shadow animate-slideInLeft`}>
         {section.title}
       </h2>
-      <div className={`
-        animate-slideInRight 
-        delay-200 
-        overflow-y-auto 
-        ${isMobile 
-          ? 'text-sm max-h-[calc(100vh-16rem)]' 
-          : 'text-xl max-h-[calc(100vh-14rem)]'
-        }`}
-      >
+      <div className={`${isMobile ? 'text-sm' : 'text-lg'} animate-slideInRight delay-200 overflow-y-auto ${
+        isMobile ? 'max-h-[calc(100vh-16rem)]' : 'max-h-[calc(100vh-14rem)]'
+      }`}>
         {typeof section.content === 'string' 
-          ? <p className={`${isMobile ? 'text-lg' : 'text-4xl'} text-shadow`}>{section.content}</p>
+          ? <p className={`${isMobile ? 'text-lg' : 'text-2xl'} text-shadow`}>{section.content}</p>
           : section.content
         }
       </div>
@@ -1332,12 +1315,12 @@ useEffect(() => {
 </main>
 
       {/* Footer y otros componentes... */}
-<footer className="bg-gray-800 text-white py-1 md:py-6 shrink-0">
+<footer className="bg-gray-800 text-white py-1 md:py-4 shrink-0">
   <div className="container mx-auto px-2 md:px-4">
     {/* Versión desktop del footer */}
-    <div className="hidden md:grid md:grid-cols-3 gap-6">
+    <div className="hidden md:grid md:grid-cols-3 gap-4">
       <div className="text-left">
-        <h3 className="text-lg font-bold mb-4">Contacto</h3>
+        <h3 className="text-base font-bold mb-2">Contacto</h3>
         <p className="mb-2">Email: info@laiesken.com</p>
         <a 
           href="https://wa.me/34620564257"
