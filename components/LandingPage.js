@@ -1297,32 +1297,27 @@ useEffect(() => {
         ) : (
           <>
             {heroSections.map((section, index) => (
-              <div
-                key={index}
-                className={`absolute inset-0 flex items-center transition-all duration-700 ${
-                  currentSection === index 
-                    ? 'opacity-100 translate-x-0' 
-                    : 'opacity-0 -translate-x-full'
-                }`}
-              >
-                <div className={`absolute inset-0 flex items-center transition-all duration-700 ${
-  currentSection === index 
-    ? 'opacity-100 translate-x-0' 
-    : 'opacity-0 -translate-x-full'
-}`}>
-  <div className={`text-white p-4 md:p-6 w-full ${isMobile ? 'mt-4' : 'ml-20'}`}>
-    <h2 className={`${isMobile ? 'text-3xl mb-4' : 'text-7xl mb-6'} font-bold text-shadow animate-slideInLeft`}>
-      {section.title}
-    </h2>
-    <div className={`${isMobile ? 'text-base' : 'text-xl'} animate-slideInRight delay-200 overflow-y-auto max-h-[calc(100vh-16rem)]`}>
-      {typeof section.content === 'string' 
-        ? <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>{section.content}</p>
-        : section.content
-      }
+  <div
+    key={index}
+    className={`absolute inset-0 flex items-center transition-all duration-700 ${
+      currentSection === index 
+        ? 'opacity-100 translate-x-0' 
+        : 'opacity-0 -translate-x-full'
+    }`}
+  >
+    <div className={`text-white p-4 md:p-6 w-full ${isMobile ? 'mt-4' : 'ml-20'}`}>
+      <h2 className={`${isMobile ? 'text-3xl mb-4' : 'text-7xl mb-6'} font-bold text-shadow animate-slideInLeft`}>
+        {section.title}
+      </h2>
+      <div className={`${isMobile ? 'text-base' : 'text-xl'} animate-slideInRight delay-200 overflow-y-auto max-h-[calc(100vh-16rem)]`}>
+        {typeof section.content === 'string' 
+          ? <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>{section.content}</p>
+          : section.content
+        }
+      </div>
     </div>
   </div>
-</div>
-            ))}
+))}
 
             {!showRegister && (
               <NavigationDots
