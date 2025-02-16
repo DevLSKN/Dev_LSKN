@@ -1028,15 +1028,15 @@ useEffect(() => {
     </div>
   </div>
 </header>
-<main className="flex-1 relative">
-    <div 
-      className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-      style={{
-        backgroundImage: "url('/hero-bg.jpg')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
+<main className="flex-grow relative min-h-[calc(100vh-12rem)]">
+  <div 
+    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+    style={{
+      backgroundImage: "url('/hero-bg.jpg')",
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
+    }}
     />
 
   {isLoggedIn && showUserPanel ? (
@@ -1296,11 +1296,22 @@ useEffect(() => {
       ${isMobile ? '' : 'transition-all duration-300'}
     `}
   >
-    <div className={`text-white p-4 md:p-6 w-full ${isMobile ? 'mt-2' : 'ml-20'}`}>
-      <h2 className={`${isMobile ? 'text-2xl mb-2' : 'text-7xl mb-6'} font-bold text-shadow`}>
+    <div className={`
+      text-white p-4 md:p-6 w-full 
+      ${isMobile ? 'mt-2' : 'ml-20'}
+    `}>
+      <h2 className={`
+        ${isMobile ? 'text-2xl mb-2' : 'text-7xl mb-6'} 
+        font-bold text-shadow
+      `}>
         {section.title}
       </h2>
-      <div className={`${isMobile ? 'text-sm' : 'text-xl'}`}>
+      <div className={`
+        ${isMobile ? 'text-sm' : 'text-xl'}
+        animate-slideInRight delay-200 
+        overflow-y-auto 
+        ${isMobile ? 'max-h-[calc(100vh-16rem)]' : 'max-h-[calc(100vh-14rem)]'}
+      `}>
         {typeof section.content === 'string' 
           ? <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>{section.content}</p>
           : section.content
