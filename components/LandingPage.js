@@ -670,35 +670,35 @@ const handleLogout = () => {
   const isMobile = useIsMobile();
 
   return (
-    <div className={`${
-      isMobile 
+    <div className={`
+      ${isMobile 
         ? 'fixed bottom-4 left-0 right-0 flex justify-center gap-3 z-50' 
-        : 'fixed right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-6'
-    }`}>
+        : 'fixed right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-6'}
+    `}>
       {sections.map((section, index) => (
-        <div
-          key={index}
-          className={`
-            ${isMobile ? '' : 'relative flex items-center justify-end'}
-          `}
-        >
+        isMobile ? (
+          // Versión móvil simplificada
           <button
+            key={index}
             onClick={() => onSectionChange(index)}
             className={`
-              ${isMobile 
-                ? 'w-4 h-4 rounded-full' 
-                : `flex items-center justify-end rounded-full transition-all duration-300 overflow-hidden
-                   ${currentSection === index ? 'w-auto px-6' : 'w-16'}
-                   h-16`
-              }
-              ${currentSection === index 
-                ? 'bg-white' 
-                : 'bg-white hover:bg-opacity-80'
-              }
-              transition-colors
+              w-4 h-4 rounded-full 
+              ${currentSection === index ? 'bg-white' : 'bg-white opacity-50'}
             `}
-          >
-            {!isMobile && (
+          />
+        ) : (
+          // Versión desktop con expansión
+          <div key={index} className="relative flex items-center justify-end">
+            <button
+              onClick={() => onSectionChange(index)}
+              className={`
+                flex items-center justify-end rounded-full 
+                transition-all duration-300 overflow-hidden
+                ${currentSection === index ? 'w-auto px-6' : 'w-16'}
+                h-16 bg-white
+                ${currentSection === index ? '' : 'hover:bg-opacity-80'}
+              `}
+            >
               <span className={`
                 whitespace-nowrap text-black text-lg font-medium
                 transition-all duration-300
@@ -706,9 +706,9 @@ const handleLogout = () => {
               `}>
                 {buttonTitles[section.title] || section.title}
               </span>
-            )}
-          </button>
-        </div>
+            </button>
+          </div>
+        )
       ))}
     </div>
   );
@@ -1290,29 +1290,19 @@ useEffect(() => {
             {heroSections.map((section, index) => (
   <div
     key={index}
-    className={`absolute inset-0 flex items-start md:items-center ${
-      currentSection === index ? 'opacity-100' : 'opacity-0'
-    } ${isMobile ? 'transition-opacity' : 'transition-all'} duration-300`}
+    className={`
+      absolute inset-0 flex items-start md:items-center
+      ${currentSection === index ? 'opacity-100' : 'opacity-0'}
+      ${isMobile ? '' : 'transition-all duration-300'}
+    `}
   >
     <div className={`text-white p-4 md:p-6 w-full ${isMobile ? 'mt-2' : 'ml-20'}`}>
-      <h2 className={`${
-        isMobile 
-          ? 'text-xl mb-2' 
-          : 'text-7xl mb-6'} font-bold text-shadow animate-slideInLeft`}
-      >
+      <h2 className={`${isMobile ? 'text-2xl mb-2' : 'text-7xl mb-6'} font-bold text-shadow`}>
         {section.title}
       </h2>
-      <div className={`
-        animate-slideInRight 
-        delay-200 
-        overflow-y-auto 
-        ${isMobile 
-          ? 'text-sm max-h-[calc(100vh-16rem)]' 
-          : 'text-xl max-h-[calc(100vh-14rem)]'
-        }`}
-      >
+      <div className={`${isMobile ? 'text-sm' : 'text-xl'}`}>
         {typeof section.content === 'string' 
-          ? <p className={`${isMobile ? 'text-lg' : 'text-4xl'} text-shadow`}>{section.content}</p>
+          ? <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>{section.content}</p>
           : section.content
         }
       </div>
