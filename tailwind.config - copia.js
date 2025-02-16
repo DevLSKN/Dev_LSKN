@@ -19,30 +19,6 @@ module.exports = {
       backgroundColor: {
         background: '#ffffff',
       },
-      fontSize: {
-        'xs-mobile': ['0.75rem', { lineHeight: '1rem' }],
-        'sm-mobile': ['0.875rem', { lineHeight: '1.25rem' }],
-        'base-mobile': ['1rem', { lineHeight: '1.5rem' }],
-        'lg-mobile': ['1.125rem', { lineHeight: '1.75rem' }],
-        'xl-mobile': ['1.25rem', { lineHeight: '1.75rem' }],
-        '2xl-mobile': ['1.5rem', { lineHeight: '2rem' }],
-      },
-      spacing: {
-        'mobile-card': '1rem',
-        'mobile-section': '2rem',
-        'mobile-container': '1.5rem',
-      },
-      padding: {
-        'mobile-inner': '0.75rem',
-        'mobile-outer': '1rem',
-      },
-      margin: {
-        'mobile-stack': '1rem',
-      },
-      height: {
-        'mobile-card': '250px',
-        'mobile-hero': '400px',
-      },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0' },
