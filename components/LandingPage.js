@@ -978,42 +978,42 @@ useEffect(() => {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="bg-white shadow-md p-2 md:p-4">
-  <div className="w-full flex flex-col md:flex-row justify-between items-center px-2 md:px-4 gap-2 md:gap-0">
-    <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold text-black">LAIESKEN</h1>
+  <div className="w-full flex flex-row justify-between items-center px-2 md:px-4">
+    <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold text-black">LAIESKEN</h1>
     <div className="flex items-center">
       {isLoggedIn ? (
-  <div className="flex flex-col items-end gap-1 animate-fadeInDown">
-    <button
-      onClick={() => setShowUserPanel(true)}
-      className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2 hover-scale"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-      </svg>
-      <span className="font-semibold">{currentUser?.username}</span>
-    </button>
-    <button 
-      onClick={handleLogout}
-      className="text-sm text-red-500 hover:text-red-600 hover-slide"
-    >
-      Cerrar Sesión
-    </button>
-  </div>
-) : (
-  <button
-    onClick={openLoginModal}
-    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2 hover-scale"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-      <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
-    </svg>
-    Iniciar Sesión
-  </button>
-)}
+        <div className="flex flex-col items-end gap-1 animate-fadeInDown">
+          <button
+            onClick={() => setShowUserPanel(true)}
+            className="px-4 md:px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2 hover-scale text-sm md:text-base"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+            </svg>
+            <span className="font-semibold">{currentUser?.username}</span>
+          </button>
+          <button 
+            onClick={handleLogout}
+            className="text-xs md:text-sm text-red-500 hover:text-red-600 hover-slide"
+          >
+            Cerrar Sesión
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={openLoginModal}
+          className="px-3 md:px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2 hover-scale text-sm md:text-base"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+          Iniciar Sesión
+        </button>
+      )}
     </div>
   </div>
 </header>
-	  <main className="flex-grow relative min-h-[calc(100vh-8rem)]">
+	  <main className="flex-grow relative min-h-[calc(100vh-10rem)]">
   <div className="absolute inset-0 bg-cover bg-center bg-no-repeat"
     style={{
       backgroundImage: "url('/hero-bg.jpg')",
@@ -1023,16 +1023,20 @@ useEffect(() => {
     }}
   />
 
-        {isLoggedIn && showUserPanel ? (
-          <div className="absolute inset-0 flex items-center animate-fadeInDown">
-            <div className="text-white p-6 ml-20 w-full max-w-7xl">
-              <h2 className="text-7xl font-bold mb-10 text-shadow">Panel de Usuario</h2>
-              <div className="flex gap-8">
-                {/* Columna izquierda */}
-                <div className="space-y-8 flex-1">
-                  <div className="bg-black bg-opacity-50 p-6 rounded-lg">
-                    <h3 className="text-3xl font-semibold mb-4">Información de la cuenta</h3>
-                    <div className="grid grid-cols-2 gap-6 text-xl">
+        {isLoggedIn && showUserPanel && (
+  <div className="absolute inset-0 flex items-start animate-fadeInDown p-4">
+    <div className="text-white w-full max-w-7xl">
+      <h2 className={`${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-10'} font-bold text-shadow`}>
+        Panel de Usuario
+      </h2>
+      <div className={`flex ${isMobile ? 'flex-col gap-4' : 'gap-8'}`}>
+        {/* Información del usuario */}
+        <div className={`space-y-4 ${isMobile ? 'w-full' : 'flex-1'}`}>
+          <div className="bg-black bg-opacity-50 p-4 rounded-lg">
+            <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
+              Información de la cuenta
+            </h3>
+            <div className={`grid ${isMobile ? 'grid-cols-1 gap-2 text-base' : 'grid-cols-2 gap-6 text-xl'}`}>
                       <p>Usuario: <span className="font-semibold">{currentUser?.username}</span></p>
                       {isEditing ? (
                         <>
@@ -1125,28 +1129,31 @@ useEffect(() => {
                         </button>
                       </>
                     ) : (
-                       <div className="flex gap-4">
-    <button
-      onClick={handleEdit}
-      className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-xl"
-    >
-      Editar Datos
-    </button>
-    <button
-      onClick={() => setShowUserPanel(false)}
-      className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-xl"
-    >
-      Volver al Menú Principal
-    </button>
-  </div>
+                       <div className="flex gap-2">
+            <button
+              onClick={handleEdit}
+              className={`px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
+            >
+              Editar
+            </button>
+            <button
+              onClick={() => setShowUserPanel(false)}
+              className={`px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
+            >
+              Volver
+            </button>
+          </div>
+        </div>
 )}
                   </div>
                 </div>
 				{/* Columna derecha */}
-                <div className="w-96">
-                  <div className="bg-black bg-opacity-50 p-6 rounded-lg">
-                    <h3 className="text-3xl font-semibold mb-4">Historial de Servicios</h3>
-                    <div className="max-h-[500px] overflow-y-auto space-y-4">
+                <div className={`${isMobile ? 'w-full' : 'w-96'}`}>
+          <div className="bg-black bg-opacity-50 p-4 rounded-lg">
+            <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
+              Historial de Servicios
+            </h3>
+            <div className={`${isMobile ? 'max-h-[300px]' : 'max-h-[500px]'} overflow-y-auto space-y-4`}>
                      {userServices && userServices.length > 0 ? (
   userServices.map((service) => (
     <ServiceCard
@@ -1303,11 +1310,11 @@ useEffect(() => {
         : 'opacity-0 -translate-x-full'
     }`}
   >
-    <div className={`text-white p-4 md:p-6 w-full ${isMobile ? 'mt-4' : 'ml-20'}`}>
-      <h2 className={`${isMobile ? 'text-3xl mb-4' : 'text-7xl mb-6'} font-bold text-shadow animate-slideInLeft`}>
-        {section.title}
-      </h2>
-      <div className={`${isMobile ? 'text-base' : 'text-xl'} animate-slideInRight delay-200 overflow-y-auto max-h-[calc(100vh-16rem)]`}>
+    <div className={`text-white p-4 md:p-6 w-full ${isMobile ? 'mt-2' : 'ml-20'}`}>
+    <h2 className={`${isMobile ? 'text-2xl mb-2' : 'text-7xl mb-6'} font-bold text-shadow animate-slideInLeft`}>
+      {section.title}
+    </h2>
+    <div className={`${isMobile ? 'text-sm' : 'text-xl'} animate-slideInRight delay-200 overflow-y-auto ${isMobile ? 'max-h-[calc(100vh-20rem)]' : 'max-h-[calc(100vh-16rem)]'}`}>
         {typeof section.content === 'string' 
           ? <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>{section.content}</p>
           : section.content

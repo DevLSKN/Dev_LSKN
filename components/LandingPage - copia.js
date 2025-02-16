@@ -7,9 +7,28 @@ import FAQ from './ui/FAQ';
 import apiServices from '../app/services/apiServices';
 import { useRouter } from 'next/navigation';
 import { Instagram, MessageCircle, MessageSquare, MapPin } from 'lucide-react';
+import stripeService from '../services/stripeService';
+import ForgotPasswordModal from './ui/ForgotPasswordModal';
 
-const ServiceCard = ({ service, onUseService }) => {
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
+};
+
+const ServiceCard = ({ service, onUseService, showToast, onReloadServices }) => {
   const [showHistory, setShowHistory] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   if (!service) return null;
 
@@ -23,10 +42,63 @@ const ServiceCard = ({ service, onUseService }) => {
     return null;
   };
 
+  // Añadir console.log para debug
+  console.log('Service data:', {
+    service,
+    isMensualidad: service.servicio === 'MENSUALIDAD',
+    isSubscriptionActive: service.estado === 'activo' && service.subscriptionId,
+    hasSub: !!service.subscriptionId,
+    estado: service.estado,
+  });
+
   const usosMaximos = getUsosMaximos(service.servicio);
   const usosActuales = Array.isArray(service.usos) ? service.usos.length : 0;
   const usosRestantes = usosMaximos - usosActuales;
   const puedeUsarse = usosMaximos !== null && usosRestantes > 0;
+
+  const isMensualidad = service.servicio === 'MENSUALIDAD';
+  const isSubscriptionActive = isMensualidad && service.subscriptionId && service.stripeStatus === 'active';
+  const isSubscriptionCanceling = service.cancelAtPeriodEnd;
+
+  const handleCancelSubscription = async () => {
+    if (!service.subscriptionId) {
+      showToast('No se encontró información de la suscripción', 'error');
+      return;
+    }
+
+    try {
+      setIsCancelling(true);
+      const response = await fetch('/api/cancel-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          subscriptionId: service.subscriptionId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        showToast(
+          'Tu suscripción se cancelará al final del período actual',
+          'success'
+        );
+        // Recargar servicios si es necesario
+        if (typeof onReloadServices === 'function') {
+          onReloadServices();
+        }
+      } else {
+        showToast(data.error || 'Error al cancelar la suscripción', 'error');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showToast('Error al procesar la solicitud', 'error');
+    } finally {
+      setIsCancelling(false);
+    }
+  };
 
   const formatearFecha = (fecha) => {
     return new Date(fecha).toLocaleDateString('es-ES', {
@@ -37,6 +109,11 @@ const ServiceCard = ({ service, onUseService }) => {
       minute: '2-digit'
     });
   };
+const shouldShowUseButton = (service) => {
+  // Solo mostrar el botón para bonos
+  const isBono = service.servicio.includes('BONO') || service.servicio === 'DAY PASS';
+  return isBono && (usosMaximos === null || puedeUsarse) && service.estado === 'activo';
+};
 
   return (
     <div className="bg-white bg-opacity-10 p-4 rounded-lg hover:bg-opacity-20 transition-all">
@@ -46,6 +123,16 @@ const ServiceCard = ({ service, onUseService }) => {
           <p className="text-sm text-gray-300">
             Comprado: {formatearFecha(service.createdAt)}
           </p>
+          {isMensualidad && service.currentPeriodEnd && (
+            <p className="text-sm text-gray-300">
+              Próxima renovación: {formatearFecha(service.currentPeriodEnd)}
+            </p>
+          )}
+          {isSubscriptionCanceling && (
+            <p className="text-sm text-yellow-400">
+              Se cancelará el {formatearFecha(service.currentPeriodEnd)}
+            </p>
+          )}
         </div>
         {usosMaximos !== null && (
           <div className="text-right bg-black bg-opacity-30 p-2 rounded">
@@ -103,23 +190,44 @@ const ServiceCard = ({ service, onUseService }) => {
         </div>
       )}
 
-      {puedeUsarse && (
-        <button
-          onClick={() => onUseService(service._id)}
-          className="mt-3 w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
-        >
-          Usar Ahora
-        </button>
-      )}
+      <div className="mt-3 space-y-2">
+  {shouldShowUseButton(service) && (
+    <button
+      onClick={() => onUseService(service._id)}
+      className="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+    >
+      Usar Ahora
+    </button>
+  )}
+
+  {isSubscriptionActive && !isSubscriptionCanceling && (
+    <button
+      onClick={() => {
+        showToast(
+          '¿Estás seguro de que deseas cancelar tu suscripción?',
+          'confirm',
+          handleCancelSubscription
+        );
+      }}
+      disabled={isCancelling}
+      className="w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors disabled:opacity-50"
+    >
+      {isCancelling ? 'Cancelando...' : 'Cancelar Suscripción'}
+    </button>
+  )}
+</div>
     </div>
   );
 };
 const LandingPage = () => {
+
   const router = useRouter();
   const [currentSection, setCurrentSection] = useState(0);
   const [showRegister, setShowRegister] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showUserPanel, setShowUserPanel] = useState(false);
+  const isMobile = useIsMobile();
   const [currentUser, setCurrentUser] = useState({
     username: '',
     email: '',
@@ -155,17 +263,7 @@ const LandingPage = () => {
   });
 };
 
-  const [loginModalData, setLoginModalData] = useState({
-    username: '',
-    password: ''
-  });
-  
-  const [loginData, setLoginData] = useState({
-    username: '',
-    password: ''
-  });
-  
-  const [registerData, setRegisterData] = useState({
+   const [registerData, setRegisterData] = useState({
     username: '',
     nombre: '',
     apellidos: '',
@@ -193,6 +291,23 @@ const LandingPage = () => {
 
     setRegisterData(prev => ({...prev, fechaNacimiento: formattedDate}));
   };
+  const handlePendingService = async () => {
+  if (pendingService && isLoggedIn && currentUser && !showLoginModal) {
+    console.log('Redirigiendo a sección de servicios...');
+    setCurrentSection(1);
+    
+    // Solo procesar el pago si tenemos toda la información necesaria
+    if (pendingService && currentUser?.username) {
+      try {
+        await stripeService.createCheckoutSession(pendingService, currentUser.username);
+        setPendingService(null);
+      } catch (error) {
+        console.error('Error al procesar servicio pendiente:', error);
+        showToast('Error al procesar el servicio. Por favor, inténtalo de nuevo.', 'error');
+      }
+    }
+  }
+};
   useEffect(() => {
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
@@ -214,6 +329,24 @@ const LandingPage = () => {
       loadUserServices(currentUser.username);
     }
   }, [isLoggedIn, currentUser, showUserPanel]);
+
+// Actualiza la función realizarContratacion (aunque no la uses directamente ahora)
+const realizarContratacion = async (servicio, usuario) => {
+  try {
+    console.log('Realizando contratación para:', usuario.username, servicio);
+    setIsProcessingService(true);
+    
+    await stripeService.createCheckoutSession(servicio, usuario.username);
+    setPendingService(null);
+  } catch (error) {
+    console.error('Error en contratación:', error);
+    showToast(error.message || 'Error al contratar el servicio', 'error');
+  } finally {
+    setIsProcessingService(false);
+  }
+};
+
+
 
   const handleEdit = () => {
     setEditedUserData({...currentUser});
@@ -295,108 +428,98 @@ const LandingPage = () => {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    
-    try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: showLoginModal ? loginModalData.username : loginData.username,
-          password: showLoginModal ? loginModalData.password : loginData.password
-        }),
+  e.preventDefault();
+  
+  try {
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: loginModalData.username,
+        password: loginModalData.password
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      const { user } = data;
+      
+      // Actualizar estado del usuario
+      await new Promise(resolve => {
+        setCurrentUser(user);
+        setIsLoggedIn(true);
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        resolve();
       });
 
-      const data = await response.json();
-      console.log('Respuesta completa del login:', data);
+      // Limpiar formulario y cerrar modal
+      setLoginModalData({ username: '', password: '' });
+      setShowLoginModal(false);
 
-      if (response.ok) {
-        const { user } = data;
-		console.log('Datos del usuario al hacer login:', user);
-        console.log('Usuario:', user);
-        console.log('Rol del usuario:', user.role);
+      if (user.role === 'admin') {
+        window.location.href = '/admin/dashboard';
+        return;
+      }
 
-        await new Promise(resolve => {
-          setCurrentUser(user);
-          setIsLoggedIn(true);
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          resolve();
-        });
+      // Cargar servicios del usuario
+      await loadUserServices(user.username);
 
-        setLoginData({ username: '', password: '' });
-        setLoginModalData({ username: '', password: '' });
-        setShowLoginModal(false);
-
-        if (user.role === 'admin') {
-          window.location.href = '/admin/dashboard';
-          return;
-        }
-
+      if (pendingService) {
+        showToast('Inicio de sesión exitoso. Procesando tu compra...', 'success');
+        setCurrentSection(1);
+        
+        setTimeout(async () => {
+          try {
+            await stripeService.createCheckoutSession(pendingService, user.username);
+            setPendingService(null);
+          } catch (error) {
+            console.error('Error al procesar servicio pendiente:', error);
+            showToast('Error al procesar el servicio. Por favor, inténtalo de nuevo.', 'error');
+          }
+        }, 1000);
+      } else {
         showToast('Inicio de sesión exitoso', 'success');
-
-        if (pendingService) {
-          console.log('Procesando servicio pendiente:', pendingService);
-          await new Promise(resolve => setTimeout(resolve, 100));
-          await realizarContratacion(pendingService, user);
-          setPendingService(null);
-        } else {
-          setShowUserPanel(true);
-        }
-
-        await loadUserServices(user.username);
-      } else {
-        showToast(data.error || 'Usuario o contraseña incorrectos', 'error');
+        setShowUserPanel(true);
       }
-    } catch (error) {
-      console.error('Error:', error);
-      showToast('Error al conectar con el servidor', 'error');
+    } else {
+      showToast(data.error || 'Usuario o contraseña incorrectos', 'error');
     }
-  };
-  const realizarContratacion = async (servicio, usuario) => {
-    try {
-      console.log('Realizando contratación para:', usuario.username, servicio);
-      setIsProcessingService(true);
-      
-      const result = await apiServices.contractService(usuario.username, servicio);
-      console.log('Resultado de contratación:', result);
+  } catch (error) {
+    console.error('Error:', error);
+    showToast('Error al conectar con el servidor', 'error');
+  }
+};
 
-      if (result.success) {
-        showToast('¡Servicio contratado correctamente!', 'success');
-        await loadUserServices(usuario.username);
-      } else {
-        throw new Error(result.error || 'Error en la contratación');
-      }
-    } catch (error) {
-      console.error('Error en contratación:', error);
-      showToast(error.message || 'Error al contratar el servicio', 'error');
-    } finally {
-      setIsProcessingService(false);
-    }
-  };
+const handleContratarServicio = async (serviceName) => {
+  console.log('Iniciando contratación:', { serviceName, isLoggedIn, currentUser });
+  
+  if (!serviceName) {
+    showToast('Error: Servicio no válido', 'error');
+    return;
+  }
 
-  const handleContratarServicio = async (serviceName) => {
-    console.log('Iniciando contratación:', { serviceName, isLoggedIn, currentUser });
-    
-    if (!serviceName) {
-      showToast('Error: Servicio no válido', 'error');
-      return;
-    }
+  if (!isLoggedIn || !currentUser?.username) {
+    console.log('Usuario no logueado, guardando servicio pendiente');
+    setPendingService(serviceName);
+    setShowLoginModal(true);
+    return;
+  }
 
-    if (!isLoggedIn || !currentUser?.username) {
-      console.log('Usuario no logueado, guardando servicio pendiente');
-      setPendingService(serviceName);
-      setShowLoginModal(true);
-      return;
-    }
+  try {
+    console.log('Procesando contratación para:', {
+      serviceName,
+      userId: currentUser.username
+    });
 
-    showToast(
-      `¿Quieres contratar ${serviceName}?`,
-      'confirm',
-      () => realizarContratacion(serviceName, currentUser)
-    );
-  };
+    await stripeService.createCheckoutSession(serviceName, currentUser.username);
+  } catch (error) {
+    console.error('Error al procesar el pago:', error);
+    showToast('Error al procesar el pago. Por favor, inténtalo de nuevo.', 'error');
+  }
+};
 
   const buttonTitles = {
     "FREQUENT ASKED QUESTIONS": "FAQ",
@@ -435,7 +558,14 @@ const LandingPage = () => {
       setUserServices([]);
     }
   };
-
+const [loginModalData, setLoginModalData] = useState({
+  username: '',
+  password: ''
+});
+const openLoginModal = () => {
+  setLoginModalData({ username: '', password: '' });
+  setShowLoginModal(true);
+};
 const handleLogout = () => {
   showToast(
     '¿Estás seguro de que quieres cerrar sesión?',
@@ -537,52 +667,43 @@ const handleLogout = () => {
     }
   };
   const NavigationDots = ({ sections, currentSection, onSectionChange }) => {
-    const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const isMobile = useIsMobile();
 
-    const handleClick = (index) => {
-      setHoveredIndex(index);
-      onSectionChange(index);
-    };
-
-    return (
-      <div className="fixed right-12 top-1/2 transform -translate-y-1/2 flex flex-col gap-6">
-        {sections.map((section, index) => (
-          <div
-            key={index}
-            className="relative group flex justify-end"
-            onMouseEnter={() => setHoveredIndex(index)}
-            onMouseLeave={() => currentSection === index ? null : setHoveredIndex(null)}
-          >
-            <button
-              onClick={() => handleClick(index)}
-              className={`relative flex items-center justify-start gap-4 transition-all duration-300 ease-in-out
-                ${hoveredIndex === index || currentSection === index ? 'w-64' : 'w-16'}
-                ${currentSection === index 
-                  ? 'bg-blue-500 shadow-lg' 
-                  : 'bg-white hover:bg-blue-100'} 
-                h-16 rounded-full cursor-pointer`}
-            >
-              <span className={`
-                whitespace-nowrap text-xl font-medium
-                transition-opacity duration-300 ml-6
-                ${hoveredIndex === index || currentSection === index ? 'opacity-100' : 'opacity-0'}
-                ${currentSection === index ? 'text-white' : 'text-gray-700'}`}
-              >
-                {buttonTitles[section.title] || section.title}
-              </span>
-              
-              <div className={`
-                absolute right-0 min-w-[4rem] h-16 rounded-full
-                flex items-center justify-center
-                ${currentSection === index ? 'text-white' : 'text-blue-500'}
-                text-2xl font-bold`}
-              ></div>
-            </button>
-          </div>
-        ))}
-      </div>
-    );
+  const handleClick = (index) => {
+    setHoveredIndex(index);
+    onSectionChange(index);
   };
+
+  return (
+    <div className={`${
+      isMobile 
+        ? 'fixed bottom-4 left-0 right-0 flex justify-center gap-2 z-50' 
+        : 'fixed right-12 top-1/2 transform -translate-y-1/2 flex flex-col gap-6'
+    }`}>
+      {sections.map((section, index) => (
+        <button
+          key={index}
+          onClick={() => handleClick(index)}
+          className={`
+            ${isMobile 
+              ? 'w-3 h-3 rounded-full' 
+              : 'relative flex items-center justify-start gap-4 w-16 h-16 rounded-full'}
+            ${currentSection === index 
+              ? 'bg-blue-500 shadow-lg' 
+              : 'bg-white hover:bg-blue-100'}
+          `}
+        >
+          {!isMobile && (
+            <span className="text-xl font-medium ml-6">
+              {buttonTitles[section.title] || section.title}
+            </span>
+          )}
+        </button>
+      ))}
+    </div>
+  );
+};
 const heroSections = [
   {
     title: "PRESENTACIÓN",
@@ -591,7 +712,7 @@ const heroSections = [
   {
     title: "SERVICIOS",
     content: (
-      <div className="grid grid-cols-3 gap-6 w-full max-w-6xl">
+      <div className={`grid ${isMobile ? 'grid-cols-1' : 'sm:grid-cols-2 lg:grid-cols-3'} gap-4 w-full max-w-6xl px-4`}>	
         {[
           {
             _id: 'daypass',
@@ -655,7 +776,7 @@ const heroSections = [
   {
     title: "EL EQUIPO",
     content: (
-      <div className="grid grid-cols-3 gap-6 w-full max-w-6xl">
+      <div className={`grid ${isMobile ? 'grid-cols-1' : 'sm:grid-cols-2 lg:grid-cols-3'} gap-4 w-full max-w-6xl px-4`}>
         {[
           {
             id: 1,
@@ -719,7 +840,7 @@ const heroSections = [
   {
     title: "EVENTOS",
     content: (
-      <div className="grid grid-cols-2 gap-16 w-full max-w-7xl">
+      <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-8 w-full max-w-7xl px-4`}>
         {/* Columna Próximos Eventos */}
         <div className="flex flex-col items-center">
           <h3 className="text-3xl font-bold mb-8 text-white text-center">Próximos Eventos</h3>
@@ -837,74 +958,73 @@ const heroSections = [
   {
     title: "CONTACTANOS",
     content: (
-      <div className="w-full max-w-6xl">
-        <div className="flex flex-col gap-8">
+      <div className="w-full max-w-2xl mx-auto"> {/* Reducido el ancho máximo y centrado */}
+        <div className="bg-black bg-opacity-50 p-8 rounded-lg"> {/* Añadido fondo y padding */}
+          <h3 className="text-2xl font-bold mb-6 text-center text-white">Envíanos un mensaje</h3>
           <ContactForm />
-          <div className="grid grid-cols-3 gap-6">
-            <div className="bg-black bg-opacity-50 p-6 rounded-lg">
-              <h3 className="text-2xl font-bold mb-4">Teléfono</h3>
-              <p className="text-lg">+34 123 456 789</p>
-            </div>
-            <div className="bg-black bg-opacity-50 p-6 rounded-lg">
-              <h3 className="text-2xl font-bold mb-4">Email</h3>
-              <p className="text-lg">info@laiesken.com</p>
-            </div>
-            <div className="bg-black bg-opacity-50 p-6 rounded-lg">
-              <h3 className="text-2xl font-bold mb-4">Dirección</h3>
-              <p className="text-lg">Calle Deporte 123, 28001 Madrid</p>
-            </div>
-          </div>
         </div>
       </div>
     )
-  }
+}
 ];
+useEffect(() => {
+    const timer = setInterval(() => {
+      if (!showRegister && !isPaused) {
+        setCurrentSection((prev) => (prev + 1) % heroSections.length);
+      }
+    }, 6000); // Cambiado de 4000 a 6000
+    return () => clearInterval(timer);
+  }, [showRegister, isPaused]);
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-white shadow-md p-4">
-  <div className="w-full flex justify-between items-center px-4">
-    <h1 className="text-6xl font-bold text-black">LAIESKEN</h1>
+      <header className="bg-white shadow-md p-2 md:p-4">
+  <div className="w-full flex flex-col md:flex-row justify-between items-center px-2 md:px-4 gap-2 md:gap-0">
+    <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold text-black">LAIESKEN</h1>
     <div className="flex items-center">
       {isLoggedIn ? (
-        <div className="flex items-center gap-4">
-          <span className="text-gray-700 font-semibold">{currentUser?.username}</span>
-          <button
-            onClick={() => setShowUserPanel(true)}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm flex items-center gap-2"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-            </svg>
-            Mi Perfil
-          </button>
-        </div>
-      ) : (
-        <button
-          onClick={() => setShowLoginModal(true)}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center gap-2"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
-          </svg>
-          Iniciar Sesión
-        </button>
-      )}
+  <div className="flex flex-col items-end gap-1 animate-fadeInDown">
+    <button
+      onClick={() => setShowUserPanel(true)}
+      className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2 hover-scale"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+      </svg>
+      <span className="font-semibold">{currentUser?.username}</span>
+    </button>
+    <button 
+      onClick={handleLogout}
+      className="text-sm text-red-500 hover:text-red-600 hover-slide"
+    >
+      Cerrar Sesión
+    </button>
+  </div>
+) : (
+  <button
+    onClick={openLoginModal}
+    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2 hover-scale"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+      <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
+    </svg>
+    Iniciar Sesión
+  </button>
+)}
     </div>
   </div>
 </header>
-	  <main className="flex-grow relative">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: "url('/hero-bg.jpg')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
-        />
+	  <main className="flex-grow relative min-h-[calc(100vh-8rem)]">
+  <div className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+    style={{
+      backgroundImage: "url('/hero-bg.jpg')",
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
+    }}
+  />
 
         {isLoggedIn && showUserPanel ? (
-          <div className="absolute inset-0 flex items-center">
+          <div className="absolute inset-0 flex items-center animate-fadeInDown">
             <div className="text-white p-6 ml-20 w-full max-w-7xl">
               <h2 className="text-7xl font-bold mb-10 text-shadow">Panel de Usuario</h2>
               <div className="flex gap-8">
@@ -1005,29 +1125,21 @@ const heroSections = [
                         </button>
                       </>
                     ) : (
-                      <>
-                        <div className="flex gap-4">
-                          <button
-                            onClick={handleEdit}
-                            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-xl"
-                          >
-                            Editar Datos
-                          </button>
-                          <button
-  onClick={handleLogout}
-  className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 text-xl"
->
-  Cerrar Sesión
-</button>
-                        </div>
-                        <button
-                          onClick={() => setShowUserPanel(false)}
-                          className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-xl w-fit"
-                        >
-                          Menú Principal
-                        </button>
-                      </>
-                    )}
+                       <div className="flex gap-4">
+    <button
+      onClick={handleEdit}
+      className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-xl"
+    >
+      Editar Datos
+    </button>
+    <button
+      onClick={() => setShowUserPanel(false)}
+      className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-xl"
+    >
+      Volver al Menú Principal
+    </button>
+  </div>
+)}
                   </div>
                 </div>
 				{/* Columna derecha */}
@@ -1035,17 +1147,22 @@ const heroSections = [
                   <div className="bg-black bg-opacity-50 p-6 rounded-lg">
                     <h3 className="text-3xl font-semibold mb-4">Historial de Servicios</h3>
                     <div className="max-h-[500px] overflow-y-auto space-y-4">
-                      {userServices && userServices.length > 0 ? (
-                        userServices.map((service) => (
-                          <ServiceCard
-                            key={service._id}
-                            service={service}
-                            onUseService={handleUseService}
-                          />
-                        ))
-                      ) : (
-                        <p className="text-center text-gray-300">No hay servicios contratados</p>
-                      )}
+                     {userServices && userServices.length > 0 ? (
+  userServices.map((service) => (
+    <ServiceCard
+      key={service._id}
+      service={{
+        ...service,
+        estado: service.estado || 'activo', // Asegurarnos de que estado existe
+      }}
+      onUseService={handleUseService}
+      showToast={showToast}
+      onReloadServices={() => loadUserServices(currentUser.username)}
+    />
+  ))
+) : (
+  <p className="text-center text-gray-300">No hay servicios contratados</p>
+)}
                     </div>
                   </div>
                 </div>
@@ -1178,31 +1295,27 @@ const heroSections = [
         ) : (
           <>
             {heroSections.map((section, index) => (
-              <div
-                key={index}
-                className={`absolute inset-0 flex items-center transition-all duration-700 ${
-                  currentSection === index 
-                    ? 'opacity-100 translate-x-0' 
-                    : 'opacity-0 -translate-x-full'
-                }`}
-              >
-                <div className="text-white p-6 ml-20">
-                  <h2 className={`text-7xl font-bold mb-6 text-shadow animate-slideInLeft ${
-                    currentSection === index ? 'opacity-100' : 'opacity-0'
-                  }`}>
-                    {section.title}
-                  </h2>
-                  <div className={`text-xl animate-slideInRight delay-200 ${
-                    currentSection === index ? 'opacity-100' : 'opacity-0'
-                  }`}>
-                    {typeof section.content === 'string' 
-                      ? <p className="text-4xl text-shadow">{section.content}</p>
-                      : section.content
-                    }
-                  </div>
-                </div>
-              </div>
-            ))}
+  <div
+    key={index}
+    className={`absolute inset-0 flex items-center transition-all duration-700 ${
+      currentSection === index 
+        ? 'opacity-100 translate-x-0' 
+        : 'opacity-0 -translate-x-full'
+    }`}
+  >
+    <div className={`text-white p-4 md:p-6 w-full ${isMobile ? 'mt-4' : 'ml-20'}`}>
+      <h2 className={`${isMobile ? 'text-3xl mb-4' : 'text-7xl mb-6'} font-bold text-shadow animate-slideInLeft`}>
+        {section.title}
+      </h2>
+      <div className={`${isMobile ? 'text-base' : 'text-xl'} animate-slideInRight delay-200 overflow-y-auto max-h-[calc(100vh-16rem)]`}>
+        {typeof section.content === 'string' 
+          ? <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>{section.content}</p>
+          : section.content
+        }
+      </div>
+    </div>
+  </div>
+))}
 
             {!showRegister && (
               <NavigationDots
@@ -1222,7 +1335,67 @@ const heroSections = [
       </main>
 
       {/* Footer y otros componentes... */}
+<footer className="bg-gray-800 text-white py-2 md:py-8 shrink-0">
+  <div className="container mx-auto px-4">
+    {/* Versión desktop del footer */}
+    <div className="hidden md:grid md:grid-cols-3 gap-6">
+      <div className="text-left">
+        <h3 className="text-lg font-bold mb-4">Contacto</h3>
+        <p className="mb-2">Email: info@laiesken.com</p>
+        <a 
+          href="https://wa.me/34620564257"
+          className="flex items-center gap-2 hover:text-blue-400"
+        >
+          <MessageSquare size={16} />
+          WhatsApp: +34 620 564 257
+        </a>
+        <a 
+          href="https://www.instagram.com/laieskenbarcelona"
+          className="flex items-center gap-2 hover:text-blue-400"
+        >
+          <Instagram size={16} />
+          @laieskenbarcelona
+        </a>
+      </div>
 
+      <div className="text-left">
+        <h3 className="text-lg font-bold mb-4">Ubicación</h3>
+        <p>C/ Torrassa 94</p>
+        <p>(Pasaje Josefina Vidal) Nave 2</p>
+        <p>08930, Sant Adrià de Besòs</p>
+        <p>Barcelona</p>
+      </div>
+
+      <div className="text-left">
+        <h3 className="text-lg font-bold mb-4">Horario</h3>
+        <p>Lunes a Viernes: 7:00 - 22:00</p>
+        <p>Sábados: 9:00 - 20:00</p>
+        <p>Domingos: 9:00 - 14:00</p>
+      </div>
+    </div>
+
+    {/* Versión móvil del footer - más compacta */}
+    <div className="md:hidden">
+      <div className="flex justify-between text-sm">
+        <div>
+          <p>info@laiesken.com</p>
+          <p>+34 620 564 257</p>
+        </div>
+        <div>
+          <p>C/ Torrassa 94</p>
+          <p>Sant Adrià de Besòs</p>
+        </div>
+        <div>
+          <p>L-V: 7:00-22:00</p>
+          <p>S-D: 9:00-14:00</p>
+        </div>
+      </div>
+      <div className="mt-2 text-center text-xs">
+        <p>&copy; {new Date().getFullYear()} LAIESKEN</p>
+      </div>
+    </div>
+  </div>
+</footer>
       {showLoginModal && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div className="bg-white p-8 rounded-lg shadow-xl w-96">
@@ -1257,14 +1430,15 @@ const heroSections = [
           </button>
           <div className="flex justify-between items-center">
             <button
-              type="button"
-              onClick={() => {
-                showToast('Esta funcionalidad estará disponible próximamente', 'info');
-              }}
-              className="text-sm text-blue-500 hover:text-blue-700 transition-colors"
-            >
-              ¿Olvidaste tu contraseña?
-            </button>
+  type="button"
+  onClick={() => {
+    setShowLoginModal(false);
+    setShowForgotPassword(true);
+  }}
+  className="text-sm text-blue-500 hover:text-blue-700 transition-colors"
+>
+  ¿Olvidaste tu contraseña?
+</button>
             <button
               type="button"
               onClick={() => {
@@ -1289,8 +1463,18 @@ const heroSections = [
         </div>
       </form>
     </div>
+	
   </div>
 )}
+{showForgotPassword && (
+  <ForgotPasswordModal
+    onClose={() => {
+      setShowForgotPassword(false);
+      setShowLoginModal(true); // Opcional: volver a mostrar el login
+    }}
+  />
+)}
+
 
       {toast.show && (
         <Toast
