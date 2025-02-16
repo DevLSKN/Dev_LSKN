@@ -1012,8 +1012,7 @@ useEffect(() => {
       )}
     </div>
   </div>
-</header>
-	  <main className="flex-grow relative min-h-[calc(100vh-10rem)]">
+</heade<main className="flex-grow relative min-h-[calc(100vh-10rem)]">
   <div 
     className="absolute inset-0 bg-cover bg-center bg-no-repeat"
     style={{
@@ -1024,9 +1023,10 @@ useEffect(() => {
     }}
   />
 
-        {isLoggedIn && showUserPanel && (
-  <div className="absolute inset-0 flex items-start animate-fadeInDown p-4">
-    <div className="text-white w-full max-w-7xl">
+  {isLoggedIn && showUserPanel ? (
+    // Panel de usuario...
+    <div className="absolute inset-0 flex items-start animate-fadeInDown p-4">
+      <div className="text-white w-full max-w-7xl">
       <h2 className={`${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-10'} font-bold text-shadow`}>
         Panel de Usuario
       </h2>
@@ -1272,44 +1272,44 @@ useEffect(() => {
         ) : (
           <>
             {heroSections.map((section, index) => (
-      <div
-        key={index}
-        className={`absolute inset-0 flex items-center transition-all duration-700 ${
-          currentSection === index 
-            ? 'opacity-100 translate-x-0' 
-            : 'opacity-0 -translate-x-full'
-        }`}
-      >
-        <div className={`text-white p-4 md:p-6 w-full ${isMobile ? 'mt-2' : 'ml-20'}`}>
-          <h2 className={`${isMobile ? 'text-2xl mb-2' : 'text-7xl mb-6'} font-bold text-shadow animate-slideInLeft`}>
-            {section.title}
-          </h2>
-          <div className={`${isMobile ? 'text-sm' : 'text-xl'} animate-slideInRight delay-200 overflow-y-auto ${isMobile ? 'max-h-[calc(100vh-20rem)]' : 'max-h-[calc(100vh-16rem)]'}`}>
-            {typeof section.content === 'string' 
-              ? <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>{section.content}</p>
-              : section.content
-            }
+        <div
+          key={index}
+          className={`absolute inset-0 flex items-center transition-all duration-700 ${
+            currentSection === index 
+              ? 'opacity-100 translate-x-0' 
+              : 'opacity-0 -translate-x-full'
+          }`}
+        >
+          <div className={`text-white p-4 md:p-6 w-full ${isMobile ? 'mt-2' : 'ml-20'}`}>
+            <h2 className={`${isMobile ? 'text-2xl mb-2' : 'text-7xl mb-6'} font-bold text-shadow animate-slideInLeft`}>
+              {section.title}
+            </h2>
+            <div className={`${isMobile ? 'text-sm' : 'text-xl'} animate-slideInRight delay-200 overflow-y-auto ${isMobile ? 'max-h-[calc(100vh-20rem)]' : 'max-h-[calc(100vh-16rem)]'}`}>
+              {typeof section.content === 'string' 
+                ? <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>{section.content}</p>
+                : section.content
+              }
+            </div>
           </div>
         </div>
-      </div>
-    ))}
+      ))}
 
-    {!showRegister && (
-      <NavigationDots
-        sections={heroSections}
-        currentSection={currentSection}
-        onSectionChange={(index) => {
-          setCurrentSection(index);
-          setIsPaused(true);
-          setTimeout(() => {
-            setIsPaused(false);
-          }, 15000);
-        }}
-      />
-    )}
-  </>
-)}
-      </main>
+      {!showRegister && (
+        <NavigationDots
+          sections={heroSections}
+          currentSection={currentSection}
+          onSectionChange={(index) => {
+            setCurrentSection(index);
+            setIsPaused(true);
+            setTimeout(() => {
+              setIsPaused(false);
+            }, 15000);
+          }}
+        />
+      )}
+    </>
+  )}
+</main>
 
       {/* Footer y otros componentes... */}
 <footer className="bg-gray-800 text-white py-2 md:py-8 shrink-0">
