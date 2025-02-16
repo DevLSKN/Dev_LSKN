@@ -670,36 +670,50 @@ const handleLogout = () => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const isMobile = useIsMobile();
 
-  const handleClick = (index) => {
-    setHoveredIndex(index);
-    onSectionChange(index);
-  };
-
   return (
     <div className={`${
       isMobile 
-        ? 'fixed bottom-4 left-0 right-0 flex justify-center gap-2 z-50' 
-        : 'fixed right-12 top-1/2 transform -translate-y-1/2 flex flex-col gap-6'
+        ? 'fixed bottom-4 left-0 right-0 flex justify-center gap-3 z-50' 
+        : 'fixed right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-6'
     }`}>
       {sections.map((section, index) => (
-        <button
+        <div
           key={index}
-          onClick={() => handleClick(index)}
           className={`
             ${isMobile 
-              ? 'w-3 h-3 rounded-full' 
-              : 'relative flex items-center justify-start gap-4 w-16 h-16 rounded-full'}
-            ${currentSection === index 
-              ? 'bg-blue-500 shadow-lg' 
-              : 'bg-white hover:bg-blue-100'}
+              ? '' 
+              : 'relative flex items-center justify-end overflow-hidden group'
+            }
           `}
         >
-          {!isMobile && (
-            <span className="text-xl font-medium ml-6">
-              {buttonTitles[section.title] || section.title}
-            </span>
-          )}
-        </button>
+          <button
+            onClick={() => onSectionChange(index)}
+            onMouseEnter={() => setHoveredIndex(index)}
+            onMouseLeave={() => setHoveredIndex(null)}
+            className={`
+              relative
+              ${isMobile 
+                ? 'w-4 h-4 rounded-full' 
+                : 'w-16 h-16 rounded-full flex items-center justify-center'
+              }
+              ${currentSection === index 
+                ? 'bg-blue-500 shadow-lg' 
+                : 'bg-white hover:bg-blue-100'
+              }
+              transition-all duration-300
+            `}
+          >
+            {!isMobile && (
+              <span className={`
+                absolute text-black right-20 whitespace-nowrap
+                opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                text-lg font-medium
+              `}>
+                {buttonTitles[section.title] || section.title}
+              </span>
+            )}
+          </button>
+        </div>
       ))}
     </div>
   );
@@ -949,10 +963,10 @@ const heroSections = [
   },
   {
     title: "FREQUENT ASKED QUESTIONS",
-    content: (
-      <div className="relative w-full isolate" style={{ zIndex: 30 }}>
-        <FAQ />
-      </div>
+  content: (
+    <div className="relative w-full max-w-4xl mx-auto md:mx-0 md:ml-20" style={{ zIndex: 30 }}>
+      <FAQ />
+    </div>
     )
   },
   {
@@ -976,199 +990,177 @@ useEffect(() => {
     return () => clearInterval(timer);
   }, [showRegister, isPaused]);
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-white shadow-md p-2 md:p-4">
-  <div className="w-full flex flex-col md:flex-row justify-between items-center px-2 md:px-4 gap-2 md:gap-0">
-    <h1 className="text-2xl md:text-4xl lg:text-6xl font-bold text-black">LAIESKEN</h1>
+    <div className="h-screen flex flex-col overflow-hidden">
+  <header className="bg-white shadow-md p-2 md:p-4 shrink-0">
+  <div className="w-full flex flex-row justify-between items-center px-2 md:px-4">
+    <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold text-black">LAIESKEN</h1>
     <div className="flex items-center">
       {isLoggedIn ? (
-  <div className="flex flex-col items-end gap-1 animate-fadeInDown">
-    <button
-      onClick={() => setShowUserPanel(true)}
-      className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2 hover-scale"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-      </svg>
-      <span className="font-semibold">{currentUser?.username}</span>
-    </button>
-    <button 
-      onClick={handleLogout}
-      className="text-sm text-red-500 hover:text-red-600 hover-slide"
-    >
-      Cerrar Sesión
-    </button>
-  </div>
-) : (
-  <button
-    onClick={openLoginModal}
-    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2 hover-scale"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-      <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
-    </svg>
-    Iniciar Sesión
-  </button>
-)}
+        <div className="flex flex-col items-end gap-1 animate-fadeInDown">
+          <button
+            onClick={() => setShowUserPanel(true)}
+            className="px-4 md:px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2 hover-scale text-sm md:text-base"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+            </svg>
+            <span className="font-semibold">{currentUser?.username}</span>
+          </button>
+          <button 
+            onClick={handleLogout}
+            className="text-xs md:text-sm text-red-500 hover:text-red-600 hover-slide"
+          >
+            Cerrar Sesión
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={openLoginModal}
+          className="px-3 md:px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2 hover-scale text-sm md:text-base"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+          Iniciar Sesión
+        </button>
+      )}
     </div>
   </div>
 </header>
-	  <main className="flex-grow relative min-h-[calc(100vh-8rem)]">
-  <div className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-    style={{
-      backgroundImage: "url('/hero-bg.jpg')",
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat'
-    }}
-  />
-
-        {isLoggedIn && showUserPanel ? (
-          <div className="absolute inset-0 flex items-center animate-fadeInDown">
-            <div className="text-white p-6 ml-20 w-full max-w-7xl">
-              <h2 className="text-7xl font-bold mb-10 text-shadow">Panel de Usuario</h2>
-              <div className="flex gap-8">
-                {/* Columna izquierda */}
-                <div className="space-y-8 flex-1">
-                  <div className="bg-black bg-opacity-50 p-6 rounded-lg">
-                    <h3 className="text-3xl font-semibold mb-4">Información de la cuenta</h3>
-                    <div className="grid grid-cols-2 gap-6 text-xl">
-                      <p>Usuario: <span className="font-semibold">{currentUser?.username}</span></p>
-                      {isEditing ? (
-                        <>
-                          <div>
-                            <p>Email:</p>
-                            <input
-                              type="email"
-                              className="w-full p-2 border rounded text-black"
-                              value={editedUserData.email}
-                              onChange={(e) => setEditedUserData({...editedUserData, email: e.target.value})}
-                            />
-                          </div>
-                          <div>
-                            <p>Nombre:</p>
-                            <input
-                              type="text"
-                              className="w-full p-2 border rounded text-black"
-                              value={editedUserData.nombre}
-                              onChange={(e) => setEditedUserData({...editedUserData, nombre: e.target.value})}
-                            />
-                          </div>
-                          <div>
-                            <p>Apellidos:</p>
-                            <input
-                              type="text"
-                              className="w-full p-2 border rounded text-black"
-                              value={editedUserData.apellidos}
-                              onChange={(e) => setEditedUserData({...editedUserData, apellidos: e.target.value})}
-                            />
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <p>Email: <span className="font-semibold">{currentUser?.email}</span></p>
-                          <p>Nombre: <span className="font-semibold">{currentUser?.nombre}</span></p>
-                          <p>Apellidos: <span className="font-semibold">{currentUser?.apellidos}</span></p>
-                          <p>Fecha de Nacimiento: <span className="font-semibold">{currentUser?.fechaNacimiento}</span></p>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="bg-black bg-opacity-50 p-6 rounded-lg">
-                    <h3 className="text-3xl font-semibold mb-4">Datos de contacto</h3>
-                    <div className="grid grid-cols-2 gap-6 text-xl">
-                      {isEditing ? (
-                        <>
-                          <div>
-                            <p>Teléfono:</p>
-                            <input
-                              type="tel"
-                              className="w-full p-2 border rounded text-black"
-                              value={editedUserData.telefono}
-                              onChange={(e) => setEditedUserData({...editedUserData, telefono: e.target.value})}
-                            />
-                          </div>
-                          <div>
-                            <p>Dirección:</p>
-                            <input
-                              type="text"
-                              className="w-full p-2 border rounded text-black"
-                              value={editedUserData.direccion}
-                              onChange={(e) => setEditedUserData({...editedUserData, direccion: e.target.value})}
-                            />
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <p>Teléfono: <span className="font-semibold">{currentUser?.telefono}</span></p>
-                          <p>Dirección: <span className="font-semibold">{currentUser?.direccion}</span></p>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-4">
-                    {isEditing ? (
-                      <>
-                        <button
-                          onClick={handleUpdateUser}
-                          className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 text-xl"
-                        >
-                          Guardar Cambios
-                        </button>
-                        <button
-                          onClick={() => setIsEditing(false)}
-                          className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-xl"
-                        >
-                          Cancelar
-                        </button>
-                      </>
-                    ) : (
-                       <div className="flex gap-4">
-    <button
-      onClick={handleEdit}
-      className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-xl"
-    >
-      Editar Datos
-    </button>
-    <button
-      onClick={() => setShowUserPanel(false)}
-      className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-xl"
-    >
-      Volver al Menú Principal
-    </button>
-  </div>
-)}
-                  </div>
-                </div>
-				{/* Columna derecha */}
-                <div className="w-96">
-                  <div className="bg-black bg-opacity-50 p-6 rounded-lg">
-                    <h3 className="text-3xl font-semibold mb-4">Historial de Servicios</h3>
-                    <div className="max-h-[500px] overflow-y-auto space-y-4">
-                     {userServices && userServices.length > 0 ? (
-  userServices.map((service) => (
-    <ServiceCard
-      key={service._id}
-      service={{
-        ...service,
-        estado: service.estado || 'activo', // Asegurarnos de que estado existe
+<main className="flex-1 relative">
+    <div 
+      className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage: "url('/hero-bg.jpg')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
       }}
-      onUseService={handleUseService}
-      showToast={showToast}
-      onReloadServices={() => loadUserServices(currentUser.username)}
     />
-  ))
-) : (
-  <p className="text-center text-gray-300">No hay servicios contratados</p>
-)}
-                    </div>
+
+  {isLoggedIn && showUserPanel ? (
+    // Panel de usuario...
+    <div className="absolute inset-0 flex items-start animate-fadeInDown p-4">
+      <div className="text-white w-full max-w-7xl">
+      <h2 className={`${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-10'} font-bold text-shadow`}>
+        Panel de Usuario
+      </h2>
+      
+      <div className={`flex ${isMobile ? 'flex-col gap-4' : 'gap-8'}`}>
+        {/* Columna izquierda */}
+        <div className={`space-y-4 ${isMobile ? 'w-full' : 'flex-1'}`}>
+          {/* Información de la cuenta */}
+          <div className="bg-black bg-opacity-50 p-4 rounded-lg">
+            <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
+              Información de la cuenta
+            </h3>
+            <div className={`grid ${isMobile ? 'grid-cols-1 gap-2 text-base' : 'grid-cols-2 gap-6 text-xl'}`}>
+              {isEditing ? (
+                <>
+                  <div>
+                    <p>Email:</p>
+                    <input
+                      type="email"
+                      className="w-full p-2 border rounded text-black"
+                      value={editedUserData.email}
+                      onChange={(e) => setEditedUserData({...editedUserData, email: e.target.value})}
+                    />
                   </div>
-                </div>
-              </div>
+                  <div>
+                    <p>Nombre:</p>
+                    <input
+                      type="text"
+                      className="w-full p-2 border rounded text-black"
+                      value={editedUserData.nombre}
+                      onChange={(e) => setEditedUserData({...editedUserData, nombre: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <p>Apellidos:</p>
+                    <input
+                      type="text"
+                      className="w-full p-2 border rounded text-black"
+                      value={editedUserData.apellidos}
+                      onChange={(e) => setEditedUserData({...editedUserData, apellidos: e.target.value})}
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p>Usuario: <span className="font-semibold">{currentUser?.username}</span></p>
+                  <p>Email: <span className="font-semibold">{currentUser?.email}</span></p>
+                  <p>Nombre: <span className="font-semibold">{currentUser?.nombre}</span></p>
+                  <p>Apellidos: <span className="font-semibold">{currentUser?.apellidos}</span></p>
+                </>
+              )}
             </div>
           </div>
+
+          {/* Botones de acción */}
+          <div className="flex gap-2">
+            {isEditing ? (
+              <>
+                <button
+                  onClick={handleUpdateUser}
+                  className={`px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
+                >
+                  Guardar
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className={`px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
+                >
+                  Cancelar
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleEdit}
+                  className={`px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => setShowUserPanel(false)}
+                  className={`px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
+                >
+                  Volver
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Columna derecha - Historial de servicios */}
+        <div className={`${isMobile ? 'w-full' : 'w-96'}`}>
+          <div className="bg-black bg-opacity-50 p-4 rounded-lg">
+            <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
+              Historial de Servicios
+            </h3>
+            <div className={`${isMobile ? 'max-h-[300px]' : 'max-h-[500px]'} overflow-y-auto space-y-4`}>
+              {userServices && userServices.length > 0 ? (
+                userServices.map((service) => (
+                  <ServiceCard
+                    key={service._id}
+                    service={{
+                      ...service,
+                      estado: service.estado || 'activo'
+                    }}
+                    onUseService={handleUseService}
+                    showToast={showToast}
+                    onReloadServices={() => loadUserServices(currentUser.username)}
+                  />
+                ))
+              ) : (
+                <p className="text-center text-gray-300">No hay servicios contratados</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
         ) : showRegister ? (
           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-8 rounded-lg shadow-xl w-96">
@@ -1297,19 +1289,31 @@ useEffect(() => {
             {heroSections.map((section, index) => (
   <div
     key={index}
-    className={`absolute inset-0 flex items-center transition-all duration-700 ${
+    className={`absolute inset-0 flex items-start md:items-center transition-all duration-700 ${
       currentSection === index 
         ? 'opacity-100 translate-x-0' 
         : 'opacity-0 -translate-x-full'
     }`}
   >
-    <div className={`text-white p-4 md:p-6 w-full ${isMobile ? 'mt-4' : 'ml-20'}`}>
-      <h2 className={`${isMobile ? 'text-3xl mb-4' : 'text-7xl mb-6'} font-bold text-shadow animate-slideInLeft`}>
+    <div className={`text-white p-4 md:p-6 w-full ${isMobile ? 'mt-2' : 'ml-20'}`}>
+      <h2 className={`${
+        isMobile 
+          ? 'text-xl mb-2' 
+          : 'text-7xl mb-6'} font-bold text-shadow animate-slideInLeft`}
+      >
         {section.title}
       </h2>
-      <div className={`${isMobile ? 'text-base' : 'text-xl'} animate-slideInRight delay-200 overflow-y-auto max-h-[calc(100vh-16rem)]`}>
+      <div className={`
+        animate-slideInRight 
+        delay-200 
+        overflow-y-auto 
+        ${isMobile 
+          ? 'text-sm max-h-[calc(100vh-16rem)]' 
+          : 'text-xl max-h-[calc(100vh-14rem)]'
+        }`}
+      >
         {typeof section.content === 'string' 
-          ? <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>{section.content}</p>
+          ? <p className={`${isMobile ? 'text-lg' : 'text-4xl'} text-shadow`}>{section.content}</p>
           : section.content
         }
       </div>
@@ -1317,26 +1321,26 @@ useEffect(() => {
   </div>
 ))}
 
-            {!showRegister && (
-              <NavigationDots
-                sections={heroSections}
-                currentSection={currentSection}
-                onSectionChange={(index) => {
-                  setCurrentSection(index);
-                  setIsPaused(true);
-                  setTimeout(() => {
-                    setIsPaused(false);
-                  }, 15000);
-                }}
-              />
-            )}
-          </>
-        )}
-      </main>
+      {!showRegister && (
+        <NavigationDots
+          sections={heroSections}
+          currentSection={currentSection}
+          onSectionChange={(index) => {
+            setCurrentSection(index);
+            setIsPaused(true);
+            setTimeout(() => {
+              setIsPaused(false);
+            }, 15000);
+          }}
+        />
+      )}
+    </>
+  )}
+</main>
 
       {/* Footer y otros componentes... */}
-<footer className="bg-gray-800 text-white py-2 md:py-8 shrink-0">
-  <div className="container mx-auto px-4">
+<footer className="bg-gray-800 text-white py-1 md:py-6 shrink-0">
+  <div className="container mx-auto px-2 md:px-4">
     {/* Versión desktop del footer */}
     <div className="hidden md:grid md:grid-cols-3 gap-6">
       <div className="text-left">
@@ -1376,7 +1380,7 @@ useEffect(() => {
 
     {/* Versión móvil del footer - más compacta */}
     <div className="md:hidden">
-      <div className="flex justify-between text-sm">
+      <div className="flex justify-between text-xs">
         <div>
           <p>info@laiesken.com</p>
           <p>+34 620 564 257</p>
@@ -1390,7 +1394,7 @@ useEffect(() => {
           <p>S-D: 9:00-14:00</p>
         </div>
       </div>
-      <div className="mt-2 text-center text-xs">
+      <div className="mt-1 text-center text-xs">
         <p>&copy; {new Date().getFullYear()} LAIESKEN</p>
       </div>
     </div>

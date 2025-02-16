@@ -667,7 +667,6 @@ const handleLogout = () => {
     }
   };
   const NavigationDots = ({ sections, currentSection, onSectionChange }) => {
-  const [hoveredIndex, setHoveredIndex] = useState(null);
   const isMobile = useIsMobile();
 
   return (
@@ -682,32 +681,27 @@ const handleLogout = () => {
           className={`
             ${isMobile 
               ? '' 
-              : 'relative flex items-center justify-end overflow-hidden group'
+              : 'relative flex items-center justify-end h-16'
             }
           `}
         >
           <button
             onClick={() => onSectionChange(index)}
-            onMouseEnter={() => setHoveredIndex(index)}
-            onMouseLeave={() => setHoveredIndex(null)}
             className={`
-              relative
               ${isMobile 
-                ? 'w-4 h-4 rounded-full' 
+                ? 'w-4 h-4 rounded-full transition-colors' 
                 : 'w-16 h-16 rounded-full flex items-center justify-center'
               }
               ${currentSection === index 
                 ? 'bg-blue-500 shadow-lg' 
                 : 'bg-white hover:bg-blue-100'
               }
-              transition-all duration-300
             `}
           >
-            {!isMobile && (
+            {!isMobile && currentSection === index && (
               <span className={`
-                absolute text-black right-20 whitespace-nowrap
-                opacity-0 group-hover:opacity-100 transition-opacity duration-300
-                text-lg font-medium
+                absolute right-20 whitespace-nowrap text-white text-lg font-medium
+                ${currentSection === index ? 'opacity-100' : 'opacity-0'}
               `}>
                 {buttonTitles[section.title] || section.title}
               </span>
@@ -969,16 +963,16 @@ const heroSections = [
     </div>
     )
   },
-  {
-    title: "CONTACTANOS",
-    content: (
-      <div className="w-full max-w-2xl mx-auto"> {/* Reducido el ancho máximo y centrado */}
-        <div className="bg-black bg-opacity-50 p-8 rounded-lg"> {/* Añadido fondo y padding */}
-          <h3 className="text-2xl font-bold mb-6 text-center text-white">Envíanos un mensaje</h3>
-          <ContactForm />
-        </div>
+ {
+  title: "CONTACTANOS",
+  content: (
+    <div className="w-full md:max-w-2xl md:ml-20 md:mr-auto"> {/* Ajustado a la izquierda en desktop */}
+      <div className="bg-black bg-opacity-50 p-8 rounded-lg">
+        <h3 className="text-2xl font-bold mb-6 text-white">Envíanos un mensaje</h3>
+        <ContactForm />
       </div>
-    )
+    </div>
+  )
 }
 ];
 useEffect(() => {
@@ -1289,11 +1283,13 @@ useEffect(() => {
             {heroSections.map((section, index) => (
   <div
     key={index}
-    className={`absolute inset-0 flex items-start md:items-center transition-all duration-700 ${
-      currentSection === index 
-        ? 'opacity-100 translate-x-0' 
-        : 'opacity-0 -translate-x-full'
-    }`}
+    className={`absolute inset-0 flex items-start md:items-center ${
+      isMobile 
+        ? currentSection === index ? 'opacity-100' : 'opacity-0' // Solo fade en móvil
+        : currentSection === index 
+          ? 'opacity-100 translate-x-0' 
+          : 'opacity-0 -translate-x-full' // Mantiene la transición en desktop
+    } transition-all duration-700`}
   >
     <div className={`text-white p-4 md:p-6 w-full ${isMobile ? 'mt-2' : 'ml-20'}`}>
       <h2 className={`${
