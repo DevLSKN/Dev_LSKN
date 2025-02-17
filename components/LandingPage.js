@@ -1075,14 +1075,13 @@ useEffect(() => {
           Panel de Usuario
         </h2>
       
-      <div className={`flex ${isMobile ? 'flex-col gap-4' : 'gap-8'}`}>
-        {/* Columna izquierda */}
-        <div className={`space-y-4 ${isMobile ? 'w-full' : 'flex-1'}`}>
-          {/* Información de la cuenta */}
-          <div className="bg-black bg-opacity-50 p-4 rounded-lg">
-            <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
-              Información de la cuenta
-            </h3>
+      <div className={`flex ${isMobile ? 'flex-col gap-4 p-2' : 'gap-8'}`}>
+  {/* Columna izquierda - Información de la cuenta */}
+  <div className={`space-y-4 ${isMobile ? 'w-full bg-black bg-opacity-50 p-4 rounded-lg' : 'flex-1'}`}>
+    <div className={`${isMobile ? 'max-h-none' : 'bg-black bg-opacity-50 p-4 rounded-lg'}`}>
+      <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
+        Información de la cuenta
+      </h3>
             <div className={`grid ${isMobile ? 'grid-cols-1 gap-2 text-base' : 'grid-cols-2 gap-6 text-xl'}`}>
   {isEditing ? (
     <>
@@ -1141,14 +1140,14 @@ useEffect(() => {
         />
       </div>
       <div>
-        <p>Fecha de Nacimiento:</p>
-        <input
-          type="text"
-          className="w-full p-2 border rounded text-black"
-          value={editedUserData.fechaNacimiento}
-          onChange={(e) => setEditedUserData({...editedUserData, fechaNacimiento: e.target.value})}
-        />
-      </div>
+    <p>Fecha de Nacimiento:</p>
+    <input
+      type="text"
+      className="w-full p-2 border rounded text-black"
+      value={editedUserData.fechaNacimiento || ''}  // Añadido el fallback a string vacío
+      onChange={(e) => setEditedUserData({...editedUserData, fechaNacimiento: e.target.value})}
+    />
+  </div>
     </>
   ) : (
     <>
@@ -1158,7 +1157,7 @@ useEffect(() => {
       <p>Apellidos: <span className="font-semibold">{currentUser?.apellidos}</span></p>
       <p>Teléfono: <span className="font-semibold">{currentUser?.telefono}</span></p>
       <p>Dirección: <span className="font-semibold">{currentUser?.direccion}</span></p>
-      <p>Fecha de Nacimiento: <span className="font-semibold">{currentUser?.fechaNacimiento}</span></p>
+      <p>Fecha de Nacimiento: <span className="font-semibold">{currentUser.fechaNacimiento || 'No especificada'}</span></p>
     </>
   )}
 </div>
@@ -1201,12 +1200,11 @@ useEffect(() => {
         </div>
 
         {/* Columna derecha - Historial de servicios */}
-        <div className={`${isMobile ? 'w-full' : 'w-96'}`}>
-          <div className="bg-black bg-opacity-50 p-4 rounded-lg">
-            <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
-              Historial de Servicios
-            </h3>
-            <div className={`${isMobile ? 'max-h-[300px]' : 'max-h-[500px]'} overflow-y-auto space-y-4`}>
+        <div className={`${isMobile ? 'w-full bg-black bg-opacity-50 p-4 rounded-lg' : 'w-96'}`}>
+    <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
+      Historial de Servicios
+    </h3>
+    <div className={`${isMobile ? 'max-h-none overflow-visible' : 'max-h-[500px] overflow-y-auto'} space-y-4`}>
               {userServices && userServices.length > 0 ? (
                 userServices.map((service) => (
                   <ServiceCard
