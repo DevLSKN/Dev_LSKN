@@ -1043,15 +1043,14 @@ useEffect(() => {
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat'
     }}
-    />
+  />
 
   {isLoggedIn && showUserPanel ? (
-    // Panel de usuario...
     <div className="absolute inset-0 flex items-start animate-fadeInDown p-4">
       <div className="text-white w-full max-w-7xl">
-      <h2 className={`${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-10'} font-bold text-shadow`}>
-        Panel de Usuario
-      </h2>
+        <h2 className={`${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-10'} font-bold text-shadow`}>
+          Panel de Usuario
+        </h2>
       
       <div className={`flex ${isMobile ? 'flex-col gap-4' : 'gap-8'}`}>
         {/* Columna izquierda */}
@@ -1169,30 +1168,32 @@ useEffect(() => {
     </div>
   </div>
         ) : showRegister ? (
-           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="w-full h-full max-h-screen py-16 px-4 flex items-center justify-center">
-              <div className={`bg-white ${isMobile ? 'p-4 w-full max-w-sm max-h-[80vh] overflow-y-auto' : 'p-8 w-96'} rounded-lg shadow-xl`}>
-              <h2 className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold mb-4 text-center`}>Formulario de Registro</h2>
-              <div className={`mb-3 p-2 bg-blue-50 rounded ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                <p className="font-bold mb-1">Requisitos de contraseña:</p>
-                <ul className="list-disc pl-4 text-gray-600">
-                  <li>Mínimo 8 caracteres</li>
-                  <li>Al menos una mayúscula</li>
-                  <li>Al menos una minúscula</li>
-                  <li>Al menos un número o símbolo</li>
-                </ul>
-              </div>
-              <form onSubmit={handleRegister} className={`${isMobile ? 'space-y-3' : 'space-y-4'}`}>
+    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="w-full h-full max-h-screen py-16 px-4 flex items-center justify-center">
+        <div className={`bg-white ${isMobile ? 'p-4 w-full max-w-sm max-h-[80vh] overflow-y-auto' : 'p-8 w-96'} rounded-lg shadow-xl`}>
+          <h2 className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold mb-4 text-center`}>
+            Formulario de Registro
+          </h2>
+          <div className={`mb-3 p-2 bg-blue-50 rounded ${isMobile ? 'text-xs' : 'text-sm'}`}>
+            <p className="font-bold mb-1">Requisitos de contraseña:</p>
+            <ul className="list-disc pl-4 text-gray-600">
+              <li>Mínimo 8 caracteres</li>
+              <li>Al menos una mayúscula</li>
+              <li>Al menos una minúscula</li>
+              <li>Al menos un número o símbolo</li>
+            </ul>
+          </div>
+          <form onSubmit={handleRegister} className={`${isMobile ? 'space-y-3' : 'space-y-4'}`}>
                 <div>
-                  <input
-                    type="text"
-                    placeholder="Usuario"
-                    className="w-full p-2 border rounded"
-                    value={registerData.username}
-                    onChange={(e) => setRegisterData(prev => ({...prev, username: e.target.value}))}
-                    required
-                  />
-                </div>
+              <input
+                type="text"
+                placeholder="Usuario"
+                className="w-full p-2 border rounded"
+                value={registerData.username}
+                onChange={(e) => setRegisterData(prev => ({...prev, username: e.target.value}))}
+                required
+              />
+            </div>
                 <div>
                   <input
                     type="text"
@@ -1275,35 +1276,36 @@ useEffect(() => {
                   />
                 </div>
                 <div className="flex justify-between pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowRegister(false)}
-                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                  >
-                    Enviar
-                  </button>
-                </div>
-              </form>
+              <button
+                type="button"
+                onClick={() => setShowRegister(false)}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Enviar
+              </button>
             </div>
-          </div>
-        ) : (
-          <>
-            {heroSections.map((section, index) => (
-  <div
-    key={index}
-    className={`
-      absolute inset-0
-      ${currentSection === index ? 'opacity-100 z-10' : 'opacity-0 z-0'}
-      ${isMobile ? 'touch-auto' : 'transition-opacity duration-300'}
-      flex items-center
-    `}
-  >
+          </form>
+        </div>
+      </div>
+    </div>
+  ) : (
+          <div className="absolute inset-0">
+      {heroSections.map((section, index) => (
+        <div
+          key={index}
+          className={`
+            absolute inset-0
+            ${currentSection === index ? 'opacity-100 z-10' : 'opacity-0 z-0'}
+            ${isMobile ? 'touch-auto' : 'transition-opacity duration-300'}
+            flex items-center
+          `}
+        >
     <div className={`
       w-full h-full
       ${isMobile ? 'overflow-y-auto touch-auto' : ''}
