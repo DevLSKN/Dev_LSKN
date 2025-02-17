@@ -1169,8 +1169,9 @@ useEffect(() => {
     </div>
   </div>
         ) : showRegister ? (
-           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4">
-            <div className={`bg-white ${isMobile ? 'p-4 w-full max-w-sm' : 'p-8 w-96'} rounded-lg shadow-xl`}>
+           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="w-full h-full max-h-screen py-16 px-4 flex items-center justify-center">
+            <div className={`bg-white ${isMobile ? 'p-4 w-full max-w-sm max-h-[80vh] overflow-y-auto' : 'p-8 w-96'} rounded-lg shadow-xl`}>
               <h2 className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold mb-4 text-center`}>Formulario de Registro</h2>
               <div className={`mb-3 p-2 bg-blue-50 rounded ${isMobile ? 'text-xs' : 'text-sm'}`}>
                 <p className="font-bold mb-1">Requisitos de contraseña:</p>
