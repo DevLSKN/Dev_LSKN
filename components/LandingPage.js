@@ -1084,45 +1084,84 @@ useEffect(() => {
               Información de la cuenta
             </h3>
             <div className={`grid ${isMobile ? 'grid-cols-1 gap-2 text-base' : 'grid-cols-2 gap-6 text-xl'}`}>
-              {isEditing ? (
-                <>
-                  <div>
-                    <p>Email:</p>
-                    <input
-                      type="email"
-                      className="w-full p-2 border rounded text-black"
-                      value={editedUserData.email}
-                      onChange={(e) => setEditedUserData({...editedUserData, email: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <p>Nombre:</p>
-                    <input
-                      type="text"
-                      className="w-full p-2 border rounded text-black"
-                      value={editedUserData.nombre}
-                      onChange={(e) => setEditedUserData({...editedUserData, nombre: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <p>Apellidos:</p>
-                    <input
-                      type="text"
-                      className="w-full p-2 border rounded text-black"
-                      value={editedUserData.apellidos}
-                      onChange={(e) => setEditedUserData({...editedUserData, apellidos: e.target.value})}
-                    />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <p>Usuario: <span className="font-semibold">{currentUser?.username}</span></p>
-                  <p>Email: <span className="font-semibold">{currentUser?.email}</span></p>
-                  <p>Nombre: <span className="font-semibold">{currentUser?.nombre}</span></p>
-                  <p>Apellidos: <span className="font-semibold">{currentUser?.apellidos}</span></p>
-                </>
-              )}
-            </div>
+  {isEditing ? (
+    <>
+      <div>
+        <p>Usuario:</p>
+        <input
+          type="text"
+          className="w-full p-2 border rounded text-black bg-gray-100"
+          value={editedUserData.username}
+          disabled
+        />
+      </div>
+      <div>
+        <p>Email:</p>
+        <input
+          type="email"
+          className="w-full p-2 border rounded text-black"
+          value={editedUserData.email}
+          onChange={(e) => setEditedUserData({...editedUserData, email: e.target.value})}
+        />
+      </div>
+      <div>
+        <p>Nombre:</p>
+        <input
+          type="text"
+          className="w-full p-2 border rounded text-black"
+          value={editedUserData.nombre}
+          onChange={(e) => setEditedUserData({...editedUserData, nombre: e.target.value})}
+        />
+      </div>
+      <div>
+        <p>Apellidos:</p>
+        <input
+          type="text"
+          className="w-full p-2 border rounded text-black"
+          value={editedUserData.apellidos}
+          onChange={(e) => setEditedUserData({...editedUserData, apellidos: e.target.value})}
+        />
+      </div>
+      <div>
+        <p>Teléfono:</p>
+        <input
+          type="tel"
+          className="w-full p-2 border rounded text-black"
+          value={editedUserData.telefono}
+          onChange={(e) => setEditedUserData({...editedUserData, telefono: e.target.value})}
+        />
+      </div>
+      <div>
+        <p>Dirección:</p>
+        <input
+          type="text"
+          className="w-full p-2 border rounded text-black"
+          value={editedUserData.direccion}
+          onChange={(e) => setEditedUserData({...editedUserData, direccion: e.target.value})}
+        />
+      </div>
+      <div>
+        <p>Fecha de Nacimiento:</p>
+        <input
+          type="text"
+          className="w-full p-2 border rounded text-black"
+          value={editedUserData.fechaNacimiento}
+          onChange={(e) => setEditedUserData({...editedUserData, fechaNacimiento: e.target.value})}
+        />
+      </div>
+    </>
+  ) : (
+    <>
+      <p>Usuario: <span className="font-semibold">{currentUser?.username}</span></p>
+      <p>Email: <span className="font-semibold">{currentUser?.email}</span></p>
+      <p>Nombre: <span className="font-semibold">{currentUser?.nombre}</span></p>
+      <p>Apellidos: <span className="font-semibold">{currentUser?.apellidos}</span></p>
+      <p>Teléfono: <span className="font-semibold">{currentUser?.telefono}</span></p>
+      <p>Dirección: <span className="font-semibold">{currentUser?.direccion}</span></p>
+      <p>Fecha de Nacimiento: <span className="font-semibold">{currentUser?.fechaNacimiento}</span></p>
+    </>
+  )}
+</div>
           </div>
 
           {/* Botones de acción */}
