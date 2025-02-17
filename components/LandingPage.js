@@ -1308,16 +1308,13 @@ useEffect(() => {
         >
           <div className={`
   w-full h-full
-  ${isMobile ? 'overflow-y-auto touch-auto' : ''}
+  ${isMobile ? 'overflow-y-auto touch-auto' : 'flex items-center justify-start'}
   text-white
-  flex items-center justify-start // Cambiado para alinear a la izquierda
 `}
 style={{ WebkitOverflowScrolling: 'touch' }}
 >
   <div className={`
-    ${isMobile ? 'min-h-[101%] pb-20 w-full' : 'w-full'}
-    p-4 md:p-6
-    ml-20 // Añadido margen izquierdo fijo
+    ${isMobile ? 'min-h-[101%] pb-20 w-full p-4' : 'w-full p-6 ml-20'}
   `}>
     <h2 className={`
       ${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-6'} 
