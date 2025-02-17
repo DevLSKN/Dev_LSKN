@@ -670,15 +670,11 @@ const handleLogout = () => {
   const isMobile = useIsMobile();
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
-  return (
-    <div className={`
-      ${isMobile 
-        ? 'fixed bottom-4 left-0 right-0 flex justify-center gap-3 z-50' 
-        : 'fixed right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-6 z-50'}
-    `}>
-      {isMobile ? (
-        // Versión móvil
-        sections.map((section, index) => (
+  // Si es móvil, solo renderizamos los dots móviles
+  if (isMobile) {
+    return (
+      <div className="fixed bottom-4 left-0 right-0 flex justify-center gap-3 z-50">
+        {sections.map((section, index) => (
           <button
             key={index}
             onClick={() => onSectionChange(index)}
@@ -688,33 +684,37 @@ const handleLogout = () => {
               ${currentSection === index ? 'bg-white' : 'bg-white opacity-50'}
             `}
           />
-        ))
-      ) : (
-        // Versión desktop
-        sections.map((section, index) => (
-          <div 
-            key={index} 
-            className="relative flex items-center justify-end cursor-pointer"
-            onMouseEnter={() => setHoveredIndex(index)}
-            onMouseLeave={() => setHoveredIndex(null)}
-          >
-            <button
-              onClick={() => onSectionChange(index)}
-              className={`
-                flex items-center justify-end rounded-full 
-                transition-all duration-300 overflow-hidden
-                w-16 h-16 bg-white hover:bg-opacity-90
-                relative
-              `}
-            />
-            {(hoveredIndex === index || currentSection === index) && (
-              <span className="absolute right-20 whitespace-nowrap text-white text-lg">
-                {buttonTitles[section.title] || section.title}
-              </span>
-            )}
-          </div>
-        ))
-      )}
+        ))}
+      </div>
+    );
+  }
+
+  // Si es desktop, renderizamos los dots con hover
+  return (
+    <div className="fixed right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-6 z-50">
+      {sections.map((section, index) => (
+        <div 
+          key={index} 
+          className="relative flex items-center justify-end cursor-pointer"
+          onMouseEnter={() => setHoveredIndex(index)}
+          onMouseLeave={() => setHoveredIndex(null)}
+        >
+          <button
+            onClick={() => onSectionChange(index)}
+            className={`
+              flex items-center justify-end rounded-full 
+              transition-all duration-300 overflow-hidden
+              w-16 h-16 bg-white hover:bg-opacity-90
+              relative
+            `}
+          />
+          {(hoveredIndex === index || currentSection === index) && (
+            <span className="absolute right-20 whitespace-nowrap text-white text-lg">
+              {buttonTitles[section.title] || section.title}
+            </span>
+          )}
+        </div>
+      ))}
     </div>
   );
 };
