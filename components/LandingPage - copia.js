@@ -682,11 +682,12 @@ const handleLogout = () => {
     }
   };
   const NavigationDots = ({ sections, currentSection, onSectionChange }) => {
+  const isMobile = useIsMobile();
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
   return (
     <>
-      {/* Dots móviles - sin cambios */}
+      {/* Dots móviles - siempre presentes pero ocultos en desktop */}
       <div className="fixed bottom-4 left-0 right-0 flex justify-center gap-3 z-50 md:hidden">
         {sections.map((section, index) => (
           <button
@@ -701,7 +702,7 @@ const handleLogout = () => {
         ))}
       </div>
 
-      {/* Dots desktop - modificados con animación de expansión */}
+      {/* Dots desktop - siempre presentes pero ocultos en móvil */}
       <div className="fixed right-8 top-1/2 transform -translate-y-1/2 flex-col gap-6 z-50 hidden md:flex">
         {sections.map((section, index) => (
           <div 
@@ -712,37 +713,13 @@ const handleLogout = () => {
           >
             <button
               onClick={() => onSectionChange(index)}
-              className={`
-                flex items-center justify-end
-                rounded-full transition-all duration-300
-                overflow-hidden bg-white hover:bg-opacity-90
-                ${hoveredIndex === index || currentSection === index 
-                  ? 'w-48' // Ancho expandido cuando está activo/hover
-                  : 'w-16'} // Ancho normal
-                h-16 relative
-              `}
-            >
-              {/* Contenedor del texto con transición de opacidad */}
-              <div className={`
-                absolute right-16 left-4
-                transition-opacity duration-300 whitespace-nowrap
-                flex items-center
-                ${hoveredIndex === index || currentSection === index 
-                  ? 'opacity-100' 
-                  : 'opacity-0'}
-              `}>
-                <span className="text-black text-lg">
-                  {buttonTitles[section.title] || section.title}
-                </span>
-              </div>
-              {/* Círculo indicador */}
-              <div className="w-16 h-16 flex items-center justify-center">
-                <div className={`
-                  w-3 h-3 rounded-full
-                  ${currentSection === index ? 'bg-blue-500' : 'bg-gray-400'}
-                `}/>
-              </div>
-            </button>
+              className="flex items-center justify-end rounded-full transition-all duration-300 overflow-hidden w-16 h-16 bg-white hover:bg-opacity-90 relative"
+            />
+            {(hoveredIndex === index || currentSection === index) && (
+              <span className="absolute right-20 whitespace-nowrap text-white text-lg">
+                {buttonTitles[section.title] || section.title}
+              </span>
+            )}
           </div>
         ))}
       </div>
