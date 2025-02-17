@@ -1310,14 +1310,14 @@ useEffect(() => {
   w-full h-full
   ${isMobile ? 'overflow-y-auto touch-auto' : ''}
   text-white
-  flex items-center  // Mantiene el centrado vertical
+  flex items-center justify-start // Cambiado para alinear a la izquierda
 `}
 style={{ WebkitOverflowScrolling: 'touch' }}
 >
   <div className={`
-    ${isMobile ? 'min-h-[101%] pb-20 w-full' : 'w-full md:pl-20'}
+    ${isMobile ? 'min-h-[101%] pb-20 w-full' : 'w-full'}
     p-4 md:p-6
-    ${!isMobile ? 'max-w-7xl' : ''} // Eliminado mx-auto para que no se centre horizontalmente
+    ml-20 // Añadido margen izquierdo fijo
   `}>
     <h2 className={`
       ${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-6'} 
