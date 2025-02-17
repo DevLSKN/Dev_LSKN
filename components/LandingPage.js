@@ -1310,14 +1310,14 @@ useEffect(() => {
   w-full h-full
   ${isMobile ? 'overflow-y-auto touch-auto' : ''}
   text-white
-  flex items-center  // Añadido para centrar verticalmente
+  flex items-center  // Mantiene el centrado vertical
 `}
 style={{ WebkitOverflowScrolling: 'touch' }}
 >
   <div className={`
     ${isMobile ? 'min-h-[101%] pb-20 w-full' : 'w-full md:pl-20'}
     p-4 md:p-6
-    ${!isMobile ? 'max-w-7xl mx-auto' : ''} // Añadido para controlar el ancho máximo y centrarlo
+    ${!isMobile ? 'max-w-7xl' : ''} // Eliminado mx-auto para que no se centre horizontalmente
   `}>
     <h2 className={`
       ${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-6'} 
