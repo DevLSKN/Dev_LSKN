@@ -684,45 +684,35 @@ const handleLogout = () => {
   const NavigationDots = ({ sections, currentSection, onSectionChange }) => {
   const isMobile = useIsMobile();
   const [hoveredIndex, setHoveredIndex] = useState(null);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-
-  const handleSectionChange = (index) => {
-    setIsTransitioning(true);
-    onSectionChange(index);
-    // Asegurarnos de que la transición ha terminado
-    setTimeout(() => setIsTransitioning(false), 300);
-  };
-
-  // Usamos el mismo tipo de dots basado en el estado inicial durante la transición
-  const currentLayout = isTransitioning ? isMobile : isMobile;
 
   return (
-    <div 
-      className={`
-        fixed z-50
-        ${currentLayout ? 'bottom-4 left-0 right-0 flex justify-center gap-3' : 'right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-6'}
-      `}
-    >
-      {sections.map((section, index) => (
-        currentLayout ? (
+    <>
+      {/* Dots móviles - siempre presentes pero ocultos en desktop */}
+      <div className="fixed bottom-4 left-0 right-0 flex justify-center gap-3 z-50 md:hidden">
+        {sections.map((section, index) => (
           <button
-            key={index}
-            onClick={() => handleSectionChange(index)}
+            key={`mobile-${index}`}
+            onClick={() => onSectionChange(index)}
             className={`
               w-4 h-4 rounded-full 
               transition-opacity duration-300
               ${currentSection === index ? 'bg-white' : 'bg-white opacity-50'}
             `}
           />
-        ) : (
+        ))}
+      </div>
+
+      {/* Dots desktop - siempre presentes pero ocultos en móvil */}
+      <div className="fixed right-8 top-1/2 transform -translate-y-1/2 flex-col gap-6 z-50 hidden md:flex">
+        {sections.map((section, index) => (
           <div 
-            key={index} 
+            key={`desktop-${index}`}
             className="relative flex items-center justify-end cursor-pointer"
             onMouseEnter={() => setHoveredIndex(index)}
             onMouseLeave={() => setHoveredIndex(null)}
           >
             <button
-              onClick={() => handleSectionChange(index)}
+              onClick={() => onSectionChange(index)}
               className="flex items-center justify-end rounded-full transition-all duration-300 overflow-hidden w-16 h-16 bg-white hover:bg-opacity-90 relative"
             />
             {(hoveredIndex === index || currentSection === index) && (
@@ -731,9 +721,9 @@ const handleLogout = () => {
               </span>
             )}
           </div>
-        )
-      ))}
-    </div>
+        ))}
+      </div>
+    </>
   );
 };
 
