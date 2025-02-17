@@ -1295,7 +1295,7 @@ useEffect(() => {
       </div>
     </div>
   ) : (
-          <div className="absolute inset-0">
+         <div className="absolute inset-0">
       {heroSections.map((section, index) => (
         <div
           key={index}
@@ -1306,37 +1306,37 @@ useEffect(() => {
             flex items-center
           `}
         >
-    <div className={`
-      w-full h-full
-      ${isMobile ? 'overflow-y-auto touch-auto' : ''}
-      text-white
-    `}
-    style={{ WebkitOverflowScrolling: 'touch' }}
-    >
-      <div className={`
-        ${isMobile ? 'min-h-[101%] pb-20 w-full' : 'w-full md:pl-20'}
-        p-4 md:p-6
-      `}>
-        <h2 className={`
-          ${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-6'} 
-          font-bold text-shadow
-          ${isMobile ? 'sticky top-0 bg-transparent z-20' : ''}
-        `}>
-          {section.title}
-        </h2>
-        <div className={`
-          ${isMobile ? 'text-sm touch-auto' : 'text-xl'}
-          ${isMobile ? '' : 'max-h-[calc(100vh-14rem)] overflow-y-auto'}
-        `}>
-          {typeof section.content === 'string' 
-            ? <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>{section.content}</p>
-            : section.content
-          }
+          <div className={`
+            w-full h-full
+            ${isMobile ? 'overflow-y-auto touch-auto' : ''}
+            text-white
+          `}
+          style={{ WebkitOverflowScrolling: 'touch' }}
+          >
+            <div className={`
+              ${isMobile ? 'min-h-[101%] pb-20 w-full' : 'w-full md:pl-20'}
+              p-4 md:p-6
+            `}>
+              <h2 className={`
+                ${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-6'} 
+                font-bold text-shadow
+                ${isMobile ? 'sticky top-0 bg-transparent z-20' : ''}
+              `}>
+                {section.title}
+              </h2>
+              <div className={`
+                ${isMobile ? 'text-sm touch-auto' : 'text-xl'}
+                ${isMobile ? '' : 'max-h-[calc(100vh-14rem)] overflow-y-auto'}
+              `}>
+                {typeof section.content === 'string' 
+                  ? <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>{section.content}</p>
+                  : section.content
+                }
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-))}
+      ))}
 
       {!showRegister && (
         <NavigationDots
@@ -1351,7 +1351,7 @@ useEffect(() => {
           }}
         />
       )}
-    </>
+    </div>
   )}
 </main>
 
