@@ -10,6 +10,22 @@ import { Instagram, MessageCircle, MessageSquare, MapPin } from 'lucide-react';
 import stripeService from '../services/stripeService';
 import ForgotPasswordModal from './ui/ForgotPasswordModal';
 
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
+};
+
 const ServiceCard = ({ service, onUseService, showToast, onReloadServices }) => {
   const [showHistory, setShowHistory] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
@@ -98,6 +114,7 @@ const shouldShowUseButton = (service) => {
   const isBono = service.servicio.includes('BONO') || service.servicio === 'DAY PASS';
   return isBono && (usosMaximos === null || puedeUsarse) && service.estado === 'activo';
 };
+
   return (
     <div className="bg-white bg-opacity-10 p-4 rounded-lg hover:bg-opacity-20 transition-all">
       <div className="flex justify-between items-start mb-2">
@@ -203,12 +220,14 @@ const shouldShowUseButton = (service) => {
   );
 };
 const LandingPage = () => {
+
   const router = useRouter();
   const [currentSection, setCurrentSection] = useState(0);
   const [showRegister, setShowRegister] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showUserPanel, setShowUserPanel] = useState(false);
+  const isMobile = useIsMobile();
   const [currentUser, setCurrentUser] = useState({
     username: '',
     email: '',
@@ -648,61 +667,73 @@ const handleLogout = () => {
     }
   };
   const NavigationDots = ({ sections, currentSection, onSectionChange }) => {
-    const [hoveredIndex, setHoveredIndex] = useState(null);
+  const isMobile = useIsMobile();
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
-    const handleClick = (index) => {
-      setHoveredIndex(index);
-      onSectionChange(index);
-    };
-
-    return (
-      <div className="fixed right-12 top-1/2 transform -translate-y-1/2 flex flex-col gap-6">
-        {sections.map((section, index) => (
-          <div
+  return (
+    <div className={`
+      ${isMobile 
+        ? 'fixed bottom-4 left-0 right-0 flex justify-center gap-3 z-50' 
+        : 'fixed right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-6 z-50'}
+    `}>
+      {isMobile ? (
+        // Versión móvil
+        sections.map((section, index) => (
+          <button
             key={index}
-            className="relative group flex justify-end"
+            onClick={() => onSectionChange(index)}
+            className={`
+              w-4 h-4 rounded-full 
+              transition-opacity duration-300
+              ${currentSection === index ? 'bg-white' : 'bg-white opacity-50'}
+            `}
+          />
+        ))
+      ) : (
+        // Versión desktop
+        sections.map((section, index) => (
+          <div 
+            key={index} 
+            className="relative flex items-center justify-end cursor-pointer"
             onMouseEnter={() => setHoveredIndex(index)}
-            onMouseLeave={() => currentSection === index ? null : setHoveredIndex(null)}
+            onMouseLeave={() => setHoveredIndex(null)}
           >
             <button
-              onClick={() => handleClick(index)}
-              className={`relative flex items-center justify-start gap-4 transition-all duration-300 ease-in-out
-                ${hoveredIndex === index || currentSection === index ? 'w-64' : 'w-16'}
-                ${currentSection === index 
-                  ? 'bg-blue-500 shadow-lg' 
-                  : 'bg-white hover:bg-blue-100'} 
-                h-16 rounded-full cursor-pointer`}
-            >
-              <span className={`
-                whitespace-nowrap text-xl font-medium
-                transition-opacity duration-300 ml-6
-                ${hoveredIndex === index || currentSection === index ? 'opacity-100' : 'opacity-0'}
-                ${currentSection === index ? 'text-white' : 'text-gray-700'}`}
-              >
+              onClick={() => onSectionChange(index)}
+              className={`
+                flex items-center justify-end rounded-full 
+                transition-all duration-300 overflow-hidden
+                w-16 h-16 bg-white hover:bg-opacity-90
+                relative
+              `}
+            />
+            {(hoveredIndex === index || currentSection === index) && (
+              <span className="absolute right-20 whitespace-nowrap text-white text-lg">
                 {buttonTitles[section.title] || section.title}
               </span>
-              
-              <div className={`
-                absolute right-0 min-w-[4rem] h-16 rounded-full
-                flex items-center justify-center
-                ${currentSection === index ? 'text-white' : 'text-blue-500'}
-                text-2xl font-bold`}
-              ></div>
-            </button>
+            )}
           </div>
-        ))}
-      </div>
-    );
-  };
+        ))
+      )}
+    </div>
+  );
+};
+
 const heroSections = [
   {
-    title: "PRESENTACIÓN",
-    content: "BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA"
-  },
+  title: "PRESENTACIÓN",
+  content: (
+    <div className="w-full overflow-hidden"> {/* Añadido overflow-hidden */}
+      <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>
+        BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA BLA
+      </p>
+    </div>
+  )
+},
   {
     title: "SERVICIOS",
     content: (
-      <div className="grid grid-cols-3 gap-6 w-full max-w-6xl">
+      <div className={`grid ${isMobile ? 'grid-cols-1' : 'sm:grid-cols-2 lg:grid-cols-3'} gap-4 w-full max-w-6xl px-4`}>	
         {[
           {
             _id: 'daypass',
@@ -766,7 +797,7 @@ const heroSections = [
   {
     title: "EL EQUIPO",
     content: (
-      <div className="grid grid-cols-3 gap-6 w-full max-w-6xl">
+      <div className={`grid ${isMobile ? 'grid-cols-1' : 'sm:grid-cols-2 lg:grid-cols-3'} gap-4 w-full max-w-6xl px-4`}>
         {[
           {
             id: 1,
@@ -830,7 +861,7 @@ const heroSections = [
   {
     title: "EVENTOS",
     content: (
-      <div className="grid grid-cols-2 gap-16 w-full max-w-7xl">
+      <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-8 w-full max-w-7xl px-4`}>
         {/* Columna Próximos Eventos */}
         <div className="flex flex-col items-center">
           <h3 className="text-3xl font-bold mb-8 text-white text-center">Próximos Eventos</h3>
@@ -939,22 +970,22 @@ const heroSections = [
   },
   {
     title: "FREQUENT ASKED QUESTIONS",
-    content: (
-      <div className="relative w-full isolate" style={{ zIndex: 30 }}>
-        <FAQ />
-      </div>
+  content: (
+    <div className="relative w-full max-w-4xl mx-auto md:mx-0 md:ml-20" style={{ zIndex: 30 }}>
+      <FAQ />
+    </div>
     )
   },
-  {
-    title: "CONTACTANOS",
-    content: (
-      <div className="w-full max-w-2xl mx-auto"> {/* Reducido el ancho máximo y centrado */}
-        <div className="bg-black bg-opacity-50 p-8 rounded-lg"> {/* Añadido fondo y padding */}
-          <h3 className="text-2xl font-bold mb-6 text-center text-white">Envíanos un mensaje</h3>
-          <ContactForm />
-        </div>
+ {
+  title: "CONTACTANOS",
+  content: (
+    <div className="w-full md:max-w-2xl md:ml-20 md:mr-auto"> {/* Ajustado a la izquierda en desktop */}
+      <div className="bg-black bg-opacity-50 p-8 rounded-lg">
+        <h3 className="text-2xl font-bold mb-6 text-white">Envíanos un mensaje</h3>
+        <ContactForm />
       </div>
-    )
+    </div>
+  )
 }
 ];
 useEffect(() => {
@@ -966,224 +997,203 @@ useEffect(() => {
     return () => clearInterval(timer);
   }, [showRegister, isPaused]);
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-white shadow-md p-4">
-  <div className="w-full flex justify-between items-center px-4">
-    <h1 className="text-6xl font-bold text-black">LAIESKEN</h1>
+    <div className="min-h-screen flex flex-col"> {/* Cambiado de h-screen a min-h-screen */}
+  <header className="bg-white shadow-md p-2 md:p-4 shrink-0">
+  <div className="w-full flex flex-row justify-between items-center px-2 md:px-4">
+    <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold text-black">LAIESKEN</h1>
     <div className="flex items-center">
       {isLoggedIn ? (
-  <div className="flex flex-col items-end gap-1 animate-fadeInDown">
-    <button
-      onClick={() => setShowUserPanel(true)}
-      className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2 hover-scale"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-      </svg>
-      <span className="font-semibold">{currentUser?.username}</span>
-    </button>
-    <button 
-      onClick={handleLogout}
-      className="text-sm text-red-500 hover:text-red-600 hover-slide"
-    >
-      Cerrar Sesión
-    </button>
-  </div>
-) : (
-  <button
-    onClick={openLoginModal}
-    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2 hover-scale"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-      <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
-    </svg>
-    Iniciar Sesión
-  </button>
-)}
+        <div className="flex flex-col items-end gap-1 animate-fadeInDown">
+          <button
+            onClick={() => setShowUserPanel(true)}
+            className="px-4 md:px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2 hover-scale text-sm md:text-base"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+            </svg>
+            <span className="font-semibold">{currentUser?.username}</span>
+          </button>
+          <button 
+            onClick={handleLogout}
+            className="text-xs md:text-sm text-red-500 hover:text-red-600 hover-slide"
+          >
+            Cerrar Sesión
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={openLoginModal}
+          className="px-3 md:px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2 hover-scale text-sm md:text-base"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+          Iniciar Sesión
+        </button>
+      )}
     </div>
   </div>
 </header>
-	  <main className="flex-grow relative">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: "url('/hero-bg.jpg')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
-        />
+<main className="flex-1 relative overflow-hidden">
+  <div 
+    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+    style={{
+      backgroundImage: "url('/hero-bg.jpg')",
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
+    }}
+  />
 
-        {isLoggedIn && showUserPanel ? (
-          <div className="absolute inset-0 flex items-center animate-fadeInDown">
-            <div className="text-white p-6 ml-20 w-full max-w-7xl">
-              <h2 className="text-7xl font-bold mb-10 text-shadow">Panel de Usuario</h2>
-              <div className="flex gap-8">
-                {/* Columna izquierda */}
-                <div className="space-y-8 flex-1">
-                  <div className="bg-black bg-opacity-50 p-6 rounded-lg">
-                    <h3 className="text-3xl font-semibold mb-4">Información de la cuenta</h3>
-                    <div className="grid grid-cols-2 gap-6 text-xl">
-                      <p>Usuario: <span className="font-semibold">{currentUser?.username}</span></p>
-                      {isEditing ? (
-                        <>
-                          <div>
-                            <p>Email:</p>
-                            <input
-                              type="email"
-                              className="w-full p-2 border rounded text-black"
-                              value={editedUserData.email}
-                              onChange={(e) => setEditedUserData({...editedUserData, email: e.target.value})}
-                            />
-                          </div>
-                          <div>
-                            <p>Nombre:</p>
-                            <input
-                              type="text"
-                              className="w-full p-2 border rounded text-black"
-                              value={editedUserData.nombre}
-                              onChange={(e) => setEditedUserData({...editedUserData, nombre: e.target.value})}
-                            />
-                          </div>
-                          <div>
-                            <p>Apellidos:</p>
-                            <input
-                              type="text"
-                              className="w-full p-2 border rounded text-black"
-                              value={editedUserData.apellidos}
-                              onChange={(e) => setEditedUserData({...editedUserData, apellidos: e.target.value})}
-                            />
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <p>Email: <span className="font-semibold">{currentUser?.email}</span></p>
-                          <p>Nombre: <span className="font-semibold">{currentUser?.nombre}</span></p>
-                          <p>Apellidos: <span className="font-semibold">{currentUser?.apellidos}</span></p>
-                          <p>Fecha de Nacimiento: <span className="font-semibold">{currentUser?.fechaNacimiento}</span></p>
-                        </>
-                      )}
-                    </div>
+  {isLoggedIn && showUserPanel ? (
+    <div className="absolute inset-0 flex items-start animate-fadeInDown p-4">
+      <div className="text-white w-full max-w-7xl">
+        <h2 className={`${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-10'} font-bold text-shadow`}>
+          Panel de Usuario
+        </h2>
+      
+      <div className={`flex ${isMobile ? 'flex-col gap-4' : 'gap-8'}`}>
+        {/* Columna izquierda */}
+        <div className={`space-y-4 ${isMobile ? 'w-full' : 'flex-1'}`}>
+          {/* Información de la cuenta */}
+          <div className="bg-black bg-opacity-50 p-4 rounded-lg">
+            <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
+              Información de la cuenta
+            </h3>
+            <div className={`grid ${isMobile ? 'grid-cols-1 gap-2 text-base' : 'grid-cols-2 gap-6 text-xl'}`}>
+              {isEditing ? (
+                <>
+                  <div>
+                    <p>Email:</p>
+                    <input
+                      type="email"
+                      className="w-full p-2 border rounded text-black"
+                      value={editedUserData.email}
+                      onChange={(e) => setEditedUserData({...editedUserData, email: e.target.value})}
+                    />
                   </div>
-
-                  <div className="bg-black bg-opacity-50 p-6 rounded-lg">
-                    <h3 className="text-3xl font-semibold mb-4">Datos de contacto</h3>
-                    <div className="grid grid-cols-2 gap-6 text-xl">
-                      {isEditing ? (
-                        <>
-                          <div>
-                            <p>Teléfono:</p>
-                            <input
-                              type="tel"
-                              className="w-full p-2 border rounded text-black"
-                              value={editedUserData.telefono}
-                              onChange={(e) => setEditedUserData({...editedUserData, telefono: e.target.value})}
-                            />
-                          </div>
-                          <div>
-                            <p>Dirección:</p>
-                            <input
-                              type="text"
-                              className="w-full p-2 border rounded text-black"
-                              value={editedUserData.direccion}
-                              onChange={(e) => setEditedUserData({...editedUserData, direccion: e.target.value})}
-                            />
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <p>Teléfono: <span className="font-semibold">{currentUser?.telefono}</span></p>
-                          <p>Dirección: <span className="font-semibold">{currentUser?.direccion}</span></p>
-                        </>
-                      )}
-                    </div>
+                  <div>
+                    <p>Nombre:</p>
+                    <input
+                      type="text"
+                      className="w-full p-2 border rounded text-black"
+                      value={editedUserData.nombre}
+                      onChange={(e) => setEditedUserData({...editedUserData, nombre: e.target.value})}
+                    />
                   </div>
-
-                  <div className="flex flex-col gap-4">
-                    {isEditing ? (
-                      <>
-                        <button
-                          onClick={handleUpdateUser}
-                          className="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 text-xl"
-                        >
-                          Guardar Cambios
-                        </button>
-                        <button
-                          onClick={() => setIsEditing(false)}
-                          className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-xl"
-                        >
-                          Cancelar
-                        </button>
-                      </>
-                    ) : (
-                       <div className="flex gap-4">
-    <button
-      onClick={handleEdit}
-      className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-xl"
-    >
-      Editar Datos
-    </button>
-    <button
-      onClick={() => setShowUserPanel(false)}
-      className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-xl"
-    >
-      Volver al Menú Principal
-    </button>
-  </div>
-)}
+                  <div>
+                    <p>Apellidos:</p>
+                    <input
+                      type="text"
+                      className="w-full p-2 border rounded text-black"
+                      value={editedUserData.apellidos}
+                      onChange={(e) => setEditedUserData({...editedUserData, apellidos: e.target.value})}
+                    />
                   </div>
-                </div>
-				{/* Columna derecha */}
-                <div className="w-96">
-                  <div className="bg-black bg-opacity-50 p-6 rounded-lg">
-                    <h3 className="text-3xl font-semibold mb-4">Historial de Servicios</h3>
-                    <div className="max-h-[500px] overflow-y-auto space-y-4">
-                     {userServices && userServices.length > 0 ? (
-  userServices.map((service) => (
-    <ServiceCard
-      key={service._id}
-      service={{
-        ...service,
-        estado: service.estado || 'activo', // Asegurarnos de que estado existe
-      }}
-      onUseService={handleUseService}
-      showToast={showToast}
-      onReloadServices={() => loadUserServices(currentUser.username)}
-    />
-  ))
-) : (
-  <p className="text-center text-gray-300">No hay servicios contratados</p>
-)}
-                    </div>
-                  </div>
-                </div>
-              </div>
+                </>
+              ) : (
+                <>
+                  <p>Usuario: <span className="font-semibold">{currentUser?.username}</span></p>
+                  <p>Email: <span className="font-semibold">{currentUser?.email}</span></p>
+                  <p>Nombre: <span className="font-semibold">{currentUser?.nombre}</span></p>
+                  <p>Apellidos: <span className="font-semibold">{currentUser?.apellidos}</span></p>
+                </>
+              )}
             </div>
           </div>
-        ) : showRegister ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-8 rounded-lg shadow-xl w-96">
-              <h2 className="text-2xl font-bold mb-6 text-center">Formulario de Registro</h2>
-              <div className="mb-4 p-3 bg-blue-50 rounded text-sm">
-                <p className="font-bold mb-1">Requisitos de contraseña:</p>
-                <ul className="list-disc pl-5 text-gray-600">
-                  <li>Mínimo 8 caracteres</li>
-                  <li>Al menos una mayúscula</li>
-                  <li>Al menos una minúscula</li>
-                  <li>Al menos un número o símbolo</li>
-                </ul>
-              </div>
-              <form onSubmit={handleRegister} className="space-y-4">
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Usuario"
-                    className="w-full p-2 border rounded"
-                    value={registerData.username}
-                    onChange={(e) => setRegisterData(prev => ({...prev, username: e.target.value}))}
-                    required
+
+          {/* Botones de acción */}
+          <div className="flex gap-2">
+            {isEditing ? (
+              <>
+                <button
+                  onClick={handleUpdateUser}
+                  className={`px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
+                >
+                  Guardar
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className={`px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
+                >
+                  Cancelar
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleEdit}
+                  className={`px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => setShowUserPanel(false)}
+                  className={`px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 ${isMobile ? 'text-sm' : 'text-xl'}`}
+                >
+                  Volver
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Columna derecha - Historial de servicios */}
+        <div className={`${isMobile ? 'w-full' : 'w-96'}`}>
+          <div className="bg-black bg-opacity-50 p-4 rounded-lg">
+            <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
+              Historial de Servicios
+            </h3>
+            <div className={`${isMobile ? 'max-h-[300px]' : 'max-h-[500px]'} overflow-y-auto space-y-4`}>
+              {userServices && userServices.length > 0 ? (
+                userServices.map((service) => (
+                  <ServiceCard
+                    key={service._id}
+                    service={{
+                      ...service,
+                      estado: service.estado || 'activo'
+                    }}
+                    onUseService={handleUseService}
+                    showToast={showToast}
+                    onReloadServices={() => loadUserServices(currentUser.username)}
                   />
-                </div>
+                ))
+              ) : (
+                <p className="text-center text-gray-300">No hay servicios contratados</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+        ) : showRegister ? (
+    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="w-full h-full max-h-screen py-16 px-4 flex items-center justify-center">
+        <div className={`bg-white ${isMobile ? 'p-4 w-full max-w-sm max-h-[80vh] overflow-y-auto' : 'p-8 w-96'} rounded-lg shadow-xl`}>
+          <h2 className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold mb-4 text-center`}>
+            Formulario de Registro
+          </h2>
+          <div className={`mb-3 p-2 bg-blue-50 rounded ${isMobile ? 'text-xs' : 'text-sm'}`}>
+            <p className="font-bold mb-1">Requisitos de contraseña:</p>
+            <ul className="list-disc pl-4 text-gray-600">
+              <li>Mínimo 8 caracteres</li>
+              <li>Al menos una mayúscula</li>
+              <li>Al menos una minúscula</li>
+              <li>Al menos un número o símbolo</li>
+            </ul>
+          </div>
+          <form onSubmit={handleRegister} className={`${isMobile ? 'space-y-3' : 'space-y-4'}`}>
+                <div>
+              <input
+                type="text"
+                placeholder="Usuario"
+                className="w-full p-2 border rounded"
+                value={registerData.username}
+                onChange={(e) => setRegisterData(prev => ({...prev, username: e.target.value}))}
+                required
+              />
+            </div>
                 <div>
                   <input
                     type="text"
@@ -1266,131 +1276,142 @@ useEffect(() => {
                   />
                 </div>
                 <div className="flex justify-between pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowRegister(false)}
-                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                  >
-                    Enviar
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        ) : (
-          <>
-            {heroSections.map((section, index) => (
-              <div
-                key={index}
-                className={`absolute inset-0 flex items-center transition-all duration-700 ${
-                  currentSection === index 
-                    ? 'opacity-100 translate-x-0' 
-                    : 'opacity-0 -translate-x-full'
-                }`}
+              <button
+                type="button"
+                onClick={() => setShowRegister(false)}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
               >
-                <div className="text-white p-6 ml-20">
-                  <h2 className={`text-7xl font-bold mb-6 text-shadow animate-slideInLeft ${
-                    currentSection === index ? 'opacity-100' : 'opacity-0'
-                  }`}>
-                    {section.title}
-                  </h2>
-                  <div className={`text-xl animate-slideInRight delay-200 ${
-                    currentSection === index ? 'opacity-100' : 'opacity-0'
-                  }`}>
-                    {typeof section.content === 'string' 
-                      ? <p className="text-4xl text-shadow">{section.content}</p>
-                      : section.content
-                    }
-                  </div>
-                </div>
-              </div>
-            ))}
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Enviar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  ) : (
+         <div className="absolute inset-0">
+      {heroSections.map((section, index) => (
+        <div
+          key={index}
+          className={`
+            absolute inset-0
+            ${currentSection === index ? 'opacity-100 z-10' : 'opacity-0 z-0'}
+            ${isMobile ? 'touch-auto' : 'transition-opacity duration-300'}
+            flex items-center
+          `}
+        >
+          <div className={`
+  w-full h-full
+  ${isMobile ? 'overflow-y-auto touch-auto' : 'flex items-center justify-start'}
+  text-white
+`}
+style={{ WebkitOverflowScrolling: 'touch' }}
+>
+  <div className={`
+    ${isMobile ? 'min-h-[101%] pb-20 w-full p-4' : 'w-full p-6 ml-20'}
+  `}>
+    <h2 className={`
+      ${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-6'} 
+      font-bold text-shadow
+      ${isMobile ? 'sticky top-0 bg-transparent z-20' : ''}
+    `}>
+      {section.title}
+    </h2>
+    <div className={`
+      ${isMobile ? 'text-sm touch-auto' : 'text-xl'}
+      ${isMobile ? '' : 'max-h-[calc(100vh-14rem)] overflow-y-auto'}
+    `}>
+      {typeof section.content === 'string' 
+        ? <p className={`${isMobile ? 'text-2xl' : 'text-4xl'} text-shadow`}>{section.content}</p>
+        : section.content
+      }
+    </div>
+  </div>
+</div>
+        </div>
+      ))}
 
-            {!showRegister && (
-              <NavigationDots
-                sections={heroSections}
-                currentSection={currentSection}
-                onSectionChange={(index) => {
-                  setCurrentSection(index);
-                  setIsPaused(true);
-                  setTimeout(() => {
-                    setIsPaused(false);
-                  }, 15000);
-                }}
-              />
-            )}
-          </>
-        )}
-      </main>
+      {!showRegister && (
+        <NavigationDots
+          sections={heroSections}
+          currentSection={currentSection}
+          onSectionChange={(index) => {
+            setCurrentSection(index);
+            setIsPaused(true);
+            setTimeout(() => {
+              setIsPaused(false);
+            }, 15000);
+          }}
+        />
+      )}
+    </div>
+  )}
+</main>
 
       {/* Footer y otros componentes... */}
-<footer className="bg-gray-800 text-white py-8">
-  <div className="container mx-auto px-4">
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      {/* Columna de Contacto */}
-      <div>
+<footer className="bg-gray-800 text-white py-2 md:py-8">
+    <div className="container mx-auto px-4">
+      <div className="hidden md:grid md:grid-cols-3 gap-8 py-4">
+      <div className="text-left">
         <h3 className="text-xl font-bold mb-4">Contacto</h3>
-        <div className="flex flex-col gap-3">
-          <p className="mb-2">Email: info@laiesken.com</p>
-          <a 
-            href="https://wa.me/34620564257" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 hover:text-blue-400 transition-colors"
-          >
-            <MessageSquare size={20} />
-            WhatsApp: +34 620 564 257
-          </a>
-          <a 
-            href="https://www.instagram.com/laieskenbarcelona" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 hover:text-blue-400 transition-colors"
-          >
-            <Instagram size={20} />
-            @laieskenbarcelona
-          </a>
-        </div>
+        <p className="mb-2">Email: info@laiesken.com</p>
+        <a 
+          href="https://wa.me/34620564257"
+          className="flex items-center gap-2 hover:text-blue-400"
+        >
+          <MessageSquare size={16} />
+          WhatsApp: +34 620 564 257
+        </a>
+        <a 
+          href="https://www.instagram.com/laieskenbarcelona"
+          className="flex items-center gap-2 hover:text-blue-400"
+        >
+          <Instagram size={16} />
+          @laieskenbarcelona
+        </a>
       </div>
 
-      {/* Columna de Ubicación */}
-      <div>
-        <h3 className="text-xl font-bold mb-4">Ubicación</h3>
-        <div className="flex flex-col gap-2">
-          <p>C/ Torrassa 94</p>
-          <p>(Pasaje Josefina Vidal) Nave 2</p>
-          <p>08930, Sant Adrià de Besòs</p>
-          <p>Barcelona</p>
-          <a 
-            href="https://maps.google.com/?q=C/+Torrassa+94+Pasaje+Josefina+Vidal+Nave+2+08930+Sant+Adria+de+Besos+Barcelona"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            <MapPin size={20} />
-            Ver en Google Maps
-          </a>
-        </div>
+      <div className="text-left">
+        <h3 className="text-lg font-bold mb-4">Ubicación</h3>
+        <p>C/ Torrassa 94</p>
+        <p>(Pasaje Josefina Vidal) Nave 2</p>
+        <p>08930, Sant Adrià de Besòs</p>
+        <p>Barcelona</p>
       </div>
 
-      {/* Columna de Horario */}
-      <div>
-        <h3 className="text-xl font-bold mb-4">Horario</h3>
-        <p className="mb-2">Lunes a Viernes: 7:00 - 22:00</p>
-        <p className="mb-2">Sábados: 9:00 - 20:00</p>
+      <div className="text-left">
+        <h3 className="text-lg font-bold mb-4">Horario</h3>
+        <p>Lunes a Viernes: 7:00 - 22:00</p>
+        <p>Sábados: 9:00 - 20:00</p>
         <p>Domingos: 9:00 - 14:00</p>
       </div>
     </div>
 
-    {/* Copyright */}
-    <div className="border-t border-gray-700 mt-8 pt-8 text-center">
-      <p>&copy; {new Date().getFullYear()} LAIESKEN. Todos los derechos reservados.</p>
+    {/* Versión móvil del footer - más compacta */}
+    <div className="md:hidden">
+      <div className="flex justify-between text-xs">
+        <div>
+          <p>info@laiesken.com</p>
+          <p>+34 620 564 257</p>
+        </div>
+        <div>
+          <p>C/ Torrassa 94</p>
+          <p>Sant Adrià de Besòs</p>
+        </div>
+        <div>
+          <p>L-V: 7:00-22:00</p>
+          <p>S-D: 9:00-14:00</p>
+        </div>
+      </div>
+      <div className="mt-1 text-center text-xs">
+        <p>&copy; {new Date().getFullYear()} LAIESKEN</p>
+      </div>
     </div>
   </div>
 </footer>
