@@ -1169,19 +1169,19 @@ useEffect(() => {
     </div>
   </div>
         ) : showRegister ? (
-           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4">
-            <div className={`bg-white ${isMobile ? 'p-4 w-full max-w-sm' : 'p-8 w-96'} rounded-lg shadow-xl`}>
-              <h2 className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold mb-4 text-center`}>Formulario de Registro</h2>
-              <div className={`mb-3 p-2 bg-blue-50 rounded ${isMobile ? 'text-xs' : 'text-sm'}`}>
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-8 rounded-lg shadow-xl w-96">
+              <h2 className="text-2xl font-bold mb-6 text-center">Formulario de Registro</h2>
+              <div className="mb-4 p-3 bg-blue-50 rounded text-sm">
                 <p className="font-bold mb-1">Requisitos de contraseña:</p>
-                <ul className="list-disc pl-4 text-gray-600">
+                <ul className="list-disc pl-5 text-gray-600">
                   <li>Mínimo 8 caracteres</li>
                   <li>Al menos una mayúscula</li>
                   <li>Al menos una minúscula</li>
                   <li>Al menos un número o símbolo</li>
                 </ul>
               </div>
-              <form onSubmit={handleRegister} className={`${isMobile ? 'space-y-3' : 'space-y-4'}`}>
+              <form onSubmit={handleRegister} className="space-y-4">
                 <div>
                   <input
                     type="text"
