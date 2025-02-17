@@ -15,13 +15,28 @@ const useIsMobile = () => {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      const isMobileView = window.innerWidth < 768;
+      if (isMobile !== isMobileView) {
+        setIsMobile(isMobileView);
+      }
     };
     
+    // Comprobar inmediatamente
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+    
+    // Usar debounce para el evento resize
+    let timeoutId = null;
+    const handleResize = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(checkMobile, 100);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [isMobile]);
 
   return isMobile;
 };
@@ -669,51 +684,54 @@ const handleLogout = () => {
   const NavigationDots = ({ sections, currentSection, onSectionChange }) => {
   const isMobile = useIsMobile();
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Si es móvil, solo renderizamos los dots móviles
-  if (isMobile) {
-    return (
-      <div className="fixed bottom-4 left-0 right-0 flex justify-center gap-3 z-50">
-        {sections.map((section, index) => (
+  const handleSectionChange = (index) => {
+    setIsTransitioning(true);
+    onSectionChange(index);
+    // Asegurarnos de que la transición ha terminado
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
+
+  // Usamos el mismo tipo de dots basado en el estado inicial durante la transición
+  const currentLayout = isTransitioning ? isMobile : isMobile;
+
+  return (
+    <div 
+      className={`
+        fixed z-50
+        ${currentLayout ? 'bottom-4 left-0 right-0 flex justify-center gap-3' : 'right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-6'}
+      `}
+    >
+      {sections.map((section, index) => (
+        currentLayout ? (
           <button
             key={index}
-            onClick={() => onSectionChange(index)}
+            onClick={() => handleSectionChange(index)}
             className={`
               w-4 h-4 rounded-full 
               transition-opacity duration-300
               ${currentSection === index ? 'bg-white' : 'bg-white opacity-50'}
             `}
           />
-        ))}
-      </div>
-    );
-  }
-
-  // Si es desktop, renderizamos los dots con hover
-  return (
-    <div className="fixed right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-6 z-50">
-      {sections.map((section, index) => (
-        <div 
-          key={index} 
-          className="relative flex items-center justify-end cursor-pointer"
-          onMouseEnter={() => setHoveredIndex(index)}
-          onMouseLeave={() => setHoveredIndex(null)}
-        >
-          <button
-            onClick={() => onSectionChange(index)}
-            className={`
-              flex items-center justify-end rounded-full 
-              transition-all duration-300 overflow-hidden
-              w-16 h-16 bg-white hover:bg-opacity-90
-              relative
-            `}
-          />
-          {(hoveredIndex === index || currentSection === index) && (
-            <span className="absolute right-20 whitespace-nowrap text-white text-lg">
-              {buttonTitles[section.title] || section.title}
-            </span>
-          )}
-        </div>
+        ) : (
+          <div 
+            key={index} 
+            className="relative flex items-center justify-end cursor-pointer"
+            onMouseEnter={() => setHoveredIndex(index)}
+            onMouseLeave={() => setHoveredIndex(null)}
+          >
+            <button
+              onClick={() => handleSectionChange(index)}
+              className="flex items-center justify-end rounded-full transition-all duration-300 overflow-hidden w-16 h-16 bg-white hover:bg-opacity-90 relative"
+            />
+            {(hoveredIndex === index || currentSection === index) && (
+              <span className="absolute right-20 whitespace-nowrap text-white text-lg">
+                {buttonTitles[section.title] || section.title}
+              </span>
+            )}
+          </div>
+        )
       ))}
     </div>
   );
