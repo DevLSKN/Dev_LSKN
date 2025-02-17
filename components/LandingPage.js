@@ -701,7 +701,7 @@ const handleLogout = () => {
         ))}
       </div>
 
-      {/* Dots desktop - modificados con animación de expansión */}
+      {/* Dots desktop - modificados con color de fondo */}
       <div className="fixed right-8 top-1/2 transform -translate-y-1/2 flex-col gap-6 z-50 hidden md:flex">
         {sections.map((section, index) => (
           <div 
@@ -715,14 +715,13 @@ const handleLogout = () => {
               className={`
                 flex items-center justify-end
                 rounded-full transition-all duration-300
-                overflow-hidden bg-white hover:bg-opacity-90
+                overflow-hidden 
                 ${hoveredIndex === index || currentSection === index 
-                  ? 'w-48' // Ancho expandido cuando está activo/hover
-                  : 'w-16'} // Ancho normal
+                  ? 'w-48 bg-blue-500 text-white' 
+                  : 'w-16 bg-white text-black hover:bg-blue-500 hover:text-white'} 
                 h-16 relative
               `}
             >
-              {/* Contenedor del texto con transición de opacidad */}
               <div className={`
                 absolute right-16 left-4
                 transition-opacity duration-300 whitespace-nowrap
@@ -731,16 +730,9 @@ const handleLogout = () => {
                   ? 'opacity-100' 
                   : 'opacity-0'}
               `}>
-                <span className="text-black text-lg">
+                <span className="text-lg">
                   {buttonTitles[section.title] || section.title}
                 </span>
-              </div>
-              {/* Círculo indicador */}
-              <div className="w-16 h-16 flex items-center justify-center">
-                <div className={`
-                  w-3 h-3 rounded-full
-                  ${currentSection === index ? 'bg-blue-500' : 'bg-gray-400'}
-                `}/>
               </div>
             </button>
           </div>
