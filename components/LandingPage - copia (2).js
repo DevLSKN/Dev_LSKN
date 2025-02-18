@@ -1069,16 +1069,16 @@ useEffect(() => {
   />
 
   {isLoggedIn && showUserPanel ? (
-  <div className="absolute inset-0 flex items-center animate-fadeInDown">  {/* items-center centra verticalmente */}
+  <div className="absolute inset-0 flex items-center animate-fadeInDown">
     <div className={`text-white w-full ${isMobile ? 'p-4 overflow-y-auto h-full pb-20' : 'ml-20 p-6'}`}>
       <h2 className={`${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-10'} font-bold text-shadow`}>
         Panel de Usuario
       </h2>
       
-     <div className={`flex ${isMobile ? 'flex-col gap-4' : 'gap-8'}`}>
-  {/* Columna izquierda - Información de la cuenta */}
-  <div className={`${isMobile ? 'w-full' : 'w-[400px]'}`}>  {/* Cambiado flex-1 por w-[400px] */}
-    <div className="bg-black bg-opacity-50 p-4 rounded-lg">
+      <div className={`flex ${isMobile ? 'flex-col gap-4' : 'gap-8'}`}>
+        {/* Columna izquierda - Información de la cuenta */}
+        <div className={`${isMobile ? 'w-full' : 'flex-1'}`}>
+          <div className="bg-black bg-opacity-50 p-4 rounded-lg">
             <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
               Información de la cuenta
             </h3>
@@ -1200,8 +1200,8 @@ useEffect(() => {
         </div>
 
         {/* Columna derecha - Historial de servicios */}
-  <div className={`${isMobile ? 'w-full mb-20' : 'w-96'}`}>
-    <div className="bg-black bg-opacity-50 p-4 rounded-lg">
+        <div className={`${isMobile ? 'w-full mb-20' : 'w-96'}`}>
+          <div className="bg-black bg-opacity-50 p-4 rounded-lg">
             <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
               Historial de Servicios
             </h3>
