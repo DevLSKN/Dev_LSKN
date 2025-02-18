@@ -1075,7 +1075,7 @@ useEffect(() => {
         Panel de Usuario
       </h2>
       
-      <<div className={`flex ${isMobile ? 'flex-col gap-4' : 'gap-8'}`}>
+      <div className={`flex ${isMobile ? 'flex-col gap-4' : 'gap-8'}`}>
         {/* Columna izquierda - Información de la cuenta */}
         <div className={`${isMobile ? 'w-full' : 'flex-1'}`}>
           <div className="bg-black bg-opacity-50 p-4 rounded-lg">
