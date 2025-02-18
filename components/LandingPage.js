@@ -1222,7 +1222,6 @@ useEffect(() => {
                 <p className="text-center text-gray-300">No hay servicios contratados</p>
               )}
             </div>
-          </div>
         </div>
       </div>
     </div>
