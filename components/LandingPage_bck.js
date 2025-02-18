@@ -701,7 +701,7 @@ const handleLogout = () => {
         ))}
       </div>
 
-      {/* Dots desktop - modificados con animación de expansión */}
+      {/* Dots desktop - modificados con color de fondo */}
       <div className="fixed right-8 top-1/2 transform -translate-y-1/2 flex-col gap-6 z-50 hidden md:flex">
         {sections.map((section, index) => (
           <div 
@@ -715,14 +715,13 @@ const handleLogout = () => {
               className={`
                 flex items-center justify-end
                 rounded-full transition-all duration-300
-                overflow-hidden bg-white hover:bg-opacity-90
+                overflow-hidden 
                 ${hoveredIndex === index || currentSection === index 
-                  ? 'w-48' // Ancho expandido cuando está activo/hover
-                  : 'w-16'} // Ancho normal
+                  ? 'w-48 bg-blue-500 text-white' 
+                  : 'w-16 bg-white text-black hover:bg-blue-500 hover:text-white'} 
                 h-16 relative
               `}
             >
-              {/* Contenedor del texto con transición de opacidad */}
               <div className={`
                 absolute right-16 left-4
                 transition-opacity duration-300 whitespace-nowrap
@@ -731,16 +730,9 @@ const handleLogout = () => {
                   ? 'opacity-100' 
                   : 'opacity-0'}
               `}>
-                <span className="text-black text-lg">
+                <span className="text-lg">
                   {buttonTitles[section.title] || section.title}
                 </span>
-              </div>
-              {/* Círculo indicador */}
-              <div className="w-16 h-16 flex items-center justify-center">
-                <div className={`
-                  w-3 h-3 rounded-full
-                  ${currentSection === index ? 'bg-blue-500' : 'bg-gray-400'}
-                `}/>
               </div>
             </button>
           </div>
@@ -1077,64 +1069,102 @@ useEffect(() => {
   />
 
   {isLoggedIn && showUserPanel ? (
-    <div className="absolute inset-0 flex items-start animate-fadeInDown p-4">
-      <div className="text-white w-full max-w-7xl">
-        <h2 className={`${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-10'} font-bold text-shadow`}>
-          Panel de Usuario
-        </h2>
+  <div className="absolute inset-0 flex items-center animate-fadeInDown">  {/* items-center centra verticalmente */}
+    <div className={`text-white w-full ${isMobile ? 'p-4 overflow-y-auto h-full pb-20' : 'ml-20 p-6'}`}>
+      <h2 className={`${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-10'} font-bold text-shadow`}>
+        Panel de Usuario
+      </h2>
       
-      <div className={`flex ${isMobile ? 'flex-col gap-4' : 'gap-8'}`}>
-        {/* Columna izquierda */}
-        <div className={`space-y-4 ${isMobile ? 'w-full' : 'flex-1'}`}>
-          {/* Información de la cuenta */}
-          <div className="bg-black bg-opacity-50 p-4 rounded-lg">
+     <div className={`flex ${isMobile ? 'flex-col gap-4' : 'gap-8'}`}>
+  {/* Columna izquierda - Información de la cuenta */}
+  <div className={`${isMobile ? 'w-full' : 'w-[400px]'}`}>  {/* Cambiado flex-1 por w-[400px] */}
+    <div className="bg-black bg-opacity-50 p-4 rounded-lg">
             <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
               Información de la cuenta
             </h3>
             <div className={`grid ${isMobile ? 'grid-cols-1 gap-2 text-base' : 'grid-cols-2 gap-6 text-xl'}`}>
-              {isEditing ? (
-                <>
-                  <div>
-                    <p>Email:</p>
-                    <input
-                      type="email"
-                      className="w-full p-2 border rounded text-black"
-                      value={editedUserData.email}
-                      onChange={(e) => setEditedUserData({...editedUserData, email: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <p>Nombre:</p>
-                    <input
-                      type="text"
-                      className="w-full p-2 border rounded text-black"
-                      value={editedUserData.nombre}
-                      onChange={(e) => setEditedUserData({...editedUserData, nombre: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <p>Apellidos:</p>
-                    <input
-                      type="text"
-                      className="w-full p-2 border rounded text-black"
-                      value={editedUserData.apellidos}
-                      onChange={(e) => setEditedUserData({...editedUserData, apellidos: e.target.value})}
-                    />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <p>Usuario: <span className="font-semibold">{currentUser?.username}</span></p>
-                  <p>Email: <span className="font-semibold">{currentUser?.email}</span></p>
-                  <p>Nombre: <span className="font-semibold">{currentUser?.nombre}</span></p>
-                  <p>Apellidos: <span className="font-semibold">{currentUser?.apellidos}</span></p>
-                </>
-              )}
-            </div>
+  {isEditing ? (
+    <>
+      <div>
+        <p>Usuario:</p>
+        <input
+          type="text"
+          className="w-full p-2 border rounded text-black bg-gray-100"
+          value={editedUserData.username}
+          disabled
+        />
+      </div>
+      <div>
+        <p>Email:</p>
+        <input
+          type="email"
+          className="w-full p-2 border rounded text-black"
+          value={editedUserData.email}
+          onChange={(e) => setEditedUserData({...editedUserData, email: e.target.value})}
+        />
+      </div>
+      <div>
+        <p>Nombre:</p>
+        <input
+          type="text"
+          className="w-full p-2 border rounded text-black"
+          value={editedUserData.nombre}
+          onChange={(e) => setEditedUserData({...editedUserData, nombre: e.target.value})}
+        />
+      </div>
+      <div>
+        <p>Apellidos:</p>
+        <input
+          type="text"
+          className="w-full p-2 border rounded text-black"
+          value={editedUserData.apellidos}
+          onChange={(e) => setEditedUserData({...editedUserData, apellidos: e.target.value})}
+        />
+      </div>
+      <div>
+        <p>Teléfono:</p>
+        <input
+          type="tel"
+          className="w-full p-2 border rounded text-black"
+          value={editedUserData.telefono}
+          onChange={(e) => setEditedUserData({...editedUserData, telefono: e.target.value})}
+        />
+      </div>
+      <div>
+        <p>Dirección:</p>
+        <input
+          type="text"
+          className="w-full p-2 border rounded text-black"
+          value={editedUserData.direccion}
+          onChange={(e) => setEditedUserData({...editedUserData, direccion: e.target.value})}
+        />
+      </div>
+      <div>
+    <p>Fecha de Nacimiento:</p>
+    <input
+      type="text"
+      className="w-full p-2 border rounded text-black"
+      value={editedUserData.fechaNacimiento || ''}  // Añadido el fallback a string vacío
+      onChange={(e) => setEditedUserData({...editedUserData, fechaNacimiento: e.target.value})}
+    />
+  </div>
+    </>
+  ) : (
+    <>
+      <p>Usuario: <span className="font-semibold">{currentUser?.username}</span></p>
+      <p>Email: <span className="font-semibold">{currentUser?.email}</span></p>
+      <p>Nombre: <span className="font-semibold">{currentUser?.nombre}</span></p>
+      <p>Apellidos: <span className="font-semibold">{currentUser?.apellidos}</span></p>
+      <p>Teléfono: <span className="font-semibold">{currentUser?.telefono}</span></p>
+      <p>Dirección: <span className="font-semibold">{currentUser?.direccion}</span></p>
+      <p>Fecha de Nacimiento: <span className="font-semibold">{currentUser.fechaNacimiento || 'No especificada'}</span></p>
+    </>
+  )}
+</div>
           </div>
 
           {/* Botones de acción */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-4">
             {isEditing ? (
               <>
                 <button
@@ -1170,12 +1200,12 @@ useEffect(() => {
         </div>
 
         {/* Columna derecha - Historial de servicios */}
-        <div className={`${isMobile ? 'w-full' : 'w-96'}`}>
-          <div className="bg-black bg-opacity-50 p-4 rounded-lg">
+  <div className={`${isMobile ? 'w-full mb-20' : 'w-96'}`}>
+    <div className="bg-black bg-opacity-50 p-4 rounded-lg">
             <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
               Historial de Servicios
             </h3>
-            <div className={`${isMobile ? 'max-h-[300px]' : 'max-h-[500px]'} overflow-y-auto space-y-4`}>
+            <div className={`space-y-4 ${isMobile ? 'max-h-[50vh]' : 'max-h-[calc(100vh-250px)]'} overflow-y-auto`}>
               {userServices && userServices.length > 0 ? (
                 userServices.map((service) => (
                   <ServiceCard
@@ -1193,7 +1223,7 @@ useEffect(() => {
                 <p className="text-center text-gray-300">No hay servicios contratados</p>
               )}
             </div>
-          </div>
+			</div>
         </div>
       </div>
     </div>
