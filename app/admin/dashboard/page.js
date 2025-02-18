@@ -54,7 +54,8 @@ const UserDetailsModal = ({ user, onClose }) => {
               <p><span className="font-medium">Apellidos:</span> {user?.apellidos}</p>
               <p><span className="font-medium">Teléfono:</span> {user?.telefono}</p>
               <p><span className="font-medium">Dirección:</span> {user?.direccion}</p>
-            </div>
+              <p><span className="font-medium">Fecha de Nacimiento:</span> {user?.fechaNacimiento || 'No especificada'}</p>
+			</div>
           </div>
 
           <div className="mb-6">
@@ -156,14 +157,15 @@ function DashboardPage() {
     const workbook = XLSX.utils.book_new();
     
     const userData = filteredUsers.map(user => ({
-      Username: user.username,
-      Email: user.email,
-      Nombre: user.nombre,
-      Apellidos: user.apellidos,
-      Teléfono: user.telefono,
-      Dirección: user.direccion,
-      'Total Servicios': user.services?.length || 0
-    }));
+  Username: user.username,
+  Email: user.email,
+  Nombre: user.nombre,
+  Apellidos: user.apellidos,
+  Teléfono: user.telefono,
+  Dirección: user.direccion,
+  "Fecha de Nacimiento": user.fechaNacimiento || "No especificada",
+  "Total Servicios": user.services?.length || 0
+}));
 
     const serviceData = [];
     filteredUsers.forEach(user => {
