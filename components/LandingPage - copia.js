@@ -1070,18 +1070,18 @@ useEffect(() => {
 
   {isLoggedIn && showUserPanel ? (
     <div className="absolute inset-0 flex items-start animate-fadeInDown p-4">
-  <div className="text-white w-full max-w-7xl">
-    <h2 className={`${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-10'} font-bold text-shadow`}>
-      Panel de Usuario
-    </h2>
+      <div className="text-white w-full max-w-7xl">
+        <h2 className={`${isMobile ? 'text-2xl mb-4' : 'text-7xl mb-10'} font-bold text-shadow`}>
+          Panel de Usuario
+        </h2>
       
-      <div className={`flex ${isMobile ? 'flex-col gap-4 pb-20' : 'gap-8'}`}>
+      <div className={`flex ${isMobile ? 'flex-col gap-4 p-2' : 'gap-8'}`}>
   {/* Columna izquierda - Información de la cuenta */}
   <div className={`space-y-4 ${isMobile ? 'w-full bg-black bg-opacity-50 p-4 rounded-lg' : 'flex-1'}`}>
-    <div className={`${isMobile ? 'w-full bg-black bg-opacity-50 p-4 rounded-lg mb-4' : 'flex-1 bg-black bg-opacity-50 p-4 rounded-lg'}`}>
-        <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
-          Información de la cuenta
-        </h3>
+    <div className={`${isMobile ? 'max-h-none' : 'bg-black bg-opacity-50 p-4 rounded-lg'}`}>
+      <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
+        Información de la cuenta
+      </h3>
             <div className={`grid ${isMobile ? 'grid-cols-1 gap-2 text-base' : 'grid-cols-2 gap-6 text-xl'}`}>
   {isEditing ? (
     <>
@@ -1200,11 +1200,11 @@ useEffect(() => {
         </div>
 
         {/* Columna derecha - Historial de servicios */}
-        <div className={`${isMobile ? 'w-full bg-black bg-opacity-50 p-4 rounded-lg mb-16' : 'w-96 bg-black bg-opacity-50 p-4 rounded-lg'}`}>
-        <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
-          Historial de Servicios
-        </h3>
-        <div className={`${isMobile ? 'overflow-y-auto' : 'max-h-[500px] overflow-y-auto'} space-y-4`}>
+        <div className={`${isMobile ? 'w-full bg-black bg-opacity-50 p-4 rounded-lg' : 'w-96'}`}>
+    <h3 className={`${isMobile ? 'text-xl' : 'text-3xl'} font-semibold mb-2`}>
+      Historial de Servicios
+    </h3>
+    <div className={`${isMobile ? 'max-h-none overflow-visible' : 'max-h-[500px] overflow-y-auto'} space-y-4`}>
               {userServices && userServices.length > 0 ? (
                 userServices.map((service) => (
                   <ServiceCard
