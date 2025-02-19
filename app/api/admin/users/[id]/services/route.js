@@ -9,42 +9,58 @@ export async function POST(request, { params }) {
     const { id } = params;
     const serviceData = await request.json();
 
-    // Primero obtener el usuario para tener su username
+    // Primero encontrar el usuario
     const user = await User.findById(id);
     if (!user) {
-      return new Response(JSON.stringify({ error: 'Usuario no encontrado' }), { 
-        status: 404 
+      return new Response(JSON.stringify({ error: 'Usuario no encontrado' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
+    // Crear el nuevo servicio
     const newService = new Service({
-      username: user.username, // Añadir el username del usuario
+      username: user.username,  // Usar el username del usuario
       servicio: serviceData.servicio,
-      estado: 'activo'
+      estado: 'activo',
+      createdAt: new Date(),
+      usos: []
     });
 
+    // Guardar el servicio
     await newService.save();
 
-    // Actualizar el usuario con el nuevo servicio
+    // Añadir el servicio al usuario y devolverlo poblado
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { $push: { services: newService._id } },
-      { new: true }
+      { 
+        $push: { services: newService._id } 
+      },
+      { 
+        new: true
+      }
     ).populate('services');
 
-    return new Response(JSON.stringify({ 
-      success: true, 
+    // Verificar que el servicio se añadió correctamente
+    console.log('Servicio creado:', newService);
+    console.log('Usuario actualizado:', updatedUser);
+
+    return new Response(JSON.stringify({
+      success: true,
       service: newService,
       user: updatedUser
-    }), { 
-      status: 201 
+    }), {
+      status: 201,
+      headers: { 'Content-Type': 'application/json' }
     });
+
   } catch (error) {
     console.error('Error al crear servicio:', error);
-    return new Response(JSON.stringify({ 
-      error: error.message || 'Error al crear el servicio' 
-    }), { 
-      status: 500 
+    return new Response(JSON.stringify({
+      error: error.message || 'Error al crear el servicio'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 }

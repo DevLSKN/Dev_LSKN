@@ -337,39 +337,34 @@ const AddServiceModal = ({ userId, onClose, onAdd }) => {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!newService.servicio) {
-      window.alert('Por favor, selecciona un servicio');
-      return;
+  onst handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    setIsLoading(true);
+    const response = await fetch(`/api/admin/users/${userId}/services`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newService)
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      window.alert('Servicio añadido correctamente');
+      onAdd();  // Asegúrate de que esta función recarga los datos del usuario
+      onClose();
+    } else {
+      window.alert(data.error || 'Error al añadir el servicio');
     }
-
-    try {
-      setIsLoading(true);
-      const response = await fetch(`/api/admin/users/${userId}/services`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newService)
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        window.alert('Servicio añadido correctamente');
-        onAdd();
-        onClose();
-      } else {
-        window.alert(data.error || 'Error al añadir el servicio');
-      }
-    } catch (error) {
-      console.error('Error al añadir servicio:', error);
-      window.alert('Error al añadir el servicio');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  } catch (error) {
+    console.error('Error al añadir servicio:', error);
+    window.alert('Error al añadir el servicio');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4">
