@@ -337,7 +337,7 @@ const AddServiceModal = ({ userId, onClose, onAdd }) => {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  onst handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
   e.preventDefault();
   try {
     setIsLoading(true);
