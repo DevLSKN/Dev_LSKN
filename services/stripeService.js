@@ -53,16 +53,16 @@ const stripeService = {
   async createMatriculaCheckoutSession(userId) {
     try {
       console.log('Creating matricula checkout session:', { userId });
-      const precioMensualidad = calcularPrecioMensualidad();
       
-      const response = await fetch('/api/create-matricula-session', {
+      // Usar el mismo endpoint que los otros servicios
+      const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId,
-          precioMensualidad,
+          serviceId: 'MATRICULA',
+          userId: userId
         }),
       });
 
@@ -103,46 +103,7 @@ const stripeService = {
       console.error('Error in verifyPaymentStatus:', error);
       throw error;
     }
-  },
-
-  // Método para verificar si un usuario ya ha pagado la matrícula
-  async createMatriculaCheckoutSession(userId) {
-    try {
-      console.log('Creating matricula checkout session:', { userId });
-      
-      // Usar el mismo endpoint que los otros servicios
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          serviceId: 'MATRICULA',
-          userId: userId
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error en el servidor');
-      }
-
-      const session = await response.json();
-      console.log('Matricula session created:', session);
-
-      const stripe = await stripePromise;
-      const { error } = await stripe.redirectToCheckout({
-        sessionId: session.id,
-      });
-
-      if (error) {
-        console.error('Redirect error:', error);
-        throw new Error(error.message);
-      }
-    } catch (error) {
-      console.error('Error in createMatriculaCheckoutSession:', error);
-      throw error;
-    }
-  },
+  }
+};
 
 export default stripeService;
