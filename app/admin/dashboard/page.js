@@ -23,6 +23,11 @@ const UserDetailsModal = ({ user, onClose, onUpdate }) => {
   const [showAddService, setShowAddService] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Actualizar el estado local cuando cambia el usuario seleccionado
+  useEffect(() => {
+    setEditedData(user);
+  }, [user]);
+
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('es-ES', {
       year: 'numeric',
@@ -48,10 +53,14 @@ const UserDetailsModal = ({ user, onClose, onUpdate }) => {
 
         if (response.ok && data.success) {
           window.alert('Servicio dado de baja correctamente');
-          const updatedUser = await fetch(`/api/admin/users/${user._id}`).then(res => res.json());
-          if (updatedUser.user) {
-            setEditedData(updatedUser.user);
-            onUpdate();
+          // Actualizar datos locales
+          const updatedUserResponse = await fetch(`/api/admin/users/${user._id}`);
+          const updatedUserData = await updatedUserResponse.json();
+          
+          if (updatedUserData.user) {
+            setEditedData(updatedUserData.user);
+            // Actualizar también en el componente padre
+            onUpdate(updatedUserData.user);
           }
         } else {
           window.alert(data.error || 'Error al dar de baja el servicio');
@@ -66,33 +75,35 @@ const UserDetailsModal = ({ user, onClose, onUpdate }) => {
   };
 
   const handleSave = async () => {
-  try {
-    setIsLoading(true);
-    const response = await fetch(`/api/admin/users/${user._id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(editedData)
-    });
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/admin/users/${user._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editedData)
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (response.ok && data.success) {
-      window.alert('Usuario actualizado correctamente');
-      setEditedData(data.user); // Actualizar estado local
-      onUpdate(); // Actualizar lista de usuarios
-      setIsEditing(false);
-    } else {
-      window.alert(data.error || 'Error al actualizar el usuario');
+      if (response.ok && data.success) {
+        window.alert('Usuario actualizado correctamente');
+        // Actualizar estado local con los datos actualizados del servidor
+        setEditedData(data.user);
+        // Actualizar también en el componente padre
+        onUpdate(data.user);
+        setIsEditing(false);
+      } else {
+        window.alert(data.error || 'Error al actualizar el usuario');
+      }
+    } catch (error) {
+      console.error('Error al actualizar:', error);
+      window.alert('Error al actualizar el usuario');
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error('Error al actualizar:', error);
-    window.alert('Error al actualizar el usuario');
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   const getUsosMaximos = (serviceName) => {
     if (!serviceName) return null;
@@ -150,7 +161,7 @@ const UserDetailsModal = ({ user, onClose, onUpdate }) => {
             </button>
           </div>
         </div>
-		{/* Contenido del Modal - Información Personal */}
+        {/* Contenido del Modal - Información Personal */}
         <div className="p-4 md:p-6">
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <h3 className="text-xl font-semibold mb-4">Información Personal</h3>
@@ -224,13 +235,13 @@ const UserDetailsModal = ({ user, onClose, onUpdate }) => {
                 </>
               ) : (
                 <>
-                  <p><span className="font-medium">Usuario:</span> {user?.username}</p>
-                  <p><span className="font-medium">Email:</span> {user?.email}</p>
-                  <p><span className="font-medium">Nombre:</span> {user?.nombre}</p>
-                  <p><span className="font-medium">Apellidos:</span> {user?.apellidos}</p>
-                  <p><span className="font-medium">Teléfono:</span> {user?.telefono}</p>
-                  <p><span className="font-medium">Dirección:</span> {user?.direccion}</p>
-                  <p><span className="font-medium">Fecha de Nacimiento:</span> {user?.fechaNacimiento || 'No especificada'}</p>
+                  <p><span className="font-medium">Usuario:</span> {editedData?.username}</p>
+                  <p><span className="font-medium">Email:</span> {editedData?.email}</p>
+                  <p><span className="font-medium">Nombre:</span> {editedData?.nombre}</p>
+                  <p><span className="font-medium">Apellidos:</span> {editedData?.apellidos}</p>
+                  <p><span className="font-medium">Teléfono:</span> {editedData?.telefono}</p>
+                  <p><span className="font-medium">Dirección:</span> {editedData?.direccion}</p>
+                  <p><span className="font-medium">Fecha de Nacimiento:</span> {editedData?.fechaNacimiento || 'No especificada'}</p>
                 </>
               )}
             </div>
@@ -251,9 +262,9 @@ const UserDetailsModal = ({ user, onClose, onUpdate }) => {
             </div>
 
             {/* Lista de Servicios */}
-            {Array.isArray(user?.services) && user.services.length > 0 ? (
+            {Array.isArray(editedData?.services) && editedData.services.length > 0 ? (
               <div className="space-y-4">
-                {[...user.services]
+                {[...editedData.services]
                   .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                   .map((service, index) => {
                     const usosMaximos = getUsosMaximos(service.servicio);
@@ -329,7 +340,22 @@ const UserDetailsModal = ({ user, onClose, onUpdate }) => {
         <AddServiceModal
           userId={user._id}
           onClose={() => setShowAddService(false)}
-          onAdd={onUpdate}
+          onAdd={async () => {
+            try {
+              // Obtener los datos actualizados directamente del servidor
+              const response = await fetch(`/api/admin/users/${user._id}`);
+              const data = await response.json();
+              
+              if (data.user) {
+                // Actualizar los datos locales
+                setEditedData(data.user);
+                // También actualizar en el componente padre
+                onUpdate(data.user);
+              }
+            } catch (error) {
+              console.error('Error actualizando después de añadir servicio:', error);
+            }
+          }}
         />
       )}
     </div>
@@ -344,44 +370,45 @@ const AddServiceModal = ({ userId, onClose, onAdd }) => {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  // Componente AddServiceModal modificado
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!newService.servicio) {
-    window.alert('Por favor, selecciona un servicio');
-    return;
-  }
-
-  try {
-    setIsLoading(true);
-    const response = await fetch(`/api/admin/users/${userId}/services`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        servicio: newService.servicio,
-        estado: 'activo',
-        createdAt: new Date().toISOString()
-      })
-    });
-
-    const data = await response.json();
-
-    if (response.ok && data.success) {
-      window.alert('Servicio añadido correctamente');
-      await onAdd();  // Esperar a que se actualicen los datos
-      onClose();
-    } else {
-      window.alert(data.error || 'Error al añadir el servicio');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!newService.servicio) {
+      window.alert('Por favor, selecciona un servicio');
+      return;
     }
-  } catch (error) {
-    console.error('Error al añadir servicio:', error);
-    window.alert('Error al añadir el servicio');
-  } finally {
-    setIsLoading(false);
-  }
-};
+
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/admin/users/${userId}/services`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          servicio: newService.servicio,
+          estado: 'activo',
+          createdAt: new Date().toISOString()
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        window.alert('Servicio añadido correctamente');
+        
+        // Esperar a que se actualicen los datos antes de cerrar
+        await onAdd();
+        onClose();
+      } else {
+        window.alert(data.error || 'Error al añadir el servicio');
+      }
+    } catch (error) {
+      console.error('Error al añadir servicio:', error);
+      window.alert('Error al añadir el servicio');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4">
@@ -444,6 +471,7 @@ const handleSubmit = async (e) => {
     </div>
   );
 };
+
 function DashboardPage() {
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -621,6 +649,19 @@ function DashboardPage() {
     }
   };
 
+  // Función para actualizar un usuario específico en la lista
+  const updateUserInList = (updatedUser) => {
+    if (!updatedUser || !updatedUser._id) return;
+    
+    // Actualizar el usuario en el array completo
+    setUsers(prevUsers => 
+      prevUsers.map(user => user._id === updatedUser._id ? updatedUser : user)
+    );
+    
+    // Actualizar el usuario seleccionado
+    setSelectedUser(updatedUser);
+  };
+
   // Verificar admin y cargar datos iniciales
   useEffect(() => {
     const checkAdmin = async () => {
@@ -710,6 +751,7 @@ function DashboardPage() {
             icon={<UserPlus className="w-5 h-5" />}
           />
         </div>
+
 
         {/* Panel Principal */}
         <div className="bg-white rounded-lg shadow-lg p-4 md:p-6">
