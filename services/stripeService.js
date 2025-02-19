@@ -103,6 +103,27 @@ const stripeService = {
       console.error('Error in verifyPaymentStatus:', error);
       throw error;
     }
+  },
+  
+  async checkMatriculaStatus(userId) {
+    try {
+      console.log('Verificando estado de matrícula para usuario:', userId);
+      
+      const response = await fetch(`/api/check-matricula-status?userId=${userId}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al verificar la matrícula');
+      }
+      
+      const data = await response.json();
+      console.log('Resultado de verificación de matrícula:', data);
+      
+      return data;
+    } catch (error) {
+      console.error('Error en checkMatriculaStatus:', error);
+      throw error;
+    }
   }
 };
 
