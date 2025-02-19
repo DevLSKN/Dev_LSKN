@@ -62,6 +62,11 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
+}, 
+services: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Service'
+  }]
 }, { 
   collection: 'users',
   timestamps: true // Añadir createdAt y updatedAt automáticamente

@@ -9,6 +9,7 @@ export async function POST(request, { params }) {
     const { id } = params;
     const serviceData = await request.json();
 
+    // Primero obtener el usuario para tener su username
     const user = await User.findById(id);
     if (!user) {
       return new Response(JSON.stringify({ error: 'Usuario no encontrado' }), { 
@@ -17,9 +18,9 @@ export async function POST(request, { params }) {
     }
 
     const newService = new Service({
-      userId: id,
+      username: user.username, // Añadir el username del usuario
       servicio: serviceData.servicio,
-      estado: 'activo',
+      estado: 'activo'
     });
 
     await newService.save();
