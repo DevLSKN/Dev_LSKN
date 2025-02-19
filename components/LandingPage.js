@@ -879,18 +879,18 @@ const heroSections = [
             image: "/rostro.jpg"
           }
         ].map((member) => (
-          <div key={member.id} className="bg-black bg-opacity-50 p-6 rounded-lg hover:bg-opacity-60 transition-all flex flex-col">
-            <div className="mb-4 overflow-hidden rounded-lg h-64 w-full">
-              <img
-                src={member.image}
-                alt={member.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <h3 className="text-2xl font-bold mb-1">{member.name}</h3>
-            <h4 className="text-lg text-blue-400 mb-2">{member.role}</h4>
-            <p className="text-gray-300">{member.description}</p>
-          </div>
+         <div key={member.id} className="bg-black bg-opacity-50 p-6 rounded-lg hover:bg-opacity-60 transition-all flex flex-col">
+  <div className={`mb-4 overflow-hidden rounded-lg ${isMobile ? 'h-64' : 'h-48'} w-full`}>
+    <img
+      src={member.image}
+      alt={member.name}
+      className="w-full h-full object-cover"
+    />
+  </div>
+  <h3 className={`${isMobile ? 'text-2xl' : 'text-xl'} font-bold mb-1`}>{member.name}</h3>
+  <h4 className={`${isMobile ? 'text-lg' : 'text-base'} text-blue-400 mb-2`}>{member.role}</h4>
+  <p className={`text-gray-300 ${isMobile ? 'text-base' : 'text-sm'}`}>{member.description}</p>
+</div>
         ))}
       </div>
     )
