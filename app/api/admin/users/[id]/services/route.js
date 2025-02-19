@@ -1,16 +1,15 @@
-// app/api/admin/users/[userId]/services/route.js
-import { connectDB } from '@/lib/mongodb';
+// app/api/admin/users/[id]/services/route.js
+import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import Service from '@/models/Service';
 
 export async function POST(request, { params }) {
   try {
-    const { userId } = params;
+    await dbConnect();  // Usar dbConnect en lugar de connectDB
+    const { id } = params;
     const serviceData = await request.json();
-    
-    await connectDB();
 
-    const user = await User.findById(userId);
+    const user = await User.findById(id);
     if (!user) {
       return new Response(JSON.stringify({ error: 'Usuario no encontrado' }), { 
         status: 404 
@@ -18,7 +17,7 @@ export async function POST(request, { params }) {
     }
 
     const newService = new Service({
-      userId,
+      userId: id,
       servicio: serviceData.servicio,
       estado: 'activo',
       createdAt: new Date(),
@@ -29,7 +28,7 @@ export async function POST(request, { params }) {
 
     // Actualizar el usuario con el nuevo servicio
     await User.findByIdAndUpdate(
-      userId,
+      id,
       { $push: { services: newService._id } }
     );
 

@@ -1,11 +1,11 @@
 // app/api/admin/services/[id]/route.js
-import { connectDB } from '@/lib/mongodb';
+import dbConnect from '@/lib/mongodb';
 import Service from '@/models/Service';
 
 export async function DELETE(request, { params }) {
   try {
+    await dbConnect();  // Usar dbConnect en lugar de connectDB
     const { id } = params;
-    await connectDB();
 
     const service = await Service.findByIdAndUpdate(
       id,
