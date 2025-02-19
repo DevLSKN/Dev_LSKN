@@ -1,14 +1,10 @@
 // app/api/admin/users/[id]/route.js
-import dbConnect from '@/lib/mongodb';
-import User from '@/models/User';
-
 export async function PUT(request, { params }) {
   try {
-    await dbConnect();  // Usar dbConnect en lugar de connectDB
+    await dbConnect();
     const { id } = params;
     const updateData = await request.json();
     
-    // Asegurarnos de no actualizar campos sensibles
     const { password, role, username, ...safeUpdateData } = updateData;
 
     const updatedUser = await User.findByIdAndUpdate(

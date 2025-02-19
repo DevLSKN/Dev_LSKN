@@ -5,7 +5,7 @@ import Service from '@/models/Service';
 
 export async function POST(request, { params }) {
   try {
-    await dbConnect();  // Usar dbConnect en lugar de connectDB
+    await dbConnect();
     const { id } = params;
     const serviceData = await request.json();
 
@@ -20,26 +20,29 @@ export async function POST(request, { params }) {
       userId: id,
       servicio: serviceData.servicio,
       estado: 'activo',
-      createdAt: new Date(),
-      usos: []
     });
 
     await newService.save();
 
     // Actualizar el usuario con el nuevo servicio
-    await User.findByIdAndUpdate(
+    const updatedUser = await User.findByIdAndUpdate(
       id,
-      { $push: { services: newService._id } }
-    );
+      { $push: { services: newService._id } },
+      { new: true }
+    ).populate('services');
 
     return new Response(JSON.stringify({ 
       success: true, 
-      service: newService 
+      service: newService,
+      user: updatedUser
     }), { 
       status: 201 
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { 
+    console.error('Error al crear servicio:', error);
+    return new Response(JSON.stringify({ 
+      error: error.message || 'Error al crear el servicio' 
+    }), { 
       status: 500 
     });
   }
