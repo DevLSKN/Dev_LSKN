@@ -1329,14 +1329,18 @@ useEffect(() => {
     maxLength="10"
     required
   />
+  <input
+    type="date"
+    id="dateInput"
+    className="absolute opacity-0 -z-1"
+    max={new Date().toISOString().split('T')[0]}
+    onChange={handleFechaNacimientoChange}
+    aria-label="Seleccionar fecha del calendario"
+  />
   <button
     type="button"
     onClick={() => {
-      const dateInput = document.createElement('input');
-      dateInput.type = 'date';
-      dateInput.max = new Date().toISOString().split('T')[0];
-      dateInput.onchange = (e) => handleFechaNacimientoChange(e);
-      dateInput.click();
+      document.getElementById('dateInput').showPicker();
     }}
     className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700"
   >
