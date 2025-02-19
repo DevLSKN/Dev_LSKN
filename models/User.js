@@ -61,9 +61,8 @@ const userSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  }
-}, 
-services: [{
+  },
+  services: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Service'
   }]
