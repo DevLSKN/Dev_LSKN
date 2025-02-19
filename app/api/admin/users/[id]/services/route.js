@@ -9,12 +9,9 @@ export async function POST(request, { params }) {
     const { id } = params;
     const serviceData = await request.json();
 
-    // Verificar si el usuario existe
     const user = await User.findById(id);
     if (!user) {
-      return new Response(JSON.stringify({ 
-        error: 'Usuario no encontrado' 
-      }), {
+      return new Response(JSON.stringify({ error: 'Usuario no encontrado' }), { 
         status: 404,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -22,23 +19,20 @@ export async function POST(request, { params }) {
 
     // Crear el nuevo servicio
     const newService = new Service({
-      username: user.username,  // Asegurarnos de incluir el username
+      username: user.username,
       servicio: serviceData.servicio,
       estado: 'activo',
       createdAt: new Date(),
       usos: []
     });
 
-    // Guardar el servicio
     await newService.save();
 
-    // Actualizar la referencia en el usuario
-    await User.findByIdAndUpdate(
-      id,
-      { $push: { services: newService._id } }
-    );
+    // Añadir el servicio al usuario
+    user.services.push(newService._id);
+    await user.save();
 
-    // Obtener el usuario actualizado con los servicios
+    // Obtener el usuario actualizado con servicios
     const updatedUser = await User.findById(id).populate('services');
 
     return new Response(JSON.stringify({
@@ -49,12 +43,9 @@ export async function POST(request, { params }) {
       status: 201,
       headers: { 'Content-Type': 'application/json' }
     });
-
   } catch (error) {
-    console.error('Error al crear servicio:', error);
-    return new Response(JSON.stringify({
-      error: error.message || 'Error al crear el servicio'
-    }), {
+    console.error('Error al añadir servicio:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });

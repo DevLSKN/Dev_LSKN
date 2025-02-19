@@ -66,33 +66,33 @@ const UserDetailsModal = ({ user, onClose, onUpdate }) => {
   };
 
   const handleSave = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(`/api/admin/users/${user._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(editedData)
-      });
+  try {
+    setIsLoading(true);
+    const response = await fetch(`/api/admin/users/${user._id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(editedData)
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (response.ok && data.success) {
-        window.alert('Usuario actualizado correctamente');
-        setEditedData(data.user);
-        onUpdate();
-        setIsEditing(false);
-      } else {
-        window.alert(data.error || 'Error al actualizar el usuario');
-      }
-    } catch (error) {
-      console.error('Error al actualizar:', error);
-      window.alert('Error al actualizar el usuario');
-    } finally {
-      setIsLoading(false);
+    if (response.ok && data.success) {
+      window.alert('Usuario actualizado correctamente');
+      setEditedData(data.user); // Actualizar estado local
+      onUpdate(); // Actualizar lista de usuarios
+      setIsEditing(false);
+    } else {
+      window.alert(data.error || 'Error al actualizar el usuario');
     }
-  };
+  } catch (error) {
+    console.error('Error al actualizar:', error);
+    window.alert('Error al actualizar el usuario');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const getUsosMaximos = (serviceName) => {
     if (!serviceName) return null;
