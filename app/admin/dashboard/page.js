@@ -32,82 +32,9 @@ const UserDetailsModal = ({ user, onClose, onUpdate }) => {
       minute: '2-digit'
     });
   };
-// En el componente UserDetailsModal, modificar la sección de servicios
-const handleCancelService = async (serviceId) => {
-  if (window.confirm('¿Estás seguro de que quieres dar de baja este servicio?')) {
-    try {
-      setIsLoading(true);
-      const response = await fetch(`/api/admin/services/${serviceId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        window.alert('Servicio dado de baja correctamente');
-        const updatedUser = await fetch(`/api/admin/users/${user._id}`).then(res => res.json());
-        setSelectedUser(updatedUser.user);
-        onUpdate();
-      } else {
-        window.alert(data.error || 'Error al dar de baja el servicio');
-      }
-    } catch (error) {
-      console.error('Error al dar de baja servicio:', error);
-      window.alert('Error al dar de baja el servicio');
-    } finally {
-      setIsLoading(false);
-    }
-  }
-};
-
-// Modificar el renderizado de cada servicio para incluir el botón de baja
-{isActive && !service.cancelAtPeriodEnd && (
-  <div className="flex gap-2">
-    <button
-      onClick={() => handleCancelService(service._id)}
-      className="px-3 py-1 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600"
-      disabled={isLoading}
-    >
-      Dar de baja
-    </button>
-  </div>
-)}
-  const handleSave = async () => {
-  try {
-    setIsLoading(true);
-    const response = await fetch(`/api/admin/users/${user._id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(editedData)
-    });
-
-    const data = await response.json();
-
-    if (response.ok && data.success) {
-      window.alert('Usuario actualizado correctamente');
-      // Actualizar el estado local con los datos actualizados
-      onUpdate();  // Para actualizar la lista de usuarios
-      // Actualizar el usuario seleccionado con los nuevos datos
-      setSelectedUser(data.user);  
-      setIsEditing(false);
-    } else {
-      window.alert(data.error || 'Error al actualizar el usuario');
-    }
-  } catch (error) {
-    console.error('Error al actualizar:', error);
-    window.alert('Error al actualizar el usuario');
-  } finally {
-    setIsLoading(false);
-  }
-};
 
   const handleCancelService = async (serviceId) => {
-    if (window.confirm('¿Estás seguro de que quieres cancelar este servicio?')) {
+    if (window.confirm('¿Estás seguro de que quieres dar de baja este servicio?')) {
       try {
         setIsLoading(true);
         const response = await fetch(`/api/admin/services/${serviceId}`, {
@@ -120,17 +47,50 @@ const handleCancelService = async (serviceId) => {
         const data = await response.json();
 
         if (response.ok && data.success) {
-          window.alert('Servicio cancelado correctamente');
-          onUpdate();
+          window.alert('Servicio dado de baja correctamente');
+          const updatedUser = await fetch(`/api/admin/users/${user._id}`).then(res => res.json());
+          if (updatedUser.user) {
+            setEditedData(updatedUser.user);
+            onUpdate();
+          }
         } else {
-          window.alert(data.error || 'Error al cancelar el servicio');
+          window.alert(data.error || 'Error al dar de baja el servicio');
         }
       } catch (error) {
-        console.error('Error al cancelar servicio:', error);
-        window.alert('Error al cancelar el servicio');
+        console.error('Error al dar de baja servicio:', error);
+        window.alert('Error al dar de baja el servicio');
       } finally {
         setIsLoading(false);
       }
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/admin/users/${user._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editedData)
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        window.alert('Usuario actualizado correctamente');
+        setEditedData(data.user);
+        onUpdate();
+        setIsEditing(false);
+      } else {
+        window.alert(data.error || 'Error al actualizar el usuario');
+      }
+    } catch (error) {
+      console.error('Error al actualizar:', error);
+      window.alert('Error al actualizar el usuario');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -143,6 +103,8 @@ const handleCancelService = async (serviceId) => {
     if (nameUpper.includes('DAY PASS') || nameUpper === 'DAYPASS') return 1;
     return null;
   };
+
+  // El resto del código del componente permanece igual...
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto">
