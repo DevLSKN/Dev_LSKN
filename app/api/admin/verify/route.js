@@ -1,45 +1,45 @@
-import { NextResponse } from 'next/server';
+// app/api/admin/verify/route.js
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 
-export async function GET(req) {
+export async function GET(request) {
   try {
-    await dbConnect();
-    
-    // Obtener el usuario del localStorage mediante headers
-    const authHeader = req.headers.get('x-auth-user');
-    
+    const authHeader = request.headers.get('x-auth-user');
     if (!authHeader) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+      return new Response(JSON.stringify({ error: 'No autorizado' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
-    let userData;
-    try {
-      userData = JSON.parse(authHeader);
-    } catch (error) {
-      return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
+    const userData = JSON.parse(authHeader);
+    if (!userData || userData.role !== 'admin') {
+      return new Response(JSON.stringify({ error: 'No autorizado' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
-    // Verificar el usuario en la base de datos
-    const user = await User.findOne({ 
-      username: userData.username,
-      role: 'admin'
-    });
+    await dbConnect();
+    const user = await User.findOne({ username: userData.username, role: 'admin' });
 
     if (!user) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+      return new Response(JSON.stringify({ error: 'No autorizado' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
-    return NextResponse.json({ 
-      authorized: true,
-      message: 'Verificación exitosa'
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
     });
 
   } catch (error) {
     console.error('Error en verificación:', error);
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: 'Error en verificación' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }

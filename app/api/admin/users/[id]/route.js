@@ -1,5 +1,5 @@
 // app/api/admin/users/[id]/route.js
-import dbConnect from '@/lib/mongodb';  // Asegúrate de que esta ruta es correcta
+import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 
 export async function PUT(request, { params }) {
@@ -8,16 +8,18 @@ export async function PUT(request, { params }) {
     const { id } = params;
     const updateData = await request.json();
     
-    // Usar findById primero para validar que el usuario existe
-    const user = await User.findById(id);
-    if (!user) {
-      return new Response(JSON.stringify({ error: 'Usuario no encontrado' }), {
+    // Verificar si el usuario existe
+    const existingUser = await User.findById(id);
+    if (!existingUser) {
+      return new Response(JSON.stringify({ 
+        error: 'Usuario no encontrado' 
+      }), { 
         status: 404,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    // Actualizar solo los campos permitidos
+    // Actualizar usuario evitando campos sensibles
     const { password, role, username, ...safeUpdateData } = updateData;
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -27,7 +29,7 @@ export async function PUT(request, { params }) {
         new: true,
         runValidators: true
       }
-    ).populate('services');
+    );
 
     return new Response(JSON.stringify({ 
       success: true, 
