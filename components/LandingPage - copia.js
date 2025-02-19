@@ -291,30 +291,16 @@ const LandingPage = () => {
   });
 
   const handleFechaNacimientoChange = (e) => {
-    const value = e.target.value;
-    
-    // Si es una fecha del calendario (formato YYYY-MM-DD)
-    if (e.target.type === 'date') {
-      const date = new Date(value);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-      const formattedDate = `${day}/${month}/${year}`;
-      setRegisterData(prev => ({...prev, fechaNacimiento: formattedDate}));
-      return;
-    }
-
-    // Si es entrada manual
-    let cleanValue = value.replace(/\D/g, '');
+    let value = e.target.value.replace(/\D/g, ''); // Solo permite números
     let formattedDate = '';
 
-    if (cleanValue.length > 0) {
-      if (cleanValue.length <= 2) {
-        formattedDate = cleanValue;
-      } else if (cleanValue.length <= 4) {
-        formattedDate = cleanValue.slice(0, 2) + '/' + cleanValue.slice(2);
+    if (value.length > 0) {
+      if (value.length <= 2) {
+        formattedDate = value;
+      } else if (value.length <= 4) {
+        formattedDate = value.slice(0, 2) + '/' + value.slice(2);
       } else {
-        formattedDate = cleanValue.slice(0, 2) + '/' + cleanValue.slice(2, 4) + '/' + cleanValue.slice(4, 8);
+        formattedDate = value.slice(0, 2) + '/' + value.slice(2, 4) + '/' + value.slice(4, 8);
       }
     }
 
