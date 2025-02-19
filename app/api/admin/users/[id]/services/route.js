@@ -1,49 +1,33 @@
 // app/api/admin/users/[id]/services/route.js
-import dbConnect from '@/lib/mongodb';
-import User from '@/models/User';
-import Service from '@/models/Service';
-
 export async function POST(request, { params }) {
   try {
     await dbConnect();
     const { id } = params;
     const serviceData = await request.json();
 
-    // Primero encontrar el usuario
     const user = await User.findById(id);
     if (!user) {
-      return new Response(JSON.stringify({ error: 'Usuario no encontrado' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' }
+      return new Response(JSON.stringify({ error: 'Usuario no encontrado' }), { 
+        status: 404 
       });
     }
 
-    // Crear el nuevo servicio
     const newService = new Service({
-      username: user.username,  // Usar el username del usuario
+      username: user.username,
       servicio: serviceData.servicio,
       estado: 'activo',
       createdAt: new Date(),
       usos: []
     });
 
-    // Guardar el servicio
     await newService.save();
-
-    // Añadir el servicio al usuario y devolverlo poblado
+    
+    // Actualizar el usuario con el nuevo servicio
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { 
-        $push: { services: newService._id } 
-      },
-      { 
-        new: true
-      }
+      { $push: { services: newService._id } },
+      { new: true }
     ).populate('services');
-
-    // Verificar que el servicio se añadió correctamente
-    console.log('Servicio creado:', newService);
-    console.log('Usuario actualizado:', updatedUser);
 
     return new Response(JSON.stringify({
       success: true,

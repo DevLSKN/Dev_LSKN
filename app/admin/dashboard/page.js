@@ -32,34 +32,79 @@ const UserDetailsModal = ({ user, onClose, onUpdate }) => {
       minute: '2-digit'
     });
   };
-
-  const handleSave = async () => {
+// En el componente UserDetailsModal, modificar la sección de servicios
+const handleCancelService = async (serviceId) => {
+  if (window.confirm('¿Estás seguro de que quieres dar de baja este servicio?')) {
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/admin/users/${user._id}`, {
-        method: 'PUT',
+      const response = await fetch(`/api/admin/services/${serviceId}`, {
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(editedData)
+        }
       });
 
       const data = await response.json();
 
       if (response.ok && data.success) {
-        window.alert('Usuario actualizado correctamente');
+        window.alert('Servicio dado de baja correctamente');
+        const updatedUser = await fetch(`/api/admin/users/${user._id}`).then(res => res.json());
+        setSelectedUser(updatedUser.user);
         onUpdate();
-        setIsEditing(false);
       } else {
-        window.alert(data.error || 'Error al actualizar el usuario');
+        window.alert(data.error || 'Error al dar de baja el servicio');
       }
     } catch (error) {
-      console.error('Error al actualizar:', error);
-      window.alert('Error al actualizar el usuario');
+      console.error('Error al dar de baja servicio:', error);
+      window.alert('Error al dar de baja el servicio');
     } finally {
       setIsLoading(false);
     }
-  };
+  }
+};
+
+// Modificar el renderizado de cada servicio para incluir el botón de baja
+{isActive && !service.cancelAtPeriodEnd && (
+  <div className="flex gap-2">
+    <button
+      onClick={() => handleCancelService(service._id)}
+      className="px-3 py-1 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600"
+      disabled={isLoading}
+    >
+      Dar de baja
+    </button>
+  </div>
+)}
+  const handleSave = async () => {
+  try {
+    setIsLoading(true);
+    const response = await fetch(`/api/admin/users/${user._id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(editedData)
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      window.alert('Usuario actualizado correctamente');
+      // Actualizar el estado local con los datos actualizados
+      onUpdate();  // Para actualizar la lista de usuarios
+      // Actualizar el usuario seleccionado con los nuevos datos
+      setSelectedUser(data.user);  
+      setIsEditing(false);
+    } else {
+      window.alert(data.error || 'Error al actualizar el usuario');
+    }
+  } catch (error) {
+    console.error('Error al actualizar:', error);
+    window.alert('Error al actualizar el usuario');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleCancelService = async (serviceId) => {
     if (window.confirm('¿Estás seguro de que quieres cancelar este servicio?')) {
@@ -337,8 +382,14 @@ const AddServiceModal = ({ userId, onClose, onAdd }) => {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  // Componente AddServiceModal modificado
+const handleSubmit = async (e) => {
   e.preventDefault();
+  if (!newService.servicio) {
+    window.alert('Por favor, selecciona un servicio');
+    return;
+  }
+
   try {
     setIsLoading(true);
     const response = await fetch(`/api/admin/users/${userId}/services`, {
@@ -346,14 +397,18 @@ const AddServiceModal = ({ userId, onClose, onAdd }) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(newService)
+      body: JSON.stringify({
+        servicio: newService.servicio,
+        estado: 'activo',
+        createdAt: new Date().toISOString()
+      })
     });
 
     const data = await response.json();
 
     if (response.ok && data.success) {
       window.alert('Servicio añadido correctamente');
-      onAdd();  // Asegúrate de que esta función recarga los datos del usuario
+      await onAdd();  // Esperar a que se actualicen los datos
       onClose();
     } else {
       window.alert(data.error || 'Error al añadir el servicio');
