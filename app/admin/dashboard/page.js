@@ -114,10 +114,7 @@ const UserDetailsModal = ({ user, onClose, onUpdate }) => {
     if (nameUpper.includes('DAY PASS') || nameUpper === 'DAYPASS') return 1;
     return null;
   };
-
-  // El resto del código del componente permanece igual...
-
-  return (
+    return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto">
       <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         {/* Header del Modal */}
@@ -246,8 +243,7 @@ const UserDetailsModal = ({ user, onClose, onUpdate }) => {
               )}
             </div>
           </div>
-
-          {/* Sección de Servicios */}
+		            {/* Sección de Servicios */}
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-semibold">Servicios Contratados</h3>
@@ -471,7 +467,6 @@ const AddServiceModal = ({ userId, onClose, onAdd }) => {
     </div>
   );
 };
-
 function DashboardPage() {
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -796,8 +791,7 @@ function DashboardPage() {
               </div>
             </div>
           </div>
-
-          {/* Tabla de Usuarios */}
+		            {/* Tabla de Usuarios */}
           {loading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
