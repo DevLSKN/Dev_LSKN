@@ -21,6 +21,11 @@ const STRIPE_PRICE_IDS = {
     priceId: 'price_1QrfkdPQf67HyXqET5ZZgIOL',
     mode: 'subscription'
   },
+  'MATRICULA': {
+    priceId: 'price_1QuIwpPQf67HyXqENflXaHgV', // Aquí pon el ID que obtuviste al crear el producto en Stripe
+    mode: 'subscription',
+    matricula: true
+  },
   'ENTRENAMIENTO PERSONAL': {
     priceId: 'price_ID_de_tu_entrenamiento',
     mode: 'payment'
@@ -71,9 +76,27 @@ export async function POST(request) {
       }
     };
 
+    // Configuración especial para matrícula
+    if (serviceConfig.matricula) {
+      sessionConfig.subscription_data = {
+        trial_end: Math.floor(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).getTime() / 1000),
+      };
+      
+      // Sobreescribir line_items para incluir tanto la matrícula como la mensualidad
+      sessionConfig.line_items = [
+        {
+          price: serviceConfig.priceId, // Precio de la matrícula
+          quantity: 1,
+        },
+        {
+          price: STRIPE_PRICE_IDS['MENSUALIDAD'].priceId, // Precio de la mensualidad
+          quantity: 1,
+        }
+      ];
+    }
+
     // Para suscripciones, podemos añadir configuraciones específicas
     if (serviceConfig.mode === 'subscription') {
-      // Opcional: Configurar facturación específica para suscripciones
       sessionConfig.billing_address_collection = 'required';
       sessionConfig.payment_method_collection = 'always';
     }
