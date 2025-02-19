@@ -106,26 +106,43 @@ const stripeService = {
   },
 
   // Método para verificar si un usuario ya ha pagado la matrícula
-  async checkMatriculaStatus(userId) {
+  async createMatriculaCheckoutSession(userId) {
     try {
-      const response = await fetch(`/api/check-matricula-status?userId=${userId}`);
-      const data = await response.json();
-      return data.hasMatricula;
+      console.log('Creating matricula checkout session:', { userId });
+      
+      // Usar el mismo endpoint que los otros servicios
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          serviceId: 'MATRICULA',
+          userId: userId
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error en el servidor');
+      }
+
+      const session = await response.json();
+      console.log('Matricula session created:', session);
+
+      const stripe = await stripePromise;
+      const { error } = await stripe.redirectToCheckout({
+        sessionId: session.id,
+      });
+
+      if (error) {
+        console.error('Redirect error:', error);
+        throw new Error(error.message);
+      }
     } catch (error) {
-      console.error('Error checking matricula status:', error);
+      console.error('Error in createMatriculaCheckoutSession:', error);
       throw error;
     }
   },
-
-  // Obtener el precio actual de la matrícula + mensualidad
-  getPrecioMatricula() {
-    const precioMensualidad = calcularPrecioMensualidad();
-    return {
-      matricula: 20, // Precio fijo de la matrícula
-      mensualidad: precioMensualidad,
-      total: 20 + precioMensualidad
-    };
-  }
-};
 
 export default stripeService;
