@@ -543,10 +543,45 @@ const handleContratarServicio = async (serviceName) => {
       userId: currentUser.username
     });
 
-    await stripeService.createCheckoutSession(serviceName, currentUser.username);
+    if (serviceName === 'MATRICULA') {
+      // Verificar si el usuario ya tiene matrícula
+      const hasMatricula = await stripeService.checkMatriculaStatus(currentUser.username);
+      if (hasMatricula) {
+        showToast('Ya tienes una matrícula activa', 'error');
+        return;
+      }
+
+      // Obtener el precio actual
+      const precios = stripeService.getPrecioMatricula();
+      
+      // Confirmar con el usuario
+      showToast(
+        `El precio total será de ${precios.matricula}€ de matrícula + ${precios.mensualidad}€ de mensualidad proporcional. ¿Deseas continuar?`,
+        'confirm',
+        async () => {
+          try {
+            setIsProcessingService(true);
+            await stripeService.createMatriculaCheckoutSession(currentUser.username);
+            setPendingService(null);
+          } catch (error) {
+            console.error('Error en matrícula:', error);
+            showToast(error.message || 'Error al procesar la matrícula', 'error');
+          } finally {
+            setIsProcessingService(false);
+          }
+        }
+      );
+    } else {
+      // Servicios normales (no matrícula)
+      setIsProcessingService(true);
+      await stripeService.createCheckoutSession(serviceName, currentUser.username);
+      setPendingService(null);
+    }
   } catch (error) {
     console.error('Error al procesar el pago:', error);
     showToast('Error al procesar el pago. Por favor, inténtalo de nuevo.', 'error');
+  } finally {
+    setIsProcessingService(false);
   }
 };
 
@@ -695,6 +730,13 @@ const handleLogout = () => {
       showToast('Error al conectar con el servidor');
     }
   };
+  const calcularPrecioMensualidad = () => {
+  const hoy = new Date();
+  const ultimoDiaMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).getDate();
+  const diasRestantes = ultimoDiaMes - hoy.getDate() + 1;
+  const precioPorDia = 70 / ultimoDiaMes;
+  return Math.round(precioPorDia * diasRestantes * 100) / 100; // Redondear a 2 decimales
+};
   const NavigationDots = ({ sections, currentSection, onSectionChange }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
@@ -793,6 +835,14 @@ const heroSections = [
             description: "Pack de 10 accesos con precio especial",
             price: "60€"
           },
+		  {
+  _id: 'matricula',
+  name: "MATRÍCULA + MENSUALIDAD",
+  servicio: "MATRICULA",
+  description: "Acceso ilimitado a las instalaciones. Incluye matrícula (20€) + mensualidad (70€/mes)",
+  price: "Desde 20€ + cuota proporcional",
+  isMatricula: true
+},
           {
             _id: 'mensualidad',
             name: "MENSUALIDAD",

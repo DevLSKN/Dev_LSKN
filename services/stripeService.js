@@ -3,6 +3,14 @@ import { loadStripe } from '@stripe/stripe-js';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
+const calcularPrecioMensualidad = () => {
+  const hoy = new Date();
+  const ultimoDiaMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).getDate();
+  const diasRestantes = ultimoDiaMes - hoy.getDate() + 1;
+  const precioPorDia = 70 / ultimoDiaMes;
+  return Math.round(precioPorDia * diasRestantes * 100) / 100;
+};
+
 const stripeService = {
   async createCheckoutSession(serviceId, userId) {
     try {
@@ -42,6 +50,45 @@ const stripeService = {
     }
   },
 
+  async createMatriculaCheckoutSession(userId) {
+    try {
+      console.log('Creating matricula checkout session:', { userId });
+      const precioMensualidad = calcularPrecioMensualidad();
+      
+      const response = await fetch('/api/create-matricula-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          precioMensualidad,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error en el servidor');
+      }
+
+      const session = await response.json();
+      console.log('Matricula session created:', session);
+
+      const stripe = await stripePromise;
+      const { error } = await stripe.redirectToCheckout({
+        sessionId: session.id,
+      });
+
+      if (error) {
+        console.error('Redirect error:', error);
+        throw new Error(error.message);
+      }
+    } catch (error) {
+      console.error('Error in createMatriculaCheckoutSession:', error);
+      throw error;
+    }
+  },
+
   async verifyPaymentStatus(sessionId) {
     try {
       console.log('Verifying payment status for session:', sessionId);
@@ -56,6 +103,28 @@ const stripeService = {
       console.error('Error in verifyPaymentStatus:', error);
       throw error;
     }
+  },
+
+  // Método para verificar si un usuario ya ha pagado la matrícula
+  async checkMatriculaStatus(userId) {
+    try {
+      const response = await fetch(`/api/check-matricula-status?userId=${userId}`);
+      const data = await response.json();
+      return data.hasMatricula;
+    } catch (error) {
+      console.error('Error checking matricula status:', error);
+      throw error;
+    }
+  },
+
+  // Obtener el precio actual de la matrícula + mensualidad
+  getPrecioMatricula() {
+    const precioMensualidad = calcularPrecioMensualidad();
+    return {
+      matricula: 20, // Precio fijo de la matrícula
+      mensualidad: precioMensualidad,
+      total: 20 + precioMensualidad
+    };
   }
 };
 
