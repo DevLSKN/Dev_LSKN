@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, Package, Activity, UserPlus, Download, Edit, X, Plus } from 'lucide-react';
+import { User, Package, Activity, UserPlus, Download } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 const StatCard = ({ title, value, icon }) => (
@@ -15,11 +15,7 @@ const StatCard = ({ title, value, icon }) => (
   </div>
 );
 
-const UserDetailsModal = ({ user, onClose, onUpdate }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedData, setEditedData] = useState(user);
-  const [showAddService, setShowAddService] = useState(false);
-
+const UserDetailsModal = ({ user, onClose }) => {
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('es-ES', {
       year: 'numeric',
@@ -28,40 +24,6 @@ const UserDetailsModal = ({ user, onClose, onUpdate }) => {
       hour: '2-digit',
       minute: '2-digit'
     });
-  };
-
-  const handleSave = async () => {
-    try {
-      const response = await fetch(`/api/admin/users/${user._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(editedData)
-      });
-
-      if (response.ok) {
-        onUpdate();
-        setIsEditing(false);
-      }
-    } catch (error) {
-      console.error('Error al actualizar:', error);
-    }
-  };
-
-  const handleCancelService = async (serviceId) => {
-    if (window.confirm('¿Estás seguro de que quieres cancelar este servicio?')) {
-      try {
-        const response = await fetch(`/api/admin/services/${serviceId}/cancel`, {
-          method: 'POST'
-        });
-        if (response.ok) {
-          onUpdate();
-        }
-      } catch (error) {
-        console.error('Error al cancelar servicio:', error);
-      }
-    }
   };
 
   const getUsosMaximos = (serviceName) => {
@@ -79,131 +41,25 @@ const UserDetailsModal = ({ user, onClose, onUpdate }) => {
       <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b px-4 md:px-6 py-4 flex justify-between items-center">
           <h2 className="text-xl md:text-2xl font-bold">Detalles del Usuario</h2>
-          <div className="flex gap-2">
-            {!isEditing ? (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg flex items-center gap-2"
-              >
-                <Edit className="w-4 h-4" />
-                Editar
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={handleSave}
-                  className="px-4 py-2 bg-green-500 text-white rounded-lg"
-                >
-                  Guardar
-                </button>
-                <button
-                  onClick={() => setIsEditing(false)}
-                  className="px-4 py-2 bg-gray-500 text-white rounded-lg"
-                >
-                  Cancelar
-                </button>
-              </>
-            )}
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-              <X className="w-6 h-6" />
-            </button>
-          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl">×</button>
         </div>
 
         <div className="p-4 md:p-6">
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <h3 className="text-xl font-semibold mb-4">Información Personal</h3>
             <div className="grid md:grid-cols-2 gap-4">
-              {isEditing ? (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Usuario</label>
-                    <input
-                      type="text"
-                      className="w-full p-2 border rounded bg-gray-100"
-                      value={editedData.username}
-                      disabled
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Email</label>
-                    <input
-                      type="email"
-                      className="w-full p-2 border rounded"
-                      value={editedData.email}
-                      onChange={(e) => setEditedData({...editedData, email: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Nombre</label>
-                    <input
-                      type="text"
-                      className="w-full p-2 border rounded"
-                      value={editedData.nombre}
-                      onChange={(e) => setEditedData({...editedData, nombre: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Apellidos</label>
-                    <input
-                      type="text"
-                      className="w-full p-2 border rounded"
-                      value={editedData.apellidos}
-                      onChange={(e) => setEditedData({...editedData, apellidos: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Teléfono</label>
-                    <input
-                      type="tel"
-                      className="w-full p-2 border rounded"
-                      value={editedData.telefono}
-                      onChange={(e) => setEditedData({...editedData, telefono: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Dirección</label>
-                    <input
-                      type="text"
-                      className="w-full p-2 border rounded"
-                      value={editedData.direccion}
-                      onChange={(e) => setEditedData({...editedData, direccion: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Fecha de Nacimiento</label>
-                    <input
-                      type="text"
-                      className="w-full p-2 border rounded"
-                      value={editedData.fechaNacimiento}
-                      onChange={(e) => setEditedData({...editedData, fechaNacimiento: e.target.value})}
-                    />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <p><span className="font-medium">Usuario:</span> {user?.username}</p>
-                  <p><span className="font-medium">Email:</span> {user?.email}</p>
-                  <p><span className="font-medium">Nombre:</span> {user?.nombre}</p>
-                  <p><span className="font-medium">Apellidos:</span> {user?.apellidos}</p>
-                  <p><span className="font-medium">Teléfono:</span> {user?.telefono}</p>
-                  <p><span className="font-medium">Dirección:</span> {user?.direccion}</p>
-                  <p><span className="font-medium">Fecha de Nacimiento:</span> {user?.fechaNacimiento || 'No especificada'}</p>
-                </>
-              )}
-            </div>
+              <p><span className="font-medium">Usuario:</span> {user?.username}</p>
+              <p><span className="font-medium">Email:</span> {user?.email}</p>
+              <p><span className="font-medium">Nombre:</span> {user?.nombre}</p>
+              <p><span className="font-medium">Apellidos:</span> {user?.apellidos}</p>
+              <p><span className="font-medium">Teléfono:</span> {user?.telefono}</p>
+              <p><span className="font-medium">Dirección:</span> {user?.direccion}</p>
+              <p><span className="font-medium">Fecha de Nacimiento:</span> {user?.fechaNacimiento || 'No especificada'}</p>
+			</div>
           </div>
-		  <div className="mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold">Servicios Contratados</h3>
-              <button
-                onClick={() => setShowAddService(true)}
-                className="px-4 py-2 bg-green-500 text-white rounded-lg flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Añadir Servicio
-              </button>
-            </div>
+
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold mb-4">Servicios Contratados</h3>
             {Array.isArray(user?.services) && user.services.length > 0 ? (
               <div className="space-y-4">
                 {[...user.services]
@@ -219,29 +75,14 @@ const UserDetailsModal = ({ user, onClose, onUpdate }) => {
                             <p className="text-sm text-gray-500">
                               Contratado el {formatDate(service.createdAt)}
                             </p>
-                            {service.subscriptionId && (
-                              <p className="text-sm text-blue-500">
-                                Suscripción activa
-                              </p>
-                            )}
                           </div>
-                          <div className="flex items-start gap-2">
-                            {usosMaximos && (
-                              <span className={`px-3 py-1 rounded-full text-sm ${
-                                usosActuales < usosMaximos ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                              }`}>
-                                {usosActuales} de {usosMaximos} usos
-                              </span>
-                            )}
-                            {!service.cancelAtPeriodEnd && (
-                              <button
-                                onClick={() => handleCancelService(service._id)}
-                                className="px-3 py-1 bg-red-500 text-white rounded-lg text-sm"
-                              >
-                                Cancelar
-                              </button>
-                            )}
-                          </div>
+                          {usosMaximos && (
+                            <span className={`px-3 py-1 rounded-full text-sm ${
+                              usosActuales < usosMaximos ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            }`}>
+                              {usosActuales} de {usosMaximos} usos
+                            </span>
+                          )}
                         </div>
                         
                         {Array.isArray(service.usos) && service.usos.length > 0 && (
@@ -267,91 +108,10 @@ const UserDetailsModal = ({ user, onClose, onUpdate }) => {
           </div>
         </div>
       </div>
-
-      {showAddService && (
-        <AddServiceModal
-          userId={user._id}
-          onClose={() => setShowAddService(false)}
-          onAdd={onUpdate}
-        />
-      )}
     </div>
   );
 };
 
-const AddServiceModal = ({ userId, onClose, onAdd }) => {
-  const [newService, setNewService] = useState({
-    servicio: '',
-    estado: 'activo'
-  });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch(`/api/admin/users/${userId}/services`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newService)
-      });
-
-      if (response.ok) {
-        onAdd();
-        onClose();
-      }
-    } catch (error) {
-      console.error('Error al añadir servicio:', error);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold">Añadir Servicio</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Servicio</label>
-            <select
-              className="w-full p-2 border rounded"
-              value={newService.servicio}
-              onChange={(e) => setNewService({...newService, servicio: e.target.value})}
-              required
-            >
-              <option value="">Seleccionar servicio</option>
-              <option value="DAY PASS">Day Pass</option>
-              <option value="BONO (5 DAY PASS)">Bono 5 Usos</option>
-              <option value="BONO (10 DAY PASS)">Bono 10 Usos</option>
-              <option value="MENSUALIDAD">Mensualidad</option>
-            </select>
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-500 text-white rounded-lg"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-            >
-              Añadir
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
 function DashboardPage() {
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
