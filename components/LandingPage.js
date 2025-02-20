@@ -72,7 +72,8 @@ const ServiceCard = ({ service, onUseService, showToast, onReloadServices }) => 
   const puedeUsarse = usosMaximos !== null && usosRestantes > 0;
 
   const isSubscription = service.servicio === 'MENSUALIDAD' || service.servicio === 'MATRICULA';
-  const isSubscriptionActive = isSubscription && service.subscriptionId && service.stripeStatus === 'active';
+  const isSubscriptionActive = isSubscription && service.subscriptionId && 
+    (service.stripeStatus === 'active' || service.stripeStatus === 'trialing');  // añadimos 'trialing'
   const isSubscriptionCanceling = service.cancelAtPeriodEnd;
 
   const handleCancelSubscription = async () => {
