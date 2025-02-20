@@ -131,40 +131,36 @@ const shouldShowUseButton = (service) => {
 };
 
   return (
-  <div className="bg-white bg-opacity-10 p-4 rounded-lg hover:bg-opacity-20 transition-all">
-    <div className="flex justify-between items-start mb-2">
-      <div>
-        <h4 className="font-bold text-lg">{service.servicio}</h4>
-        <p className="text-sm text-gray-300">
-          Comprado: {formatearFecha(service.createdAt)}
-        </p>
-        {isSubscription && service.currentPeriodEnd && (
+    <div className="bg-white bg-opacity-10 p-4 rounded-lg hover:bg-opacity-20 transition-all">
+      <div className="flex justify-between items-start mb-2">
+        <div>
+          <h4 className="font-bold text-lg">{service.servicio}</h4>
           <p className="text-sm text-gray-300">
-            Próxima renovación: {formatearFecha(service.currentPeriodEnd)}
+            Comprado: {formatearFecha(service.createdAt)}
           </p>
-        )}
-        {isSubscriptionCanceling && (
-          <p className="text-sm text-yellow-400">
-            Se cancelará el {formatearFecha(service.currentPeriodEnd)}
-          </p>
+          {isSubscription && service.currentPeriodEnd && (
+            <p className="text-sm text-gray-300">
+              Próxima renovación: {formatearFecha(service.currentPeriodEnd)}
+            </p>
+          )}
+          {isSubscriptionCanceling && (
+            <p className="text-sm text-yellow-400">
+              Se cancelará el {formatearFecha(service.currentPeriodEnd)}
+            </p>
+          )}
+        </div>
+        {usosMaximos !== null && (
+          <div className="text-right bg-black bg-opacity-30 p-2 rounded">
+            <span className={`block px-3 py-1 rounded-full text-sm font-medium
+              ${usosRestantes > 0 ? 'bg-blue-500' : 'bg-red-500'} text-white`}>
+              {usosActuales} de {usosMaximos} usos
+            </span>
+            <p className="text-sm mt-1 text-gray-300">
+              {usosRestantes} usos restantes
+            </p>
+          </div>
         )}
       </div>
-      {usosMaximos !== null && (
-        <div className="text-right bg-black bg-opacity-30 p-2 rounded">
-          <span className={`block px-3 py-1 rounded-full text-sm font-medium
-            ${usosRestantes > 0 ? 'bg-blue-500' : 'bg-red-500'} text-white`}>
-            {usosActuales} de {usosMaximos} usos
-          </span>
-          <p className="text-sm mt-1 text-gray-300">
-            {usosRestantes} usos restantes
-          </p>
-        </div>
-      )}
-    </div>
-
-    {/* Resto del código... */}
-  </div>
-);
 
       {service.usos && service.usos.length > 0 && (
         <div className="mt-2">
@@ -210,34 +206,35 @@ const shouldShowUseButton = (service) => {
       )}
 
       <div className="mt-3 space-y-2">
-  {shouldShowUseButton(service) && (
-    <button
-      onClick={() => onUseService(service._id)}
-      className="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
-    >
-      Usar Ahora
-    </button>
-  )}
+        {shouldShowUseButton(service) && (
+          <button
+            onClick={() => onUseService(service._id)}
+            className="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+          >
+            Usar Ahora
+          </button>
+        )}
 
-  {isSubscriptionActive && !isSubscriptionCanceling && (
-    <button
-      onClick={() => {
-        showToast(
-          '¿Estás seguro de que deseas cancelar tu suscripción?',
-          'confirm',
-          handleCancelSubscription
-        );
-      }}
-      disabled={isCancelling}
-      className="w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors disabled:opacity-50"
-    >
-      {isCancelling ? 'Cancelando...' : 'Cancelar Suscripción'}
-    </button>
-  )}
-</div>
+        {isSubscriptionActive && !isSubscriptionCanceling && (
+          <button
+            onClick={() => {
+              showToast(
+                '¿Estás seguro de que deseas cancelar tu suscripción?',
+                'confirm',
+                handleCancelSubscription
+              );
+            }}
+            disabled={isCancelling}
+            className="w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors disabled:opacity-50"
+          >
+            {isCancelling ? 'Cancelando...' : 'Cancelar Suscripción'}
+          </button>
+        )}
+      </div>
     </div>
   );
 };
+
 const LandingPage = () => {
 
   const router = useRouter();
