@@ -131,36 +131,40 @@ const shouldShowUseButton = (service) => {
 };
 
   return (
-    <div className="bg-white bg-opacity-10 p-4 rounded-lg hover:bg-opacity-20 transition-all">
-      <div className="flex justify-between items-start mb-2">
-        <div>
-          <h4 className="font-bold text-lg">{service.servicio}</h4>
+  <div className="bg-white bg-opacity-10 p-4 rounded-lg hover:bg-opacity-20 transition-all">
+    <div className="flex justify-between items-start mb-2">
+      <div>
+        <h4 className="font-bold text-lg">{service.servicio}</h4>
+        <p className="text-sm text-gray-300">
+          Comprado: {formatearFecha(service.createdAt)}
+        </p>
+        {isSubscription && service.currentPeriodEnd && (
           <p className="text-sm text-gray-300">
-            Comprado: {formatearFecha(service.createdAt)}
+            Próxima renovación: {formatearFecha(service.currentPeriodEnd)}
           </p>
-          {isMensualidad && service.currentPeriodEnd && (
-            <p className="text-sm text-gray-300">
-              Próxima renovación: {formatearFecha(service.currentPeriodEnd)}
-            </p>
-          )}
-          {isSubscriptionCanceling && (
-            <p className="text-sm text-yellow-400">
-              Se cancelará el {formatearFecha(service.currentPeriodEnd)}
-            </p>
-          )}
-        </div>
-        {usosMaximos !== null && (
-          <div className="text-right bg-black bg-opacity-30 p-2 rounded">
-            <span className={`block px-3 py-1 rounded-full text-sm font-medium
-              ${usosRestantes > 0 ? 'bg-blue-500' : 'bg-red-500'} text-white`}>
-              {usosActuales} de {usosMaximos} usos
-            </span>
-            <p className="text-sm mt-1 text-gray-300">
-              {usosRestantes} usos restantes
-            </p>
-          </div>
+        )}
+        {isSubscriptionCanceling && (
+          <p className="text-sm text-yellow-400">
+            Se cancelará el {formatearFecha(service.currentPeriodEnd)}
+          </p>
         )}
       </div>
+      {usosMaximos !== null && (
+        <div className="text-right bg-black bg-opacity-30 p-2 rounded">
+          <span className={`block px-3 py-1 rounded-full text-sm font-medium
+            ${usosRestantes > 0 ? 'bg-blue-500' : 'bg-red-500'} text-white`}>
+            {usosActuales} de {usosMaximos} usos
+          </span>
+          <p className="text-sm mt-1 text-gray-300">
+            {usosRestantes} usos restantes
+          </p>
+        </div>
+      )}
+    </div>
+
+    {/* Resto del código... */}
+  </div>
+);
 
       {service.usos && service.usos.length > 0 && (
         <div className="mt-2">
