@@ -545,18 +545,16 @@ const handleContratarServicio = async (serviceName) => {
 
     if (serviceName === 'MATRICULA') {
       // Verificar si el usuario ya tiene matrícula
-      const hasMatricula = await stripeService.checkMatriculaStatus(currentUser.username);
-      if (hasMatricula) {
+      const matriculaStatus = await stripeService.checkMatriculaStatus(currentUser.username);
+      if (matriculaStatus.hasMatricula) {
         showToast('Ya tienes una matrícula activa', 'error');
         return;
       }
 
-      // Obtener el precio actual
+      // Si NO tiene matrícula, procedemos con la contratación
       const precios = stripeService.getPrecioMatricula();
-      
-      // Confirmar con el usuario
       showToast(
-        `El precio total será de ${precios.matricula}€ de matrícula + ${precios.mensualidad}€ de mensualidad proporcional. ¿Deseas continuar?`,
+        `El precio total será de 20€ de matrícula + ${precios.mensualidad}€ de mensualidad proporcional. ¿Deseas continuar?`,
         'confirm',
         async () => {
           try {

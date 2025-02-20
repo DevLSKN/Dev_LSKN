@@ -124,6 +124,14 @@ const stripeService = {
       console.error('Error en checkMatriculaStatus:', error);
       throw error;
     }
+  },
+  getPrecioMatricula() {
+    const precioMensualidad = calcularPrecioMensualidad();
+    return {
+      matricula: 20, // Precio fijo de la matrícula
+      mensualidad: precioMensualidad,
+      total: 20 + precioMensualidad
+    };
   }
 };
 
