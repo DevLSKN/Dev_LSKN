@@ -62,57 +62,56 @@ export async function POST(request) {
     let sessionConfig;
 
     if (serviceConfig.matricula) {
-      // Calcular el prorrateo para el mes actual
-      const today = new Date();
-      const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-      const remainingDays = daysInMonth - today.getDate() + 1;
-      const prorationAmount = Math.round((70 / daysInMonth) * remainingDays * 100); // 70€ en céntimos
+  // Calcular el prorrateo para el mes actual
+  const today = new Date();
+  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  const remainingDays = daysInMonth - today.getDate() + 1;
+  const prorationAmount = Math.round((70 / daysInMonth) * remainingDays * 100); // 70€ en céntimos
 
-      // Fecha para el inicio de la suscripción recurrente
-      const firstDayNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+  // Fecha para el inicio de la suscripción recurrente
+  const firstDayNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
 
-      sessionConfig = {
-  payment_method_types: ['card'],
-  line_items: [
-    {
-      // Cargo único de matrícula (20€)
-      price: serviceConfig.matriculaPriceId,
-      quantity: 1,
-    },
-    {
-      // Prorrateo del mes actual (cargo único)
-      price_data: {
-        currency: 'eur',
-        product_data: {
-          name: 'Mensualidad (prorrateo)',
-          description: `Prorrateo del ${today.getDate()}/${today.getMonth() + 1} al ${daysInMonth}/${today.getMonth() + 1}`,
-        },
-        unit_amount: prorationAmount, // Eliminar el campo recurring
+  sessionConfig = {
+    payment_method_types: ['card'],
+    line_items: [
+      {
+        // Cargo único de matrícula (20€)
+        price: serviceConfig.matriculaPriceId,
+        quantity: 1,
       },
-      quantity: 1,
-    },
-    {
-      // Suscripción mensual (70€)
-      price: serviceConfig.mensualidadPriceId,
-      quantity: 1,
-    }
-  ],
-  mode: 'subscription',
-        subscription_data: {
-          trial_end: Math.floor(firstDayNextMonth.getTime() / 1000),
-          billing_cycle_anchor: Math.floor(firstDayNextMonth.getTime() / 1000),
+      {
+        // Prorrateo del mes actual
+        price_data: {
+          currency: 'eur',
+          product_data: {
+            name: 'Mensualidad (prorrateo)',
+            description: `Prorrateo del ${today.getDate()}/${today.getMonth() + 1} al ${daysInMonth}/${today.getMonth() + 1}`,
+          },
+          unit_amount: prorationAmount,
         },
-        billing_address_collection: 'required',
-        payment_method_collection: 'always',
-        success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
-        metadata: {
-          userId: userId,
-          serviceId: serviceId,
-          tipo: 'matricula'
-        }
-      };
-    } else {
+        quantity: 1,
+      },
+      {
+        // Suscripción mensual (70€)
+        price: serviceConfig.mensualidadPriceId,
+        quantity: 1,
+      }
+    ],
+    mode: 'subscription',
+    subscription_data: {
+      billing_cycle_anchor: Math.floor(firstDayNextMonth.getTime() / 1000),
+    },
+    billing_address_collection: 'required',
+    payment_method_collection: 'always',
+    success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
+    metadata: {
+      userId: userId,
+      serviceId: serviceId,
+      tipo: 'matricula'
+    }
+  };
+} else {
       // Configuración normal para otros servicios
       sessionConfig = {
         payment_method_types: ['card'],
