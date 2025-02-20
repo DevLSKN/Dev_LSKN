@@ -61,15 +61,17 @@ export async function POST(request) {
 
     let sessionConfig;
 
-    if (serviceConfig.matricula) {
+    // En el create-checkout-session/route.js
+
+if (serviceConfig.matricula) {
   // Calcular el prorrateo para el mes actual
   const today = new Date();
   const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
   const remainingDays = daysInMonth - today.getDate() + 1;
-  const prorationAmount = Math.round((70 / daysInMonth) * remainingDays * 100); // 70€ en céntimos
+  const prorationAmount = Math.round((70 / daysInMonth) * remainingDays * 100);
 
-  // Fecha para el inicio de la suscripción recurrente
-  const firstDayNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+  // Calcular días hasta el primero del próximo mes
+  const daysUntilNextMonth = daysInMonth - today.getDate() + 1;
 
   sessionConfig = {
     payment_method_types: ['card'],
@@ -99,7 +101,7 @@ export async function POST(request) {
     ],
     mode: 'subscription',
     subscription_data: {
-      billing_cycle_anchor: Math.floor(firstDayNextMonth.getTime() / 1000),
+      trial_period_days: daysUntilNextMonth,
     },
     billing_address_collection: 'required',
     payment_method_collection: 'always',
