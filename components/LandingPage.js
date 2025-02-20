@@ -134,10 +134,12 @@ const shouldShowUseButton = (service) => {
     <div className="bg-white bg-opacity-10 p-4 rounded-lg hover:bg-opacity-20 transition-all">
       <div className="flex justify-between items-start mb-2">
         <div>
-          <h4 className="font-bold text-lg">{service.servicio}</h4>
-          <p className="text-sm text-gray-300">
-            Comprado: {formatearFecha(service.createdAt)}
-          </p>
+  <h4 className="font-bold text-lg">
+    {service.servicio === 'MATRICULA' ? 'INSCRIPCIÓN' : service.servicio}
+  </h4>
+  <p className="text-sm text-gray-300">
+    Comprado: {formatearFecha(service.createdAt)}
+  </p>
           {isSubscription && service.currentPeriodEnd && (
             <p className="text-sm text-gray-300">
               Próxima renovación: {formatearFecha(service.currentPeriodEnd)}
@@ -836,7 +838,7 @@ const heroSections = [
           },
 		  {
   _id: 'matricula',
-  name: "MATRÍCULA + MENSUALIDAD",
+  name: "INSCRIPCIÓN",
   servicio: "MATRICULA",
   description: "Acceso ilimitado a las instalaciones. Incluye matrícula (20€) + mensualidad (70€/mes)",
   price: "Desde 20€ + cuota proporcional",
