@@ -22,7 +22,8 @@ const STRIPE_PRICE_IDS = {
     mode: 'subscription'
   },
   'MATRICULA': {
-    priceId: 'price_1QuIwpPQf67HyXqENflXaHgV', // Aquí pon el ID que obtuviste al crear el producto en Stripe
+    matriculaPriceId: 'price_1QuIwpPQf67HyXqENflXaHgV', // ID del precio de la matrícula (20€)
+    mensualidadPriceId: 'price_1QrfkdPQf67HyXqET5ZZgIOL', // ID del precio de la mensualidad (70€)
     mode: 'subscription',
     matricula: true
   },
@@ -58,47 +59,83 @@ export async function POST(request) {
       );
     }
 
-    // Configuración base de la sesión
-    const sessionConfig = {
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price: serviceConfig.priceId,
-          quantity: 1,
-        },
-      ],
-      mode: serviceConfig.mode,
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
-      metadata: {
-        userId: userId,
-        serviceId: serviceId
-      }
-    };
+    let sessionConfig;
 
-    // Configuración especial para matrícula
     if (serviceConfig.matricula) {
-      sessionConfig.subscription_data = {
-        trial_end: Math.floor(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).getTime() / 1000),
-      };
-      
-      // Sobreescribir line_items para incluir tanto la matrícula como la mensualidad
-      sessionConfig.line_items = [
-        {
-          price: serviceConfig.priceId, // Precio de la matrícula
-          quantity: 1,
-        },
-        {
-          price: STRIPE_PRICE_IDS['MENSUALIDAD'].priceId, // Precio de la mensualidad
-          quantity: 1,
-        }
-      ];
-    }
+      // Calcular el prorrateo para el mes actual
+      const today = new Date();
+      const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+      const remainingDays = daysInMonth - today.getDate() + 1;
+      const prorationAmount = Math.round((70 / daysInMonth) * remainingDays * 100); // 70€ en céntimos
 
-    // Para suscripciones, podemos añadir configuraciones específicas
-    if (serviceConfig.mode === 'subscription') {
-      sessionConfig.billing_address_collection = 'required';
-      sessionConfig.payment_method_collection = 'always';
+      // Fecha para el inicio de la suscripción recurrente
+      const firstDayNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+
+      sessionConfig = {
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            // Cargo único de matrícula (20€)
+            price: serviceConfig.matriculaPriceId,
+            quantity: 1,
+          },
+          {
+            // Prorrateo del mes actual
+            price_data: {
+              currency: 'eur',
+              product_data: {
+                name: 'Mensualidad (prorrateo)',
+                description: `Prorrateo del ${today.getDate()}/${today.getMonth() + 1} al ${daysInMonth}/${today.getMonth() + 1}`,
+              },
+              unit_amount: prorationAmount,
+              recurring: null,
+            },
+            quantity: 1,
+          },
+          {
+            // Suscripción mensual (70€)
+            price: serviceConfig.mensualidadPriceId,
+            quantity: 1,
+          }
+        ],
+        mode: 'subscription',
+        subscription_data: {
+          trial_end: Math.floor(firstDayNextMonth.getTime() / 1000),
+          billing_cycle_anchor: Math.floor(firstDayNextMonth.getTime() / 1000),
+        },
+        billing_address_collection: 'required',
+        payment_method_collection: 'always',
+        success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
+        metadata: {
+          userId: userId,
+          serviceId: serviceId,
+          tipo: 'matricula'
+        }
+      };
+    } else {
+      // Configuración normal para otros servicios
+      sessionConfig = {
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price: serviceConfig.priceId,
+            quantity: 1,
+          },
+        ],
+        mode: serviceConfig.mode,
+        success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
+        metadata: {
+          userId: userId,
+          serviceId: serviceId
+        }
+      };
+
+      if (serviceConfig.mode === 'subscription') {
+        sessionConfig.billing_address_collection = 'required';
+        sessionConfig.payment_method_collection = 'always';
+      }
     }
 
     const session = await stripe.checkout.sessions.create(sessionConfig);
